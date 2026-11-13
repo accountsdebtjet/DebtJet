@@ -240,6 +240,7 @@
   .int-logo{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
   .int-card p{color:var(--text-muted);font-size:12.5px;margin:10px 0 14px;}
   .int-meta{font-size:11.5px;color:var(--text-faint);margin-bottom:12px;}
+  .int-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
   .portal-frame{max-width:420px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;}
   .portal-bar{background:var(--sidebar-bg);color:#EAF2FC;padding:14px 18px;display:flex;align-items:center;gap:9px;}
@@ -521,7 +522,7 @@
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var session = null, currentOrg = null, cases = [], letterTemplates = [], currentTpl = 'reminder';
-  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [];
+  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false;
   var STATUS_LABEL = {new:'New',letter_sent:'Letter sent',awaiting_response:'Awaiting response',payment_plan:'Payment plan',escalated:'Escalated',debt_recovery:'Debt recovery',tribunal:'Tribunal',resolved:'Resolved'};
   var PIPELINE_STAGES = [{key:'statement',label:'Account Statement'},{key:'letter',label:'Letter of Demand'},{key:'debt_recovery',label:'Debt Recovery'},{key:'tribunal',label:'Tribunal'},{key:'resolved',label:'Resolved'}];
   var TRIBUNAL_OPTIONS = ['VCAT (Victoria)','QCAT (Queensland)','NCAT (New South Wales)','SAT (Western Australia)','SACAT (South Australia)','TASCAT (Tasmania)','ACAT (ACT)','NTCAT (Northern Territory)','Magistrates/Local Court','Other'];
@@ -537,6 +538,7 @@
 
   function money(n){ n = Number(n)||0; return '$'+n.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function fmt(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}); }
+  function fmtDateTime(d){ if(!d) return '—'; return new Date(d).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}); }
   function pill(status){ return '<span class="pill '+status+'">'+(STATUS_LABEL[status]||status)+'</span>'; }
 
   var toastEl = document.getElementById('toast'), toastTimer;
@@ -948,17 +950,49 @@
     var r = await sb.from('integration_connections').select('*').eq('org_id', currentOrg.id);
     var rows = r.data || [];
     integrationRows = rows;
+    var xr = await sb.from('xero_connections').select('tenant_name, last_synced_at').eq('org_id', currentOrg.id).maybeSingle();
+    var xeroConn = xr.data || null;
+    xeroConnected = !!xeroConn;
     var providers = ['xero','quickbooks','outlook','google_workspace'];
     document.getElementById('integrationsGrid').innerHTML = providers.map(function(p){
       var meta = PROVIDER_META[p];
       var row = rows.filter(function(x){return x.provider===p;})[0];
-      var connected = row && row.status === 'connected';
+      var connected = p === 'xero' ? !!xeroConn : (row && row.status === 'connected');
+      var metaLine;
+      if(p === 'xero'){
+        metaLine = connected
+          ? ('Connected to ' + (xeroConn.tenant_name || 'Xero') + ' · ' + (xeroConn.last_synced_at ? ('last synced ' + fmtDateTime(xeroConn.last_synced_at)) : 'never synced yet'))
+          : 'Not yet connected';
+      } else {
+        metaLine = connected ? 'Connected — status only, OAuth flow not built yet' : 'Not yet connected';
+      }
+      var syncBtn = (p === 'xero' && connected) ? '<button class="btn sm primary" data-xero-sync="1">Sync now</button>' : '';
+      var actionBtn = '<button class="btn sm '+(connected?'':'primary')+'" data-provider="'+p+'" data-connected="'+connected+'">'+(connected?'Disconnect':(p==='xero'?'Connect with Xero':'Connect (demo status)'))+'</button>';
       return '<div class="int-card"><div class="int-top"><div class="int-logo" style="background:'+meta.color+';">'+meta.letter+'</div>'
         +'<span class="pill '+(connected?'connected':'not_connected')+'">'+(connected?'Connected':'Not connected')+'</span></div>'
         +'<b>'+meta.label+'</b><p>'+meta.desc+'</p>'
-        +'<div class="int-meta">'+(connected ? (p==='xero' ? 'Connected — sync of live invoices not built yet' : 'Connected — status only, OAuth flow not built yet') : 'Not yet connected')+'</div>'
-        +'<button class="btn sm '+(connected?'':'primary')+'" data-provider="'+p+'" data-connected="'+connected+'">'+(connected?'Disconnect':(p==='xero'?'Connect with Xero':'Connect (demo status)'))+'</button></div>';
+        +'<div class="int-meta">'+metaLine+'</div>'
+        +'<div class="int-actions">'+syncBtn+actionBtn+'</div></div>';
     }).join('');
+    var syncBtnEl = document.querySelector('[data-xero-sync]');
+    if(syncBtnEl){
+      syncBtnEl.addEventListener('click', async function(){
+        var btn = this;
+        btn.disabled = true; btn.textContent = 'Syncing…';
+        try{
+          var res = await sb.functions.invoke('xero-sync', { body: { org_id: currentOrg.id } });
+          var errMsg = (res.error && res.error.message) || (res.data && res.data.error);
+          if(errMsg){ toast('Xero sync failed: ' + errMsg); }
+          else {
+            var d = res.data || {};
+            toast('Synced ' + (d.contactsSynced||0) + ' contact(s) and ' + (d.invoicesSynced||0) + ' invoice(s) from Xero.');
+            await loadCases(); await loadStatementsData();
+            renderDashboard(); renderCasesTable(currentCaseFilter); renderStatementContacts();
+          }
+        } catch(err){ toast('Xero sync failed: ' + err.message); }
+        await renderIntegrations();
+      });
+    }
     Array.prototype.forEach.call(document.getElementById('integrationsGrid').querySelectorAll('[data-provider]'), function(btn){
       btn.addEventListener('click', async function(){
         var p = this.getAttribute('data-provider');
@@ -972,6 +1006,10 @@
             + '&scope=' + encodeURIComponent('offline_access accounting.invoices accounting.payments accounting.contacts')
             + '&state=' + encodeURIComponent(state);
           window.location.href = authUrl;
+          return;
+        }
+        if(p === 'xero' && wasConnected){
+          toast('Disconnecting Xero isn\'t built yet — let us know if you need that next.');
           return;
         }
         var r2 = await sb.from('integration_connections').upsert({ org_id: currentOrg.id, provider: p, status: wasConnected ? 'not_connected' : 'connected', display_name: wasConnected ? null : (PROVIDER_META[p].label + ' (demo connection)'), connected_by: session.user.id }, { onConflict: 'org_id,provider' });
@@ -1174,6 +1212,11 @@
 
   /* -- import -- */
   function statementsImportInfo(provider){
+    if(provider === 'xero' && xeroConnected){
+      toast('Opening Integrations — use Sync now to pull live Xero invoices in.');
+      showView('integrations'); setActiveNav('integrations');
+      return;
+    }
     var row = integrationRows.filter(function(x){ return x.provider===provider; })[0];
     if(row && row.status === 'connected'){
       toast(PROVIDER_META[provider].label + ' is connected, but pulling live invoices into statements isn\'t built yet — use Import CSV, or add debtors & invoices under Debtors & Cases.');
