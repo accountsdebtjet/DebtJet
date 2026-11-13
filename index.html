@@ -981,7 +981,13 @@
         btn.disabled = true; btn.textContent = 'Syncing…';
         try{
           var res = await sb.functions.invoke('xero-sync', { body: { org_id: currentOrg.id } });
-          var errMsg = (res.error && res.error.message) || (res.data && res.data.error);
+          var errMsg = null;
+          if(res.error){
+            errMsg = res.error.message;
+            if(res.error.context && typeof res.error.context.json === 'function'){
+              try{ var body = await res.error.context.json(); if(body && body.error) errMsg = body.error; }catch(parseErr){}
+            }
+          } else if(res.data && res.data.error){ errMsg = res.data.error; }
           if(errMsg){ toast('Xero sync failed: ' + errMsg); }
           else {
             var d = res.data || {};
