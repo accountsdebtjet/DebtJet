@@ -277,6 +277,7 @@
   .debt-main{flex:1;display:flex;flex-direction:column;min-width:0;}
   .debt-main b{font-size:12.5px;}
   .debt-desc{color:var(--text-faint);font-size:11px;}
+  .debt-note{display:block;color:#8a6d1f;font-size:10.5px;margin-top:2px;}
   .debt-due{color:var(--text-muted);white-space:nowrap;width:84px;}
   .debt-amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;width:86px;text-align:right;}
   .stmt-selection-summary{font-size:12px;color:var(--text-muted);margin:10px 0 2px;}
@@ -522,8 +523,10 @@
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var session = null, currentOrg = null, cases = [], letterTemplates = [], currentTpl = 'reminder';
-  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false;
+  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtNotesByInvoice = {};
   var STATUS_LABEL = {new:'New',letter_sent:'Letter sent',awaiting_response:'Awaiting response',payment_plan:'Payment plan',escalated:'Escalated',debt_recovery:'Debt recovery',tribunal:'Tribunal',resolved:'Resolved'};
+  var NOTE_CATEGORY_LABEL = {promise_to_pay:'Promise to pay',dispute:'Dispute raised',payment_plan_request:'Payment plan request',reminder_ack:'Acknowledged reminder',other:'Note'};
+  function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   var PIPELINE_STAGES = [{key:'statement',label:'Account Statement'},{key:'letter',label:'Letter of Demand'},{key:'debt_recovery',label:'Debt Recovery'},{key:'tribunal',label:'Tribunal'},{key:'resolved',label:'Resolved'}];
   var TRIBUNAL_OPTIONS = ['VCAT (Victoria)','QCAT (Queensland)','NCAT (New South Wales)','SAT (Western Australia)','SACAT (South Australia)','TASCAT (Tasmania)','ACAT (ACT)','NTCAT (Northern Territory)','Magistrates/Local Court','Other'];
   var currentCaseFilter = 'all';
@@ -748,6 +751,8 @@
     if(!c) return;
     var ev = await sb.from('case_events').select('*').eq('case_id', id).order('occurred_at', { ascending: true });
     var events = ev.data || [];
+    var nt = await sb.from('case_notes').select('*, invoice:invoices(invoice_number)').eq('case_id', id).order('occurred_at', { ascending: false });
+    var notes = nt.data || [];
     var html = ''
       +'<button class="back-link" id="backToCases">← Back to Debtors &amp; Cases</button>'
       +'<div class="detail-head"><div><h2>'+c.debtor.name+'</h2><div class="meta">ABN '+(c.debtor.abn||'—')+' · '+(c.debtor.contact_name||'')+' · '+(c.debtor.email||'')+' · '+(c.debtor.phone||'')+'</div></div>'
@@ -765,6 +770,15 @@
       +'</div>'
       +'<div class="card"><div class="card-head"><h3>Log a payment</h3></div><div class="card-body">'
         +'<div class="inline-form"><label>Amount (AUD)<input type="number" step="0.01" min="0" id="paymentAmount"/></label><label>Date<input type="date" id="paymentDate" value="'+new Date().toISOString().slice(0,10)+'"/></label><button class="btn primary" id="logPaymentBtn">Log payment</button></div>'
+      +'</div></div>'
+      +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Notes from email</h3></div><div class="card-body">'
+        +(notes.length ? notes.map(function(n){
+          var tag = n.invoice && n.invoice.invoice_number ? n.invoice.invoice_number : 'General';
+          return '<div class="tl-item"><div class="tl-dot ok"></div><div class="tl-body"><b>'+(NOTE_CATEGORY_LABEL[n.category]||'Note')+'</b> <span class="pill new" style="margin-left:6px;">'+tag+'</span>'
+            +'<p>'+escapeHtml(n.summary)+'</p>'
+            +(n.email_subject||n.email_from ? '<div class="tl-date">'+(n.email_subject?escapeHtml(n.email_subject):'')+(n.email_from?' · '+escapeHtml(n.email_from):'')+'</div>' : '')
+            +'<div class="tl-date">'+fmt(n.occurred_at)+'</div></div></div>';
+        }).join('') : '<div class="empty-note">No email notes yet — use the DebtJet Chrome extension to add one from Gmail or Outlook.</div>')
       +'</div></div>'
       +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Case timeline</h3></div><div class="card-body">'
         +'<div class="timeline">'+(events.length ? events.map(function(t){
@@ -1036,6 +1050,9 @@
     var pay = invIds.length ? await sb.from('payments').select('invoice_id, amount, paid_at').eq('org_id', currentOrg.id).in('invoice_id', invIds) : { data: [] };
     var paysByInv = {};
     (pay.data || []).forEach(function(p){ (paysByInv[p.invoice_id] = paysByInv[p.invoice_id] || []).push(p); });
+    var nt = invIds.length ? await sb.from('case_notes').select('invoice_id, category, summary, occurred_at').eq('org_id', currentOrg.id).in('invoice_id', invIds).order('occurred_at', { ascending: false }) : { data: [] };
+    stmtNotesByInvoice = {};
+    (nt.data || []).forEach(function(n){ if(!stmtNotesByInvoice[n.invoice_id]) stmtNotesByInvoice[n.invoice_id] = n; });
     var today = new Date();
     stmtInvoices = invs.map(function(i){
       var paidRows = paysByInv[i.id] || [];
@@ -1069,8 +1086,10 @@
       var checked = !!stmtSelectedDebtors[d.id];
       var rows = d.invoices.map(function(inv){
         var chk = isInvoiceChecked(inv);
+        var note = stmtNotesByInvoice[inv.id];
+        var noteHtml = note ? '<span class="debt-note">'+(NOTE_CATEGORY_LABEL[note.category]||'Note')+': '+escapeHtml(note.summary)+'</span>' : '';
         return '<label class="debt-row"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
-          +'<span class="debt-main"><b>'+(inv.invoice_number||'—')+'</b><span class="debt-desc">'+(inv.description||'')+'</span></span>'
+          +'<span class="debt-main"><b>'+(inv.invoice_number||'—')+'</b><span class="debt-desc">'+(inv.description||'')+'</span>'+noteHtml+'</span>'
           +'<span class="debt-due">'+fmt(inv.due_date)+'</span>'
           +'<span class="debt-amt">'+money(inv.amount)+'</span>'
           +'<span class="pill '+(inv.fullyPaid?'resolved':(inv.isLate?'escalated':'new'))+'">'+(inv.fullyPaid?'Paid':(inv.isLate?'Late':'Open'))+'</span></label>';
