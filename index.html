@@ -605,7 +605,7 @@
   });
 
   var XERO_CLIENT_ID = '8531C25BD29F406E840BA5BDD3524D27';
-  var XERO_REDIRECT_URI = 'https://tuvfdqnuqglldpesweye.supabase.co/functions/v1/xero-oauth-callback'; // not deployed yet — Xero integration still needs rebuilding from scratch
+  var XERO_REDIRECT_URI = 'https://tuvfdqnuqglldpesweye.supabase.co/functions/v1/xero-oauth-callback';
   async function signOut(){ await sb.auth.signOut(); session = null; currentOrg = null; toast('Signed out.'); showTopLevel('auth'); }
   document.getElementById('onboardingSignOutBtn').addEventListener('click', signOut);
   document.getElementById('signOutBtn').addEventListener('click', signOut);
@@ -1018,7 +1018,10 @@
         var p = this.getAttribute('data-provider');
         var wasConnected = this.getAttribute('data-connected') === 'true';
         if(p === 'xero' && !wasConnected){
-          var state = btoa(currentOrg.id);
+          // Single-use, 10-minute state issued by the database for this signed-in member.
+          var st = await sb.rpc('create_xero_oauth_state', { p_org_id: currentOrg.id });
+          if(st.error || !st.data){ toast('Could not start Xero connection: ' + (st.error ? st.error.message : 'no state returned')); return; }
+          var state = st.data;
           var authUrl = 'https://login.xero.com/identity/connect/authorize'
             + '?response_type=code'
             + '&client_id=' + encodeURIComponent(XERO_CLIENT_ID)
