@@ -154,39 +154,37 @@ Deno.serve(async (req: Request) => {
       "If they raised hardship, offer to discuss a payment arrangement and keep the tone supportive. " +
       "Write plain text, Australian English, no markdown.";
 
-    let tool: any, task: string;
+    let schema: any, task: string;
     if (kind === "letter") {
       const tplType = ["reminder", "first_demand", "final_demand"].includes(p.template_type) ? p.template_type : "reminder";
       const { data: tpl } = await sb.from("letter_templates").select("name, subject_template, body_template").eq("org_id", orgId).eq("type", tplType).maybeSingle();
       task = "Write a " + tplType.replace("_", " ") + " letter body (greeting to sign-off text excluded; the app adds the letterhead, amounts table and signature). " +
         "Keep it under 220 words. Mention the specific invoices being demanded. The business's usual template, for tone: " +
         JSON.stringify(tpl || null);
-      tool = {
-        name: "letter_draft", description: "Return the drafted letter.",
-        input_schema: { type: "object", properties: {
-          subject: { type: "string" },
-          body: { type: "string", description: "Plain-text paragraphs separated by blank lines." },
-          demanded_invoice_numbers: { type: "array", items: { type: "string" } },
-          recommendation: { type: "string", description: "One sentence: whether to send this now, wait, or use a different letter, and why." },
-        }, required: ["subject", "body", "demanded_invoice_numbers", "recommendation"] },
-      };
+      task += " Return JSON: subject; body (plain-text paragraphs separated by blank lines); demanded_invoice_numbers; " +
+        "recommendation (one sentence: send now, wait, or use a different letter, and why).";
+      schema = { type: "object", additionalProperties: false, properties: {
+        subject: { type: "string" },
+        body: { type: "string" },
+        demanded_invoice_numbers: { type: "array", items: { type: "string" } },
+        recommendation: { type: "string" },
+      }, required: ["subject", "body", "demanded_invoice_numbers", "recommendation"] };
     } else {
       task = "Write short 'Account notes' for an account statement covering these contacts: 2-5 plain sentences the recipient will read, " +
         "noting any promises, payment plans, disputed items under review, and what is now due. Neutral and factual.";
-      tool = {
-        name: "statement_notes", description: "Return the statement notes.",
-        input_schema: { type: "object", properties: {
-          notes: { type: "string" },
-          internal_summary: { type: "string", description: "One or two sentences for staff only (not printed)." },
-        }, required: ["notes", "internal_summary"] },
-      };
+      task += " Return JSON: notes (printed on the statement); internal_summary (one or two sentences for staff only, not printed).";
+      schema = { type: "object", additionalProperties: false, properties: {
+        notes: { type: "string" },
+        internal_summary: { type: "string" },
+      }, required: ["notes", "internal_summary"] };
     }
 
     const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
-        model, max_tokens: 1500, system: rules, tools: [tool], tool_choice: { type: "tool", name: tool.name },
+        model, max_tokens: 1500, system: rules,
+        output_config: { format: { type: "json_schema", schema } },
         messages: [{ role: "user", content: "FACTS (JSON):\n" + JSON.stringify(facts) + "\n\nTASK: " + task }],
       }),
     });
@@ -195,7 +193,13 @@ Deno.serve(async (req: Request) => {
       console.error("Anthropic API error", JSON.stringify(ai));
       return json({ ok: false, error: "The AI service returned an error: " + (ai?.error?.message || aiRes.status), flags, lines, totals }, 502);
     }
-    const out = (ai.content || []).find((b: any) => b.type === "tool_use")?.input || {};
+    // Structured outputs: the JSON comes back as the text block.
+    const text = (ai.content || []).filter((b: any) => b.type === "text").map((b: any) => b.text).join("");
+    let out: any = {};
+    try { out = JSON.parse(text); } catch (_e) {
+      console.error("Could not parse AI JSON", text.slice(0, 500));
+      return json({ ok: false, error: "The AI reply couldn't be read. Please try again.", flags, lines, totals }, 502);
+    }
 
     return json({ ok: true, kind, model, flags, lines, totals, draft: out });
   } catch (e) {
