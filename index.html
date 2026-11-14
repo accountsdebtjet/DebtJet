@@ -693,7 +693,7 @@
 
     var top = cases.slice().sort(function(a,b){return b.daysOverdue-a.daysOverdue;}).slice(0,4);
     document.getElementById('attentionBody').innerHTML = top.length ? top.map(function(c){
-      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+c.debtor.name+'</td><td>'+pill(c.status)+'</td><td class="num">'+money(c.total)+'</td><td>'+c.daysOverdue+'</td><td><button class="btn sm ghost">Open →</button></td></tr>';
+      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+escapeHtml(c.debtor.name)+'</td><td>'+pill(c.status)+'</td><td class="num">'+money(c.total)+'</td><td>'+c.daysOverdue+'</td><td><button class="btn sm ghost">Open →</button></td></tr>';
     }).join('') : '<tr><td colspan="5" class="empty-note">No cases yet.</td></tr>';
     Array.prototype.forEach.call(document.getElementById('attentionBody').querySelectorAll('[data-case]'), function(el){ el.addEventListener('click', function(){ openCase(this.getAttribute('data-case')); }); });
 
@@ -715,7 +715,7 @@
   function renderCasesTable(filter){
     var rows = cases.filter(function(c){ return filter==='all' || c.status===filter; });
     document.getElementById('casesBody').innerHTML = rows.length ? rows.map(function(c){
-      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+c.debtor.name+'<div class="sub">'+c.invoiceNumber+' · ABN '+(c.debtor.abn||'—')+'</div></td>'+
+      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+escapeHtml(c.debtor.name)+'<div class="sub">'+escapeHtml(c.invoiceNumber)+' · ABN '+escapeHtml(c.debtor.abn||'—')+'</div></td>'+
         '<td class="num">'+money(c.total)+'</td><td>'+c.daysOverdue+' days</td><td>'+pill(c.status)+'</td><td><button class="btn sm ghost">Open →</button></td></tr>';
     }).join('') : '<tr><td colspan="5" class="empty-note">No cases match this filter.</td></tr>';
     Array.prototype.forEach.call(document.getElementById('casesBody').querySelectorAll('[data-case]'), function(el){ el.addEventListener('click', function(){ openCase(this.getAttribute('data-case')); }); });
@@ -735,7 +735,7 @@
     if(c.status === 'resolved') return '<div class="empty-note" style="margin-top:10px;">This case is resolved.</div>';
     var html = '<div class="action-row" style="margin-top:10px;align-items:center;">';
     if(c.status === 'tribunal'){
-      html += '<div class="info-box" style="margin:0;"><div class="k">Referred to</div><div class="v small">'+(c.tribunalBody||'—')+'</div></div>';
+      html += '<div class="info-box" style="margin:0;"><div class="k">Referred to</div><div class="v small">'+escapeHtml(c.tribunalBody||'—')+'</div></div>';
     } else if(c.status === 'debt_recovery' || c.status === 'escalated'){
       html += '<select id="tribunalSelect">'+TRIBUNAL_OPTIONS.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('')+'</select>'
         + '<button class="btn primary" id="toTribunalBtn">Refer to tribunal</button>';
@@ -755,7 +755,7 @@
     var notes = nt.data || [];
     var html = ''
       +'<button class="back-link" id="backToCases">← Back to Debtors &amp; Cases</button>'
-      +'<div class="detail-head"><div><h2>'+c.debtor.name+'</h2><div class="meta">ABN '+(c.debtor.abn||'—')+' · '+(c.debtor.contact_name||'')+' · '+(c.debtor.email||'')+' · '+(c.debtor.phone||'')+'</div></div>'
+      +'<div class="detail-head"><div><h2>'+escapeHtml(c.debtor.name)+'</h2><div class="meta">ABN '+escapeHtml(c.debtor.abn||'—')+' · '+escapeHtml(c.debtor.contact_name||'')+' · '+escapeHtml(c.debtor.email||'')+' · '+escapeHtml(c.debtor.phone||'')+'</div></div>'
         +'<div class="action-row"><button class="btn primary" data-goto="letters" data-preselect="'+c.id+'">Send letter of demand</button></div></div>'
       +'<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Escalation pipeline</h3></div><div class="card-body">'
         +renderPipeline(c) + renderPipelineActions(c)
@@ -766,7 +766,7 @@
         +'<div class="info-box"><div class="k">Interest accrued</div><div class="v">'+money(c.interest)+'<span style="font-weight:400;font-size:11.5px;color:var(--text-muted);"> · '+(c.interestRate*100).toFixed(0)+'% p.a., '+c.daysOverdue+' days</span></div></div>'
         +'<div class="info-box"><div class="k">Status</div><div class="v small">'+pill(c.status)+'</div></div>'
         +'<div class="info-box"><div class="k">Due date</div><div class="v small">'+fmt(c.dueDate)+' · '+c.daysOverdue+' days overdue</div></div>'
-        +'<div class="info-box"><div class="k">Invoices</div><div class="v small">'+c.invoices.map(function(i){return i.invoice_number;}).join(', ')+'</div></div>'
+        +'<div class="info-box"><div class="k">Invoices</div><div class="v small">'+escapeHtml(c.invoices.map(function(i){return i.invoice_number;}).join(', '))+'</div></div>'
       +'</div>'
       +'<div class="card"><div class="card-head"><h3>Log a payment</h3></div><div class="card-body">'
         +'<div class="inline-form"><label>Amount (AUD)<input type="number" step="0.01" min="0" id="paymentAmount"/></label><label>Date<input type="date" id="paymentDate" value="'+new Date().toISOString().slice(0,10)+'"/></label><button class="btn primary" id="logPaymentBtn">Log payment</button></div>'
@@ -774,7 +774,7 @@
       +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Notes from email</h3></div><div class="card-body">'
         +(notes.length ? notes.map(function(n){
           var tag = n.invoice && n.invoice.invoice_number ? n.invoice.invoice_number : 'General';
-          return '<div class="tl-item"><div class="tl-dot ok"></div><div class="tl-body"><b>'+(NOTE_CATEGORY_LABEL[n.category]||'Note')+'</b> <span class="pill new" style="margin-left:6px;">'+tag+'</span>'
+          return '<div class="tl-item"><div class="tl-dot ok"></div><div class="tl-body"><b>'+(NOTE_CATEGORY_LABEL[n.category]||'Note')+'</b> <span class="pill new" style="margin-left:6px;">'+escapeHtml(tag)+'</span>'
             +'<p>'+escapeHtml(n.summary)+'</p>'
             +(n.email_subject||n.email_from ? '<div class="tl-date">'+(n.email_subject?escapeHtml(n.email_subject):'')+(n.email_from?' · '+escapeHtml(n.email_from):'')+'</div>' : '')
             +'<div class="tl-date">'+fmt(n.occurred_at)+'</div></div></div>';
@@ -782,7 +782,7 @@
       +'</div></div>'
       +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Case timeline</h3></div><div class="card-body">'
         +'<div class="timeline">'+(events.length ? events.map(function(t){
-          return '<div class="tl-item"><div class="tl-dot '+(EVENT_TONE[t.event_type]||'ok')+'"></div><div class="tl-body"><b>'+t.title+'</b><p>'+(t.body||'')+'</p><div class="tl-date">'+fmt(t.occurred_at)+'</div></div></div>';
+          return '<div class="tl-item"><div class="tl-dot '+(EVENT_TONE[t.event_type]||'ok')+'"></div><div class="tl-body"><b>'+escapeHtml(t.title)+'</b><p>'+escapeHtml(t.body||'')+'</p><div class="tl-date">'+fmt(t.occurred_at)+'</div></div></div>';
         }).join('') : '<div class="empty-note">No events yet.</div>')+'</div>'
       +'</div></div>';
     document.getElementById('detailView').innerHTML = html;
@@ -853,7 +853,7 @@
   function renderTemplateList(){
     document.getElementById('templateList').innerHTML = ['reminder','first_demand','final_demand'].map(function(t){
       var tpl = letterTemplates.filter(function(x){return x.type===t;})[0];
-      return '<button class="tpl-btn'+(t===currentTpl?' active':'')+'" data-tpl="'+t+'"><b>'+TPL_LABEL[t]+'</b><span>'+(tpl?tpl.name:'No template saved for this org yet')+'</span></button>';
+      return '<button class="tpl-btn'+(t===currentTpl?' active':'')+'" data-tpl="'+t+'"><b>'+TPL_LABEL[t]+'</b><span>'+escapeHtml(tpl?tpl.name:'No template saved for this org yet')+'</span></button>';
     }).join('');
     Array.prototype.forEach.call(document.getElementById('templateList').querySelectorAll('.tpl-btn'), function(b){
       b.addEventListener('click', function(){ currentTpl = this.getAttribute('data-tpl'); renderTemplateList(); renderLetterPreview(); });
@@ -861,7 +861,7 @@
   }
   function renderLetterCaseOptions(){
     var sel = document.getElementById('letterCaseSelect');
-    sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+c.debtor.name+' — '+c.invoiceNumber+'</option>'; }).join('');
+    sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.debtor.name)+' — '+escapeHtml(c.invoiceNumber)+'</option>'; }).join('');
     renderTemplateList();
     renderLetterPreview();
     refreshSentLetters();
@@ -882,16 +882,16 @@
     var c = cases.filter(function(x){return x.id===id;})[0];
     var tpl = letterTemplates.filter(function(x){return x.type===currentTpl;})[0];
     if(!c || !tpl){ document.getElementById('letterPaper').innerHTML = '<div class="empty-note">No case or template available yet.</div>'; return; }
-    var subject = fillTemplate(tpl.subject_template, c);
-    var body = fillTemplate(tpl.body_template, c);
+    var subject = escapeHtml(fillTemplate(tpl.subject_template, c));
+    var body = escapeHtml(fillTemplate(tpl.body_template, c));
     document.getElementById('letterPaper').innerHTML =
-      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">on behalf of '+currentOrg.name+'</div></div>'
-      +'<div class="addr">'+fmt(new Date())+'<br>'+c.debtor.name+'<br>Attn: '+(c.debtor.contact_name||'')+'</div></div>'
+      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">on behalf of '+escapeHtml(currentOrg.name)+'</div></div>'
+      +'<div class="addr">'+fmt(new Date())+'<br>'+escapeHtml(c.debtor.name)+'<br>Attn: '+escapeHtml(c.debtor.contact_name||'')+'</div></div>'
       +'<div class="subj">'+subject+'</div><p>'+body+'</p>'
       +'<table><tr><th style="text-align:left;">Invoice principal</th><td style="text-align:right;">'+money(c.amount)+'</td></tr>'
       +'<tr><th style="text-align:left;">Interest ('+c.daysOverdue+' days @ '+(c.interestRate*100).toFixed(0)+'% p.a.)</th><td style="text-align:right;">'+money(c.interest)+'</td></tr>'
       +'<tr><th style="text-align:left;">Total now due</th><td style="text-align:right;">'+money(c.total)+'</td></tr></table>'
-      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+currentOrg.name+'<br>via DebtJet</div>';
+      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
   }
   document.getElementById('sendLetterBtn').addEventListener('click', async function(){
     var id = document.getElementById('letterCaseSelect').value;
@@ -910,14 +910,14 @@
     var r = await sb.from('letters').select('sent_at, type, send_via, status, cases(debtors(name))').eq('org_id', currentOrg.id).order('sent_at', { ascending: false }).limit(10);
     var rows = r.data || [];
     document.getElementById('sentLettersBody').innerHTML = rows.length ? rows.map(function(l){
-      return '<tr><td>'+fmt(l.sent_at)+'</td><td>'+(l.cases && l.cases.debtors ? l.cases.debtors.name : '—')+'</td><td>'+(TPL_LABEL[l.type]||l.type)+'</td><td>'+(l.send_via||'—')+'</td><td><span class="pill letter_sent">'+l.status+'</span></td></tr>';
+      return '<tr><td>'+fmt(l.sent_at)+'</td><td>'+escapeHtml(l.cases && l.cases.debtors ? l.cases.debtors.name : '—')+'</td><td>'+escapeHtml(TPL_LABEL[l.type]||l.type)+'</td><td>'+escapeHtml(l.send_via||'—')+'</td><td><span class="pill letter_sent">'+escapeHtml(l.status)+'</span></td></tr>';
     }).join('') : '<tr><td colspan="5" class="empty-note">No letters sent yet.</td></tr>';
   }
 
   /* ---------- debtor portal preview ---------- */
   function renderPortalCaseOptions(){
     var sel = document.getElementById('portalCaseSelect');
-    sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+c.debtor.name+' — '+c.invoiceNumber+'</option>'; }).join('');
+    sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.debtor.name)+' — '+escapeHtml(c.invoiceNumber)+'</option>'; }).join('');
     sel.onchange = function(){ loadPortalSnapshot(sel.value); };
     if(cases.length) loadPortalSnapshot(cases[0].id);
   }
@@ -940,11 +940,11 @@
     var s = r.data;
     document.getElementById('portalFrameHolder').innerHTML =
       '<div class="portal-frame"><div class="portal-bar"><svg width="24" height="19" viewBox="24 6 132 108" role="img" aria-label="DebtJet"><path d="M28 60 L152 12 L74 76 Z" fill="#FFC72C"/><path d="M74 76 L82 104 L93 91 Z" fill="#0B2A5B"/><path d="M74 76 L152 12 L106 110 Z" fill="#1E6FD9"/></svg><span class="n">DebtJet</span></div>'
-      +'<div class="portal-body"><h2>'+s.debtor_name+'</h2><div class="sub">'+(s.invoices&&s.invoices[0]?s.invoices[0].invoice_number:'')+' · '+s.org_name+'</div>'
+      +'<div class="portal-body"><h2>'+escapeHtml(s.debtor_name)+'</h2><div class="sub">'+escapeHtml(s.invoices&&s.invoices[0]?s.invoices[0].invoice_number:'')+' · '+escapeHtml(s.org_name)+'</div>'
       +'<div class="p-amount"><div class="big">'+money(s.total_owing)+'</div><div class="lbl">Total owing, including interest to today</div></div>'
       +'<div class="p-line"><span>Principal</span><span>'+money(s.principal)+'</span></div>'
       +'<div class="p-line"><span>Interest accrued ('+s.days_overdue+' days)</span><span>'+money(s.interest_accrued)+'</span></div>'
-      +'<div class="p-line"><span>Case status</span><span>'+(STATUS_LABEL[s.case_status]||s.case_status)+'</span></div>'
+      +'<div class="p-line"><span>Case status</span><span>'+escapeHtml(STATUS_LABEL[s.case_status]||s.case_status)+'</span></div>'
       +'<div class="p-actions">'
         +'<button class="btn primary" id="portalPayBtn">Pay in full — '+money(s.total_owing)+'</button>'
         +'<button class="btn" id="portalPlanBtn">Propose a payment plan</button>'
@@ -985,7 +985,7 @@
       return '<div class="int-card"><div class="int-top"><div class="int-logo" style="background:'+meta.color+';">'+meta.letter+'</div>'
         +'<span class="pill '+(connected?'connected':'not_connected')+'">'+(connected?'Connected':'Not connected')+'</span></div>'
         +'<b>'+meta.label+'</b><p>'+meta.desc+'</p>'
-        +'<div class="int-meta">'+metaLine+'</div>'
+        +'<div class="int-meta">'+escapeHtml(metaLine)+'</div>'
         +'<div class="int-actions">'+syncBtn+actionBtn+'</div></div>';
     }).join('');
     var syncBtnEl = document.querySelector('[data-xero-sync]');
@@ -1089,14 +1089,14 @@
         var note = stmtNotesByInvoice[inv.id];
         var noteHtml = note ? '<span class="debt-note">'+(NOTE_CATEGORY_LABEL[note.category]||'Note')+': '+escapeHtml(note.summary)+'</span>' : '';
         return '<label class="debt-row"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
-          +'<span class="debt-main"><b>'+(inv.invoice_number||'—')+'</b><span class="debt-desc">'+(inv.description||'')+'</span>'+noteHtml+'</span>'
+          +'<span class="debt-main"><b>'+escapeHtml(inv.invoice_number||'—')+'</b><span class="debt-desc">'+escapeHtml(inv.description||'')+'</span>'+noteHtml+'</span>'
           +'<span class="debt-due">'+fmt(inv.due_date)+'</span>'
           +'<span class="debt-amt">'+money(inv.amount)+'</span>'
           +'<span class="pill '+(inv.fullyPaid?'resolved':(inv.isLate?'escalated':'new'))+'">'+(inv.fullyPaid?'Paid':(inv.isLate?'Late':'Open'))+'</span></label>';
       }).join('');
       return '<div class="contact-group'+(checked?' sel':'')+'">'
         +'<label class="contact-head"><input type="checkbox" class="contact-check" data-debtor="'+d.id+'" '+(checked?'checked':'')+' />'
-        +'<span class="contact-name">'+d.name+'<span class="sub">ABN '+(d.abn||'—')+' · '+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+'</span></span>'
+        +'<span class="contact-name">'+escapeHtml(d.name)+'<span class="sub">ABN '+escapeHtml(d.abn||'—')+' · '+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+'</span></span>'
         +'<span class="contact-total">'+money(totalOwing)+'</span>'
         +'<button type="button" class="chev" data-toggle="'+d.id+'">'+(checked?'▴':'▾')+'</button></label>'
         +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'>'+rows+'</div>'
@@ -1172,15 +1172,15 @@
     var total = sel.items.reduce(function(s,i){ return s+i.amount; }, 0);
     var lm = lateMetrics(sel.debtorIds);
     document.getElementById('statementPaper').innerHTML =
-      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">Account Statement — on behalf of '+currentOrg.name+'</div></div>'
-      +'<div class="addr">Statement @ '+fmt(new Date())+'<br>Attn: '+(recipEl.value||'—')+'</div></div>'
+      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">Account Statement — on behalf of '+escapeHtml(currentOrg.name)+'</div></div>'
+      +'<div class="addr">Statement @ '+fmt(new Date())+'<br>Attn: '+escapeHtml(recipEl.value||'—')+'</div></div>'
       +'<table><thead><tr><th>Invoice</th><th>Description</th><th>Due</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>'
       +sel.items.map(function(i){
-        return '<tr><td>'+(i.invoice_number||'—')+'<div style="font-size:10.5px;color:var(--text-muted);">'+i.debtor_name+'</div></td><td>'+(i.description||'')+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.amount)+'</td><td>'+(i.fullyPaid?'Paid':(i.isLate?'Late':'Open'))+'</td></tr>';
+        return '<tr><td>'+escapeHtml(i.invoice_number||'—')+'<div style="font-size:10.5px;color:var(--text-muted);">'+escapeHtml(i.debtor_name)+'</div></td><td>'+escapeHtml(i.description||'')+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.amount)+'</td><td>'+(i.fullyPaid?'Paid':(i.isLate?'Late':'Open'))+'</td></tr>';
       }).join('')
       +'</tbody><tr><th colspan="3" style="text-align:right;">Total</th><th class="num">'+money(total)+'</th><th></th></tr></table>'
       +'<div style="margin-top:14px;font-size:12px;color:var(--text-muted);">Late payment rate (rolling 3 months): '+lm.lateCount+' of '+lm.total+' invoices ('+(lm.total?Math.round(lm.lateCount/lm.total*100):0)+'%) · '+money(lm.lateValue)+' of '+money(lm.totalValue)+'</div>'
-      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+currentOrg.name+'<br>via DebtJet</div>';
+      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
   }
   document.getElementById('stmtRecipientName').addEventListener('input', function(){ this.dataset.manual = '1'; });
 
@@ -1211,7 +1211,7 @@
     document.getElementById('savedStatementsBody').innerHTML = savedStatements.length ? savedStatements.map(function(s){
       var n = (s.items||[]).length;
       var pct = n ? Math.round((s.late_count||0)/n*100) : 0;
-      return '<tr><td>'+fmt(s.generated_at)+'</td><td class="name-cell">'+s.recipient_name+'</td><td class="num">'+money(s.total_amount)+'</td><td>'+n+'</td><td>'+pct+'%</td><td><button class="btn sm ghost" data-view-stmt="'+s.id+'">View →</button></td></tr>';
+      return '<tr><td>'+fmt(s.generated_at)+'</td><td class="name-cell">'+escapeHtml(s.recipient_name)+'</td><td class="num">'+money(s.total_amount)+'</td><td>'+n+'</td><td>'+pct+'%</td><td><button class="btn sm ghost" data-view-stmt="'+s.id+'">View →</button></td></tr>';
     }).join('') : '<tr><td colspan="6" class="empty-note">No statements generated yet.</td></tr>';
     Array.prototype.forEach.call(document.getElementById('savedStatementsBody').querySelectorAll('[data-view-stmt]'), function(btn){
       btn.addEventListener('click', function(){ viewSavedStatement(this.getAttribute('data-view-stmt')); });
@@ -1222,15 +1222,15 @@
     var recipEl = document.getElementById('stmtRecipientName');
     recipEl.value = s.recipient_name; recipEl.dataset.manual = '1';
     document.getElementById('statementPaper').innerHTML =
-      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">Account Statement — on behalf of '+currentOrg.name+'</div></div>'
-      +'<div class="addr">Statement @ '+fmt(s.generated_at)+'<br>Attn: '+s.recipient_name+'</div></div>'
+      '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">Account Statement — on behalf of '+escapeHtml(currentOrg.name)+'</div></div>'
+      +'<div class="addr">Statement @ '+fmt(s.generated_at)+'<br>Attn: '+escapeHtml(s.recipient_name)+'</div></div>'
       +'<table><thead><tr><th>Invoice</th><th>Description</th><th>Due</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>'
       +(s.items||[]).map(function(i){
-        return '<tr><td>'+(i.invoice_number||'—')+'<div style="font-size:10.5px;color:var(--text-muted);">'+(i.debtor_name||'')+'</div></td><td>'+(i.description||'')+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.amount)+'</td><td>'+(i.status==='paid'?'Paid':(i.status==='late'?'Late':'Open'))+'</td></tr>';
+        return '<tr><td>'+escapeHtml(i.invoice_number||'—')+'<div style="font-size:10.5px;color:var(--text-muted);">'+escapeHtml(i.debtor_name||'')+'</div></td><td>'+escapeHtml(i.description||'')+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.amount)+'</td><td>'+(i.status==='paid'?'Paid':(i.status==='late'?'Late':'Open'))+'</td></tr>';
       }).join('')
       +'</tbody><tr><th colspan="3" style="text-align:right;">Total</th><th class="num">'+money(s.total_amount)+'</th><th></th></tr></table>'
       +'<div style="margin-top:14px;font-size:12px;color:var(--text-muted);">Saved statement — '+fmt(s.generated_at)+'</div>'
-      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+currentOrg.name+'<br>via DebtJet</div>';
+      +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
     document.getElementById('stmtPrintBtn').disabled = false;
     toast('Showing saved statement for ' + s.recipient_name + '.');
   }
