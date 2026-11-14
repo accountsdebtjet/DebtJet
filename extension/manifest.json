@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "DebtJet for Gmail",
+  "version": "0.1.0",
+  "description": "Pick out key points from debtor emails in Gmail with Chrome's on-device AI and file them in DebtJet. The email itself never leaves your computer.",
+  "minimum_chrome_version": "138",
+  "action": {
+    "default_title": "Open DebtJet",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "permissions": ["storage", "sidePanel", "scripting", "tabs"],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://tuvfdqnuqglldpesweye.supabase.co/*"
+  ]
+}

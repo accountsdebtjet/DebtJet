@@ -209,6 +209,17 @@
   .tl-body b{font-size:13.5px;}
   .tl-body p{margin:3px 0 0;color:var(--text-muted);font-size:12.5px;}
   .tl-date{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+  .key-points{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--text);}
+  .key-points li{margin:2px 0;}
+  .note-facts{margin-top:6px;font-size:12px;color:var(--text-muted);display:flex;flex-direction:column;gap:2px;}
+  .ai-flags{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+  .ai-flag{border-radius:8px;padding:8px 10px;font-size:12.5px;}
+  .ai-flag.stop{background:var(--critical-soft);color:var(--critical);}
+  .ai-flag.caution{background:var(--warning-soft);color:var(--warning);}
+  .ai-flag.info{background:var(--info-soft);color:var(--info);}
+  .draft-fields{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .draft-fields label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:600;color:var(--text-muted);}
+  .draft-fields input,.draft-fields textarea{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;background:var(--surface);color:var(--text);resize:vertical;}
 
   .inline-form{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:10px;}
   .inline-form label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--text-muted);font-weight:600;}
@@ -438,7 +449,17 @@
                 <label style="font-size:12.5px;color:var(--text-muted);">Send via</label>
                 <select id="sendVia"><option value="outlook">Outlook</option><option value="google_workspace">Google Workspace</option></select>
               </div>
-              <div class="send-row"><button class="btn primary" id="sendLetterBtn">Send now</button></div>
+              <div class="send-row">
+                <button class="btn" id="aiDraftLetterBtn" type="button">✨ Draft with AI</button>
+                <button class="btn primary" id="sendLetterBtn">Send now</button>
+              </div>
+              <div class="ai-flags" id="letterFlags"></div>
+              <div class="draft-fields" id="letterDraftFields" hidden>
+                <label>Subject<input type="text" id="letterDraftSubject" maxlength="300"></label>
+                <label>Letter text<textarea id="letterDraftBody" rows="10"></textarea></label>
+                <div class="empty-note" id="letterDraftNote"></div>
+                <button class="btn ghost sm" id="letterDraftDiscard" type="button">Discard AI draft, use template</button>
+              </div>
             </div>
           </div>
         </div>
@@ -481,6 +502,13 @@
                 <button class="btn primary" id="stmtSaveBtn" disabled>Save statement</button>
                 <button class="btn" id="stmtPrintBtn" disabled>Print / export PDF</button>
               </div>
+              <div class="draft-fields">
+                <label>Account notes (printed on the statement)
+                  <textarea id="stmtNotes" rows="4" maxlength="4000" placeholder="Optional. Click ✨ to draft from email notes, promises and disputes."></textarea>
+                </label>
+                <button class="btn sm" id="stmtAiNotesBtn" type="button" disabled>✨ Draft notes with AI</button>
+              </div>
+              <div class="ai-flags" id="stmtFlags"></div>
             </div>
           </div>
           <div class="statement-paper" id="statementPaper"></div>
@@ -525,7 +553,8 @@
   var session = null, currentOrg = null, cases = [], letterTemplates = [], currentTpl = 'reminder';
   var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtNotesByInvoice = {};
   var STATUS_LABEL = {new:'New',letter_sent:'Letter sent',awaiting_response:'Awaiting response',payment_plan:'Payment plan',escalated:'Escalated',debt_recovery:'Debt recovery',tribunal:'Tribunal',resolved:'Resolved'};
-  var NOTE_CATEGORY_LABEL = {promise_to_pay:'Promise to pay',dispute:'Dispute raised',payment_plan_request:'Payment plan request',reminder_ack:'Acknowledged reminder',other:'Note'};
+  var NOTE_CATEGORY_LABEL = {promise_to_pay:'Promise to pay',dispute:'Dispute raised',payment_plan_request:'Payment plan request',payment_made:'Says payment made',hardship:'Hardship',reminder_ack:'Acknowledged reminder',contact_change:'Contact details changed',other:'Note'};
+  var NOTE_TONE = {dispute:'crit',hardship:'warn',payment_made:'warn',promise_to_pay:'ok',payment_plan_request:'ok'};
   function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   var PIPELINE_STAGES = [{key:'statement',label:'Account Statement'},{key:'letter',label:'Letter of Demand'},{key:'debt_recovery',label:'Debt Recovery'},{key:'tribunal',label:'Tribunal'},{key:'resolved',label:'Resolved'}];
   var TRIBUNAL_OPTIONS = ['VCAT (Victoria)','QCAT (Queensland)','NCAT (New South Wales)','SAT (Western Australia)','SACAT (South Australia)','TASCAT (Tasmania)','ACAT (ACT)','NTCAT (Northern Territory)','Magistrates/Local Court','Other'];
@@ -643,16 +672,25 @@
   /* ---------- data loading ---------- */
   async function loadCases(){
     var r = await sb.from('cases')
-      .select('id, status, interest_rate, opened_at, tribunal_body, debtors(id,name,abn,contact_name,email,phone), invoices(id,invoice_number,description,amount,due_date,issued_date,status)')
+      .select('id, status, interest_rate, opened_at, tribunal_body, debtors(id,name,abn,contact_name,email,phone), invoices(id,invoice_number,description,amount,due_date,issued_date,status), payments(invoice_id,amount)')
       .eq('org_id', currentOrg.id)
       .order('opened_at', { ascending: true });
     if(r.error){ toast('Could not load cases: ' + r.error.message); cases = []; return; }
-    var today = new Date();
+    var now = Date.now();
     cases = (r.data || []).map(function(c){
-      var open = (c.invoices||[]).filter(function(i){ return i.status !== 'paid' && i.status !== 'written_off'; });
-      var principal = open.reduce(function(s,i){ return s + Number(i.amount); }, 0);
-      var daysOverdue = open.reduce(function(mx,i){ return Math.max(mx, Math.round((today - new Date(i.due_date)) / 86400000)); }, 0);
-      var interest = Math.round(principal * Number(c.interest_rate) * Math.max(daysOverdue,0) / 365 * 100) / 100;
+      // Payments reduce each invoice's balance; interest accrues per invoice on its own
+      // outstanding balance and its own days overdue (same rules as the AI drafting function).
+      var paidBy = {};
+      (c.payments||[]).forEach(function(p){ if(p.invoice_id) paidBy[p.invoice_id] = (paidBy[p.invoice_id]||0) + Number(p.amount); });
+      var open = (c.invoices||[]).filter(function(i){ return i.status !== 'paid' && i.status !== 'written_off'; }).map(function(i){
+        var outstanding = Math.max(0, Math.round((Number(i.amount) - (paidBy[i.id]||0)) * 100) / 100);
+        var days = i.due_date ? Math.max(0, Math.floor((now - new Date(i.due_date).getTime()) / 86400000)) : 0;
+        return Object.assign({}, i, { paid: paidBy[i.id]||0, outstanding: outstanding, daysOverdue: days,
+          interest: Math.round(outstanding * Number(c.interest_rate) * days / 365 * 100) / 100 });
+      }).filter(function(i){ return i.outstanding > 0.009; });
+      var principal = Math.round(open.reduce(function(s,i){ return s + i.outstanding; }, 0) * 100) / 100;
+      var daysOverdue = open.reduce(function(mx,i){ return Math.max(mx, i.daysOverdue); }, 0);
+      var interest = Math.round(open.reduce(function(s,i){ return s + i.interest; }, 0) * 100) / 100;
       return {
         id: c.id, status: c.status, interestRate: Number(c.interest_rate), tribunalBody: c.tribunal_body,
         debtor: c.debtors || {}, invoices: open,
@@ -751,7 +789,7 @@
     if(!c) return;
     var ev = await sb.from('case_events').select('*').eq('case_id', id).order('occurred_at', { ascending: true });
     var events = ev.data || [];
-    var nt = await sb.from('case_notes').select('*, invoice:invoices(invoice_number)').eq('case_id', id).order('occurred_at', { ascending: false });
+    var nt = await sb.from('case_notes').select('*, invoice:invoices(invoice_number)').or('case_id.eq.'+id+(c.debtor.id ? ',debtor_id.eq.'+c.debtor.id : '')).order('occurred_at', { ascending: false });
     var notes = nt.data || [];
     var html = ''
       +'<button class="back-link" id="backToCases">← Back to Debtors &amp; Cases</button>'
@@ -763,7 +801,7 @@
       +'<div class="info-grid">'
         +'<div class="info-box"><div class="k">Total owing</div><div class="v">'+money(c.total)+'</div></div>'
         +'<div class="info-box"><div class="k">Principal</div><div class="v">'+money(c.amount)+'</div></div>'
-        +'<div class="info-box"><div class="k">Interest accrued</div><div class="v">'+money(c.interest)+'<span style="font-weight:400;font-size:11.5px;color:var(--text-muted);"> · '+(c.interestRate*100).toFixed(0)+'% p.a., '+c.daysOverdue+' days</span></div></div>'
+        +'<div class="info-box"><div class="k">Interest accrued</div><div class="v">'+money(c.interest)+'<span style="font-weight:400;font-size:11.5px;color:var(--text-muted);"> · '+(c.interestRate*100).toFixed(0)+'% p.a. per invoice</span></div></div>'
         +'<div class="info-box"><div class="k">Status</div><div class="v small">'+pill(c.status)+'</div></div>'
         +'<div class="info-box"><div class="k">Due date</div><div class="v small">'+fmt(c.dueDate)+' · '+c.daysOverdue+' days overdue</div></div>'
         +'<div class="info-box"><div class="k">Invoices</div><div class="v small">'+escapeHtml(c.invoices.map(function(i){return i.invoice_number;}).join(', '))+'</div></div>'
@@ -774,11 +812,18 @@
       +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Notes from email</h3></div><div class="card-body">'
         +(notes.length ? notes.map(function(n){
           var tag = n.invoice && n.invoice.invoice_number ? n.invoice.invoice_number : 'General';
-          return '<div class="tl-item"><div class="tl-dot ok"></div><div class="tl-body"><b>'+(NOTE_CATEGORY_LABEL[n.category]||'Note')+'</b> <span class="pill new" style="margin-left:6px;">'+escapeHtml(tag)+'</span>'
+          var facts = [];
+          if(n.promised_date) facts.push('Promised by '+fmt(n.promised_date)+(n.promised_amount ? ' · '+money(n.promised_amount) : ''));
+          if(n.dispute_reason) facts.push('Dispute: '+n.dispute_reason);
+          if(n.suggested_action) facts.push('Next step: '+n.suggested_action);
+          return '<div class="tl-item"><div class="tl-dot '+(NOTE_TONE[n.category]||'ok')+'"></div><div class="tl-body"><b>'+escapeHtml(NOTE_CATEGORY_LABEL[n.category]||'Note')+'</b> <span class="pill new" style="margin-left:6px;">'+escapeHtml(tag)+'</span>'
+            +(n.ai_model ? ' <span class="pill not_connected" style="margin-left:4px;">AI: '+escapeHtml(n.ai_model)+'</span>' : '')
             +'<p>'+escapeHtml(n.summary)+'</p>'
+            +((n.key_points||[]).length ? '<ul class="key-points">'+n.key_points.map(function(k){ return '<li>'+escapeHtml(k)+'</li>'; }).join('')+'</ul>' : '')
+            +(facts.length ? '<div class="note-facts">'+facts.map(function(f){ return '<div>'+escapeHtml(f)+'</div>'; }).join('')+'</div>' : '')
             +(n.email_subject||n.email_from ? '<div class="tl-date">'+(n.email_subject?escapeHtml(n.email_subject):'')+(n.email_from?' · '+escapeHtml(n.email_from):'')+'</div>' : '')
             +'<div class="tl-date">'+fmt(n.occurred_at)+'</div></div></div>';
-        }).join('') : '<div class="empty-note">No email notes yet — use the DebtJet Chrome extension to add one from Gmail or Outlook.</div>')
+        }).join('') : '<div class="empty-note">No email notes yet — open a debtor email in Gmail and use the DebtJet Chrome extension to add one.</div>')
       +'</div></div>'
       +'<div class="card" style="margin-top:16px;"><div class="card-head"><h3>Case timeline</h3></div><div class="card-body">'
         +'<div class="timeline">'+(events.length ? events.map(function(t){
@@ -794,7 +839,8 @@
       var amt = parseFloat(document.getElementById('paymentAmount').value);
       var d = document.getElementById('paymentDate').value;
       if(!amt || amt<=0){ toast('Enter an amount first.'); return; }
-      var invId = c.invoices[0] ? c.invoices[0].id : null;
+      var oldest = c.invoices.slice().sort(function(a,b){ return String(a.due_date).localeCompare(String(b.due_date)); })[0];
+      var invId = oldest ? oldest.id : null; // applied to the oldest unpaid invoice
       var r = await sb.from('payments').insert({ org_id: currentOrg.id, case_id: c.id, invoice_id: invId, amount: amt, paid_at: d, method: 'manual', source: 'manual', created_by: session.user.id });
       if(r.error){ toast('Could not log payment: ' + r.error.message); return; }
       await sb.from('case_events').insert({ org_id: currentOrg.id, case_id: c.id, event_type: 'payment_logged', title: 'Payment logged', body: money(amt) + ' recorded manually', created_by: session.user.id });
@@ -856,18 +902,18 @@
       return '<button class="tpl-btn'+(t===currentTpl?' active':'')+'" data-tpl="'+t+'"><b>'+TPL_LABEL[t]+'</b><span>'+escapeHtml(tpl?tpl.name:'No template saved for this org yet')+'</span></button>';
     }).join('');
     Array.prototype.forEach.call(document.getElementById('templateList').querySelectorAll('.tpl-btn'), function(b){
-      b.addEventListener('click', function(){ currentTpl = this.getAttribute('data-tpl'); renderTemplateList(); renderLetterPreview(); });
+      b.addEventListener('click', function(){ currentTpl = this.getAttribute('data-tpl'); renderTemplateList(); onLetterTargetChanged(); });
     });
   }
   function renderLetterCaseOptions(){
     var sel = document.getElementById('letterCaseSelect');
     sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.debtor.name)+' — '+escapeHtml(c.invoiceNumber)+'</option>'; }).join('');
     renderTemplateList();
-    renderLetterPreview();
+    onLetterTargetChanged();
     refreshSentLetters();
   }
-  function selectLetterCase(id){ document.getElementById('letterCaseSelect').value = id; renderLetterPreview(); }
-  document.getElementById('letterCaseSelect').addEventListener('change', renderLetterPreview);
+  function selectLetterCase(id){ document.getElementById('letterCaseSelect').value = id; onLetterTargetChanged(); }
+  document.getElementById('letterCaseSelect').addEventListener('change', onLetterTargetChanged);
 
   function fillTemplate(str, c){
     return (str||'').split('{{contact_name}}').join(c.debtor.contact_name || c.debtor.name)
@@ -877,32 +923,100 @@
       .split('{{due_date}}').join(fmt(c.dueDate))
       .split('{{interest_rate}}').join((c.interestRate*100).toFixed(0)+'%');
   }
+  /* ---- email-note flags (disputes, promises, hardship) — worked out locally, no AI needed ---- */
+  var letterDraft = null, letterFlags = [];
+  function textToParagraphs(t){ return escapeHtml(t||'').split(/\n{2,}/).map(function(p){ return '<p>'+p.replace(/\n/g,'<br>')+'</p>'; }).join(''); }
+  async function loadNoteFlags(c){
+    if(!c || !c.debtor || !c.debtor.id) return [];
+    var r = await sb.from('case_notes').select('invoice_id, category, summary, promised_date, promised_amount, dispute_reason, occurred_at')
+      .eq('debtor_id', c.debtor.id).order('occurred_at', { ascending: false }).limit(40);
+    var notes = r.data || [], flags = [], today = new Date().toISOString().slice(0,10), recentCut = Date.now() - 45*86400000;
+    var latestByInv = {}; notes.forEach(function(n){ if(n.invoice_id && !latestByInv[n.invoice_id]) latestByInv[n.invoice_id] = n; });
+    var disputed = c.invoices.filter(function(i){ return latestByInv[i.id] && latestByInv[i.id].category === 'dispute'; });
+    if(disputed.length) flags.push({ level:'stop', message:'Disputed by the debtor: ' + disputed.map(function(i){ var n = latestByInv[i.id]; return i.invoice_number + (n.dispute_reason ? ' ('+n.dispute_reason+')' : ''); }).join('; ') + '. Respond to the dispute before demanding payment of these invoices.' });
+    var recent = notes.filter(function(n){ return new Date(n.occurred_at).getTime() > recentCut; });
+    var promise = recent.filter(function(n){ return n.category === 'promise_to_pay' && n.promised_date; })[0];
+    if(promise && promise.promised_date >= today) flags.push({ level:'caution', message:'Debtor promised to pay' + (promise.promised_amount ? ' '+money(promise.promised_amount) : '') + ' by ' + fmt(promise.promised_date) + '. Consider waiting until then.' });
+    else if(promise) flags.push({ level:'info', message:'Debtor promised to pay by ' + fmt(promise.promised_date) + ' and has not paid.' });
+    if(recent.some(function(n){ return n.category === 'payment_made'; })) flags.push({ level:'caution', message:'Debtor says they have already paid. Check bank records before sending a demand.' });
+    if(recent.some(function(n){ return n.category === 'hardship'; })) flags.push({ level:'caution', message:'Debtor has raised financial hardship. Offer a payment arrangement and avoid pressure.' });
+    if(recent.some(function(n){ return n.category === 'payment_plan_request'; })) flags.push({ level:'info', message:'Debtor has asked for a payment plan.' });
+    return flags;
+  }
+  function renderFlags(el, flags){
+    el.innerHTML = (flags||[]).map(function(f){ return '<div class="ai-flag '+escapeHtml(f.level)+'">'+escapeHtml(f.message)+'</div>'; }).join('');
+  }
+  function currentLetterCase(){ var id = document.getElementById('letterCaseSelect').value; return cases.filter(function(x){return x.id===id;})[0]; }
+  async function onLetterTargetChanged(){
+    letterDraft = null;
+    document.getElementById('letterDraftFields').hidden = true;
+    renderLetterPreview();
+    var c = currentLetterCase();
+    letterFlags = c ? await loadNoteFlags(c) : [];
+    if(currentLetterCase() === c) renderFlags(document.getElementById('letterFlags'), letterFlags);
+  }
+
   function renderLetterPreview(){
-    var id = document.getElementById('letterCaseSelect').value;
-    var c = cases.filter(function(x){return x.id===id;})[0];
+    var c = currentLetterCase();
     var tpl = letterTemplates.filter(function(x){return x.type===currentTpl;})[0];
     if(!c || !tpl){ document.getElementById('letterPaper').innerHTML = '<div class="empty-note">No case or template available yet.</div>'; return; }
-    var subject = escapeHtml(fillTemplate(tpl.subject_template, c));
-    var body = escapeHtml(fillTemplate(tpl.body_template, c));
+    var useDraft = letterDraft && letterDraft.caseId === c.id && letterDraft.tpl === currentTpl;
+    var subject = useDraft ? escapeHtml(document.getElementById('letterDraftSubject').value) : escapeHtml(fillTemplate(tpl.subject_template, c));
+    var bodyHtml = useDraft ? textToParagraphs(document.getElementById('letterDraftBody').value) : '<p>'+escapeHtml(fillTemplate(tpl.body_template, c))+'</p>';
     document.getElementById('letterPaper').innerHTML =
       '<div class="lh-brand"><div><div class="n">DebtJet</div><div style="color:var(--text-muted);font-size:11px;">on behalf of '+escapeHtml(currentOrg.name)+'</div></div>'
       +'<div class="addr">'+fmt(new Date())+'<br>'+escapeHtml(c.debtor.name)+'<br>Attn: '+escapeHtml(c.debtor.contact_name||'')+'</div></div>'
-      +'<div class="subj">'+subject+'</div><p>'+body+'</p>'
-      +'<table><tr><th style="text-align:left;">Invoice principal</th><td style="text-align:right;">'+money(c.amount)+'</td></tr>'
-      +'<tr><th style="text-align:left;">Interest ('+c.daysOverdue+' days @ '+(c.interestRate*100).toFixed(0)+'% p.a.)</th><td style="text-align:right;">'+money(c.interest)+'</td></tr>'
+      +'<div class="subj">'+subject+'</div>'+bodyHtml
+      +'<table><tr><th style="text-align:left;">Invoice principal outstanding</th><td style="text-align:right;">'+money(c.amount)+'</td></tr>'
+      +'<tr><th style="text-align:left;">Interest to date ('+(c.interestRate*100).toFixed(0)+'% p.a. on each overdue invoice)</th><td style="text-align:right;">'+money(c.interest)+'</td></tr>'
       +'<tr><th style="text-align:left;">Total now due</th><td style="text-align:right;">'+money(c.total)+'</td></tr></table>'
       +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
   }
+  document.getElementById('letterDraftSubject').addEventListener('input', renderLetterPreview);
+  document.getElementById('letterDraftBody').addEventListener('input', renderLetterPreview);
+  document.getElementById('letterDraftDiscard').addEventListener('click', function(){ letterDraft = null; document.getElementById('letterDraftFields').hidden = true; renderLetterPreview(); });
+
+  // Calls a server function and returns its JSON even when it answers with an error status.
+  async function invokeFn(name, body){
+    var res = await sb.functions.invoke(name, { body: body });
+    if(!res.error) return res.data || {};
+    var out = { error: res.error.message };
+    if(res.error.context && typeof res.error.context.json === 'function'){
+      try{ var j = await res.error.context.json(); if(j) out = Object.assign(out, j); }catch(e){}
+    }
+    return out;
+  }
+
+  document.getElementById('aiDraftLetterBtn').addEventListener('click', async function(){
+    var c = currentLetterCase(); if(!c){ toast('Choose a case first.'); return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'Drafting…';
+    try{
+      var d = await invokeFn('draft-correspondence', { kind: 'letter', case_id: c.id, template_type: currentTpl });
+      if(d.flags){ letterFlags = d.flags; renderFlags(document.getElementById('letterFlags'), letterFlags); }
+      if(!d.ok || !d.draft){ toast(d.error || 'AI draft failed.'); return; }
+      document.getElementById('letterDraftSubject').value = d.draft.subject || '';
+      document.getElementById('letterDraftBody').value = d.draft.body || '';
+      document.getElementById('letterDraftNote').textContent = 'AI draft — read and edit before sending. ' + (d.draft.recommendation || '');
+      document.getElementById('letterDraftFields').hidden = false;
+      letterDraft = { caseId: c.id, tpl: currentTpl };
+      renderLetterPreview();
+    } finally { btn.disabled = false; btn.textContent = '✨ Draft with AI'; }
+  });
+
   document.getElementById('sendLetterBtn').addEventListener('click', async function(){
-    var id = document.getElementById('letterCaseSelect').value;
-    var c = cases.filter(function(x){return x.id===id;})[0];
+    var c = currentLetterCase();
     var tpl = letterTemplates.filter(function(x){return x.type===currentTpl;})[0];
     var sendVia = document.getElementById('sendVia').value;
     if(!c || !tpl){ toast('Nothing to send yet.'); return; }
-    var subject = fillTemplate(tpl.subject_template, c), body = fillTemplate(tpl.body_template, c);
+    var serious = (letterFlags||[]).filter(function(f){ return f.level === 'stop' || f.level === 'caution'; });
+    if(serious.length && !window.confirm('Before sending, note:\n\n• ' + serious.map(function(f){ return f.message; }).join('\n• ') + '\n\nSend anyway?')) return;
+    var useDraft = letterDraft && letterDraft.caseId === c.id && letterDraft.tpl === currentTpl;
+    var subject = useDraft ? document.getElementById('letterDraftSubject').value.trim() : fillTemplate(tpl.subject_template, c);
+    var body = useDraft ? document.getElementById('letterDraftBody').value.trim() : fillTemplate(tpl.body_template, c);
+    if(!subject || !body){ toast('The letter needs a subject and text.'); return; }
     var r = await sb.from('letters').insert({ org_id: currentOrg.id, case_id: c.id, template_id: tpl.id, type: currentTpl, subject: subject, body: body, amount_at_send: c.amount, interest_at_send: c.interest, send_via: sendVia, status: 'sent', sent_at: new Date().toISOString(), created_by: session.user.id });
     if(r.error){ toast('Could not send: ' + r.error.message); return; }
-    await sb.from('case_events').insert({ org_id: currentOrg.id, case_id: c.id, event_type: 'letter_sent', title: tpl.name + ' sent', body: 'Sent via ' + sendVia, created_by: session.user.id });
+    await sb.from('case_events').insert({ org_id: currentOrg.id, case_id: c.id, event_type: 'letter_sent', title: tpl.name + ' sent' + (useDraft ? ' (AI-drafted)' : ''), body: 'Sent via ' + sendVia, created_by: session.user.id });
     toast('Sent "'+tpl.name+'" to '+c.debtor.name+'.');
     refreshSentLetters();
   });
@@ -1163,6 +1277,7 @@
       recipEl.value = names.join(' + ');
     }
     document.getElementById('stmtSaveBtn').disabled = sel.items.length === 0;
+    document.getElementById('stmtAiNotesBtn').disabled = sel.items.length === 0;
     document.getElementById('stmtPrintBtn').disabled = sel.items.length === 0;
     document.getElementById('stmtSelectionSummary').textContent = sel.debtorIds.length
       ? sel.debtorIds.length+' contact'+(sel.debtorIds.length===1?'':'s')+' merged · '+sel.items.length+' invoice'+(sel.items.length===1?'':'s')+' selected'
@@ -1183,9 +1298,24 @@
       }).join('')
       +'</tbody><tr><th colspan="3" style="text-align:right;">Total</th><th class="num">'+money(total)+'</th><th></th></tr></table>'
       +'<div style="margin-top:14px;font-size:12px;color:var(--text-muted);">Late payment rate (rolling 3 months): '+lm.lateCount+' of '+lm.total+' invoices ('+(lm.total?Math.round(lm.lateCount/lm.total*100):0)+'%) · '+money(lm.lateValue)+' of '+money(lm.totalValue)+'</div>'
+      +(document.getElementById('stmtNotes').value.trim() ? '<div style="margin-top:14px;"><b>Account notes</b>'+textToParagraphs(document.getElementById('stmtNotes').value.trim())+'</div>' : '')
       +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
   }
   document.getElementById('stmtRecipientName').addEventListener('input', function(){ this.dataset.manual = '1'; });
+  document.getElementById('stmtNotes').addEventListener('input', renderStatementPreview);
+  document.getElementById('stmtAiNotesBtn').addEventListener('click', async function(){
+    var sel = selectedStatementItems(); if(!sel.items.length) return;
+    var btn = this; btn.disabled = true; btn.textContent = 'Drafting…';
+    try{
+      var d = await invokeFn('draft-correspondence', { kind: 'statement', debtor_ids: sel.debtorIds, invoice_ids: sel.items.map(function(i){ return i.id; }) });
+      renderFlags(document.getElementById('stmtFlags'), d.flags || []);
+      if(!d.ok || !d.draft){ toast(d.error || 'AI notes failed.'); return; }
+      document.getElementById('stmtNotes').value = d.draft.notes || '';
+      if(d.draft.internal_summary) renderFlags(document.getElementById('stmtFlags'), (d.flags || []).concat([{ level:'info', message:'For staff: ' + d.draft.internal_summary }]));
+      renderStatementPreview();
+      toast('AI notes drafted — check them before saving or printing.');
+    } finally { btn.disabled = selectedStatementItems().items.length === 0; btn.textContent = '✨ Draft notes with AI'; }
+  });
 
   document.getElementById('stmtSaveBtn').addEventListener('click', async function(){
     var sel = selectedStatementItems();
@@ -1197,7 +1327,7 @@
     var r = await sb.from('statements').insert({
       org_id: currentOrg.id, title: 'Statement — ' + recipient, recipient_name: recipient,
       debtor_ids: sel.debtorIds, items: itemsSnapshot, total_amount: total,
-      late_count: lm.lateCount, late_value: lm.lateValue, created_by: session.user.id
+      late_count: lm.lateCount, late_value: lm.lateValue, notes: document.getElementById('stmtNotes').value.trim() || null, created_by: session.user.id
     });
     if(r.error){ toast('Could not save statement: ' + r.error.message); return; }
     toast('Statement saved for ' + recipient + '.');
@@ -1233,6 +1363,7 @@
       }).join('')
       +'</tbody><tr><th colspan="3" style="text-align:right;">Total</th><th class="num">'+money(s.total_amount)+'</th><th></th></tr></table>'
       +'<div style="margin-top:14px;font-size:12px;color:var(--text-muted);">Saved statement — '+fmt(s.generated_at)+'</div>'
+      +(s.notes ? '<div style="margin-top:14px;"><b>Account notes</b>'+textToParagraphs(s.notes)+'</div>' : '')
       +'<div class="sign">Regards,<br><b>Accounts team</b><br>'+escapeHtml(currentOrg.name)+'<br>via DebtJet</div>';
     document.getElementById('stmtPrintBtn').disabled = false;
     toast('Showing saved statement for ' + s.recipient_name + '.');

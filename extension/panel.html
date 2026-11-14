@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DebtJet</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="bar">
+    <svg width="22" height="18" viewBox="24 6 132 108" aria-hidden="true"><path d="M28 60 L152 12 L74 76 Z" fill="#FFC72C"/><path d="M74 76 L82 104 L93 91 Z" fill="#FFFFFF"/><path d="M74 76 L152 12 L106 110 Z" fill="#1E6FD9"/></svg>
+    <span class="brand">Debt<span class="jet">Jet</span></span>
+    <span class="who" id="whoLine"></span>
+    <button id="signOutBtn" class="link" hidden>Sign out</button>
+  </header>
+
+  <main>
+    <!-- Signed out -->
+    <section id="viewSignIn" hidden>
+      <h1>Sign in</h1>
+      <p class="muted">Use your DebtJet staff login.</p>
+      <form id="signInForm">
+        <label>Email<input type="email" id="email" required autocomplete="email"></label>
+        <label>Password<input type="password" id="password" required autocomplete="current-password"></label>
+        <button class="btn primary" type="submit" id="signInBtn">Sign in</button>
+      </form>
+    </section>
+
+    <!-- Signed in, waiting for an email -->
+    <section id="viewReady" hidden>
+      <div class="ai-status" id="aiStatus">Checking on-device AI…</div>
+      <div class="email-card" id="emailCard" hidden>
+        <div class="k">From</div><div class="v" id="readyFrom"></div>
+        <div class="k">Subject</div><div class="v" id="readySubject"></div>
+        <div class="k">Content</div><div class="v muted" id="readyLen"></div>
+      </div>
+      <p class="muted" id="noEmailHint">Open a debtor's email in Gmail, then click <b>Read this email</b>. Highlight part of an email first to use only that part.</p>
+      <button class="btn" id="readBtn">Read this email</button>
+      <button class="btn primary" id="analyseBtn" disabled>Pick out key points</button>
+      <button class="btn ghost" id="manualBtn" type="button">Write a note without AI</button>
+      <p class="muted small">The email is read by Chrome's built-in Gemini Nano on this computer. Only the summary you approve is saved to DebtJet.</p>
+    </section>
+
+    <!-- Working -->
+    <section id="viewBusy" hidden>
+      <div class="spinner"></div>
+      <p class="muted center" id="busyText">Reading the email…</p>
+    </section>
+
+    <!-- Review -->
+    <section id="viewReview" hidden>
+      <div id="aiNotice" class="notice" hidden></div>
+
+      <label>Debtor
+        <select id="debtorSelect"></select>
+      </label>
+      <div class="muted small" id="matchReasons"></div>
+      <div class="search-row">
+        <input type="text" id="debtorSearch" placeholder="Search other debtors…">
+        <button class="btn sm" id="debtorSearchBtn" type="button">Search</button>
+      </div>
+
+      <fieldset>
+        <legend>Invoices this email is about</legend>
+        <div id="invoiceList" class="invoice-list"></div>
+      </fieldset>
+
+      <label>Type
+        <select id="category">
+          <option value="promise_to_pay">Promise to pay</option>
+          <option value="payment_plan_request">Payment plan request</option>
+          <option value="dispute">Dispute raised</option>
+          <option value="payment_made">Says payment made</option>
+          <option value="hardship">Hardship</option>
+          <option value="reminder_ack">Acknowledged reminder</option>
+          <option value="contact_change">Contact details changed</option>
+          <option value="other">Other note</option>
+        </select>
+      </label>
+
+      <label>Summary for the case file
+        <textarea id="summary" rows="3" maxlength="2000"></textarea>
+      </label>
+
+      <label>Key points <span class="hint">(one per line)</span>
+        <textarea id="keyPoints" rows="4"></textarea>
+      </label>
+
+      <div class="row2">
+        <label>Promised by<input type="date" id="promisedDate"></label>
+        <label>Amount (AUD)<input type="number" id="promisedAmount" step="0.01" min="0"></label>
+      </div>
+
+      <label>Dispute reason
+        <textarea id="disputeReason" rows="2" maxlength="1000"></textarea>
+      </label>
+
+      <label>Suggested next step
+        <textarea id="suggestedAction" rows="2" maxlength="1000"></textarea>
+      </label>
+
+      <button class="btn primary" id="saveBtn">Save to DebtJet</button>
+      <button class="btn ghost" id="backBtn" type="button">Back</button>
+    </section>
+
+    <!-- Saved -->
+    <section id="viewSaved" hidden>
+      <h1>Saved ✓</h1>
+      <p class="muted" id="savedText"></p>
+      <a class="btn primary" id="openAppLink" target="_blank" rel="noopener">Open DebtJet</a>
+      <button class="btn" id="nextBtn" type="button">Do another email</button>
+    </section>
+
+    <div id="error" class="error" hidden></div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="gmail.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
