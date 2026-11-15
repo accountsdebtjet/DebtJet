@@ -343,6 +343,7 @@
   .line-note b small{display:block;font-weight:500;font-size:10.5px;color:var(--text-faint);}
   .line-note input{width:100%;}
   .pay-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
+  .pay-grid.single{grid-template-columns:minmax(0,820px);}
   .form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
   .form-grid label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:600;color:var(--text-muted);}
   .form-grid .span2{grid-column:1/-1;}
@@ -447,11 +448,12 @@
     <nav class="nav">
       <div class="nav-label">Workspace</div>
       <button class="nav-btn active" data-view="dashboard"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6.5" height="6.5" rx="1.2"/><rect x="11" y="2.5" width="6.5" height="4" rx="1.2"/><rect x="11" y="8.5" width="6.5" height="9" rx="1.2"/><rect x="2.5" y="11" width="6.5" height="6.5" rx="1.2"/></svg>Dashboard</button>
-      <button class="nav-btn" data-view="statements"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2.5" width="14" height="15" rx="1.6"/><path d="M6 6.5h8M6 9.8h8M6 13.1h5"/></svg>Account Statements</button>
       <button class="nav-btn" data-view="cases"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="15" height="12" rx="1.6"/><path d="M2.5 8h15"/></svg>Debtors &amp; Cases</button>
+      <button class="nav-btn" data-view="interest"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="6.5" r="2"/><circle cx="13.5" cy="13.5" r="2"/><path d="M15 5L5 15"/></svg>Interest &amp; Fees</button>
+      <button class="nav-btn" data-view="statements"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2.5" width="14" height="15" rx="1.6"/><path d="M6 6.5h8M6 9.8h8M6 13.1h5"/></svg>Account Statements</button>
       <button class="nav-btn" data-view="letters"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="1.6"/><path d="M3.2 4.5l6.8 6 6.8-6"/></svg>Letters of Demand</button>
       <button class="nav-btn" data-view="portal"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="2.5" width="11" height="15" rx="2"/><path d="M8 15h4"/></svg>Debtor Portal</button>
-      <button class="nav-btn" data-view="payments"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="10.5" rx="1.6"/><path d="M2.5 8.5h15M5.5 12.5h3"/></svg>Payments &amp; fees</button>
+      <button class="nav-btn" data-view="payments"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="10.5" rx="1.6"/><path d="M2.5 8.5h15M5.5 12.5h3"/></svg>Payment Portal</button>
       <button class="nav-btn" data-view="integrations"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="3"/><circle cx="14" cy="14" r="3"/><path d="M8.2 7.8l3.6 4.4"/></svg>Integrations</button>
     </nav>
     <div class="sidebar-foot">
@@ -633,9 +635,51 @@
       <div id="portalFrameHolder"></div>
     </section>
 
-    <!-- PAYMENTS & FEES -->
-    <section class="view" data-view="payments" hidden>
+        <!-- INTEREST & FEES -->
+    <section class="view" data-view="interest" hidden>
       <div class="pay-grid">
+          <div class="card">
+            <div class="card-head"><h3>Interest &amp; fees</h3></div>
+            <div class="card-body">
+              <label class="terms-check"><input type="checkbox" id="chgTerms" /> <span><b>Our terms of trade allow us to charge interest and these fees.</b> In Australia you can only add interest or fees your contract (or the law) allows, and fees should reflect your reasonable costs. DebtJet won't add any charges until this is ticked.</span></label>
+              <div class="form-grid">
+                <label class="span2 inline-check"><input type="checkbox" id="chgInterestOn" /> Charge interest on overdue invoices</label>
+                <label>Rate (% per year)<input id="chgRate" type="number" min="0" max="100" step="0.01" /></label>
+                <label>Method<select id="chgMethod"><option value="simple">Simple daily interest</option><option value="compound_monthly">Compounding monthly</option></select></label>
+                <label>Grace period (days after due)<input id="chgGrace" type="number" min="0" max="365" step="1" /></label>
+                <label>No interest on balances under ($)<input id="chgMinBal" type="number" min="0" step="0.01" /></label>
+                <label class="span2">Cap interest at (% of the invoice balance, blank = no cap)<input id="chgCap" type="number" min="0" max="500" step="0.1" /></label>
+              </div>
+              <h4 class="sub-h">Fees</h4>
+              <div id="chgFees"></div>
+              <div class="fee-quick">
+                <button class="btn sm" type="button" data-addfee="admin">+ Admin fee</button>
+                <button class="btn sm" type="button" data-addfee="late">+ Late payment fee</button>
+                <button class="btn sm" type="button" data-addfee="reminder">+ Reminder fee</button>
+                <button class="btn sm ghost" type="button" data-addfee="custom">+ Other</button>
+              </div>
+              <div class="send-row"><button class="btn primary" id="chgSaveBtn" type="button">Save interest &amp; fees</button></div>
+              <div class="fine">Used on account statements, letters of demand and the dashboard. On statements, invoices marked as disputed attract no interest or fees and are left out of the amount due.</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Calculator</h3><span class="hint-r">Uses the settings on the left, even before you save</span></div>
+            <div class="card-body">
+              <div class="form-grid">
+                <label>Amount owing ($)<input id="calcAmount" type="number" min="0" step="0.01" value="5000" /></label>
+                <label>Due date<input id="calcDue" type="date" /></label>
+                <label>Calculate as at<input id="calcAsAt" type="date" /></label>
+                <label>Or pick an invoice<select id="calcInvoice"><option value="">—</option></select></label>
+              </div>
+              <div id="calcOut"></div>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <!-- PAYMENT PORTAL -->
+    <section class="view" data-view="payments" hidden>
+      <div class="pay-grid single">
         <div class="card">
           <div class="card-head"><h3>Where debtors pay you</h3><span class="hint-r" id="payRoleNote"></span></div>
           <div class="card-body">
@@ -661,44 +705,6 @@
             <div class="fine">Only owners and admins can change these. Every change is logged, and staff see a warning for 24 hours after the bank account changes, so a hijacked login can't quietly redirect your money.</div>
             <h4 class="sub-h">Change log</h4>
             <div id="payChangeLog"></div>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:16px;">
-            <div class="card-head"><h3>Interest &amp; fees</h3></div>
-            <div class="card-body">
-              <label class="terms-check"><input type="checkbox" id="chgTerms" /> <span><b>Our terms of trade allow us to charge interest and these fees.</b> In Australia you can only add interest or fees your contract (or the law) allows, and fees should reflect your reasonable costs. DebtJet won't add any charges until this is ticked.</span></label>
-              <div class="form-grid">
-                <label class="span2 inline-check"><input type="checkbox" id="chgInterestOn" /> Charge interest on overdue invoices</label>
-                <label>Rate (% per year)<input id="chgRate" type="number" min="0" max="100" step="0.01" /></label>
-                <label>Method<select id="chgMethod"><option value="simple">Simple daily interest</option><option value="compound_monthly">Compounding monthly</option></select></label>
-                <label>Grace period (days after due)<input id="chgGrace" type="number" min="0" max="365" step="1" /></label>
-                <label>No interest on balances under ($)<input id="chgMinBal" type="number" min="0" step="0.01" /></label>
-                <label class="span2">Cap interest at (% of the invoice balance, blank = no cap)<input id="chgCap" type="number" min="0" max="500" step="0.1" /></label>
-              </div>
-              <h4 class="sub-h">Fees</h4>
-              <div id="chgFees"></div>
-              <div class="fee-quick">
-                <button class="btn sm" type="button" data-addfee="admin">+ Admin fee</button>
-                <button class="btn sm" type="button" data-addfee="late">+ Late payment fee</button>
-                <button class="btn sm" type="button" data-addfee="reminder">+ Reminder fee</button>
-                <button class="btn sm ghost" type="button" data-addfee="custom">+ Other</button>
-              </div>
-              <div class="send-row"><button class="btn primary" id="chgSaveBtn" type="button">Save interest &amp; fees</button></div>
-              <div class="fine">Used on account statements, letters of demand and the dashboard. On statements, invoices marked as disputed attract no interest or fees and are left out of the amount due.</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-head"><h3>Calculator</h3><span class="hint-r">Uses the settings above, even before you save</span></div>
-            <div class="card-body">
-              <div class="form-grid">
-                <label>Amount owing ($)<input id="calcAmount" type="number" min="0" step="0.01" value="5000" /></label>
-                <label>Due date<input id="calcDue" type="date" /></label>
-                <label>Calculate as at<input id="calcAsAt" type="date" /></label>
-                <label>Or pick an invoice<select id="calcInvoice"><option value="">—</option></select></label>
-              </div>
-              <div id="calcOut"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -859,7 +865,7 @@
       var open = (c.invoices||[]).filter(function(i){ return i.status !== 'paid' && i.status !== 'written_off'; }).map(function(i){
         var outstanding = Math.max(0, Math.round((Number(i.amount) - (paidBy[i.id]||0)) * 100) / 100);
         var days = i.due_date ? Math.max(0, daysPastDue(i.due_date)) : 0;
-        // Interest follows Payments & fees settings once saved; before that, the case's own rate.
+        // Interest follows Interest & Fees settings once saved; before that, the case's own rate.
         var interest = orgCharges ? calcCharges(outstanding, days).interest : Math.round(outstanding * Number(c.interest_rate) * days / 365 * 100) / 100;
         return Object.assign({}, i, { paid: paidBy[i.id]||0, outstanding: outstanding, daysOverdue: days, interest: interest });
       }).filter(function(i){ return i.outstanding > 0.009; });
@@ -1055,7 +1061,8 @@
     detail:['Case detail','Full history for this debtor'],
     letters:['Letters of Demand','Draft, preview and send recovery correspondence'],
     statements:['Account Statements','Compile multi-invoice statements for one or more contacts'],
-    payments:['Payments & fees','Where debtors pay you, interest and fees'],
+    payments:['Payment Portal','Where and how debtors pay you'],
+    interest:['Interest & Fees','Interest, fees and the interest calculator'],
     portal:['Debtor Portal','Live preview of the self-service page your debtors see'],
     integrations:['Integrations','Connected accounting, email and calendar tools']
   };
@@ -2127,7 +2134,7 @@
     var w = [];
     if(bankChangedRecently()) w.push({ level: 'stop', message: 'Your bank details were changed ' + fmtDateTime(orgPayment.bank_changed_at) + '. Check with the owner that this was them before sending any statement.' });
     if(stmtTplSettings && stmtTplSettings.sections.payment && !(orgPayment && ((orgPayment.show_bank && orgPayment.bsb) || (orgPayment.show_payid && orgPayment.payid) || (orgPayment.show_bpay && orgPayment.bpay_biller_code))))
-      w.push({ level: 'info', message: 'No payment details on this statement yet. Add your BSB and account number under Payments & fees.' });
+      w.push({ level: 'info', message: 'No payment details on this statement yet. Add your BSB and account number under Payment Portal.' });
     if(m && m.totals.disputed) w.push({ level: 'caution', message: 'Disputed invoices are shown but left out of the amount due, with no interest or fees.' });
     renderFlags(document.getElementById('stmtWarn'), w);
   }
@@ -2249,7 +2256,7 @@
     toast('Showing saved statement for ' + s.recipient_name + '.');
   }
 
-  /* ---------- Payments & fees page ---------- */
+  /* ---------- Payment Portal + Interest & Fees pages ---------- */
   function canEditPayments(){ return currentOrg && (currentOrg.role === 'owner' || currentOrg.role === 'admin'); }
   var chgFeesDraft = [];
   function renderPaymentsView(){
@@ -2262,7 +2269,7 @@
     document.getElementById('payShowPayid').checked = !!p.show_payid;
     document.getElementById('payShowBpay').checked = !!p.show_bpay;
     var edit = canEditPayments();
-    Array.prototype.forEach.call(document.querySelectorAll('[data-view="payments"] input, [data-view="payments"] select, [data-view="payments"] textarea, #paySaveBtn, #chgSaveBtn, [data-addfee]'), function(el){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-view="payments"] input, [data-view="payments"] select, [data-view="payments"] textarea, [data-view="interest"] input, [data-view="interest"] select, #paySaveBtn, #chgSaveBtn, [data-addfee]'), function(el){
       if(el.closest('#calcOut') || /^calc/.test(el.id)) return;
       el.disabled = !edit;
     });
