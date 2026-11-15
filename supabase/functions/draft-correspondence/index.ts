@@ -16,6 +16,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 const DAY = 86400000;
+// Statement notes: one sentence per invoice line (v2).
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -73,15 +74,28 @@ Deno.serve(async (req: Request) => {
       : { data: [] as any[] };
 
     // ---------- Work out figures (interest per invoice, by that invoice's own days overdue) ----------
+    // Payments & fees settings (if saved) decide interest: terms must allow it, then grace, method, cap.
+    const { data: chg } = await sb.from("org_charge_settings").select("*").eq("org_id", orgId).maybeSingle();
     const now = Date.now();
-    const rate = kind === "letter" ? Number(caseRow.interest_rate || 0) : 0;
+    const rate = kind !== "letter" ? 0
+      : chg ? (chg.terms_allow_charges && chg.interest_enabled ? Number(chg.rate_pa) : 0)
+      : Number(caseRow.interest_rate || 0);
+    const interestFor = (bal: number, days: number) => {
+      if (!chg) return round2(bal * rate * days / 365);
+      const grace = Number(chg.grace_days || 0);
+      if (!rate || bal < Number(chg.min_balance || 0) || days <= grace) return 0;
+      const d = days - grace;
+      let i = chg.method === "compound_monthly" ? bal * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : bal * rate * d / 365;
+      if (chg.cap_pct) i = Math.min(i, bal * Number(chg.cap_pct));
+      return round2(i);
+    };
     const paidBy: Record<string, number> = {};
     (payments || []).forEach((x: any) => { paidBy[x.invoice_id] = (paidBy[x.invoice_id] || 0) + Number(x.amount); });
     const lines = invs.map((i: any) => {
       const paid = round2(paidBy[i.id] || 0);
       const outstanding = round2(Math.max(0, Number(i.amount) - paid));
       const days = i.due_date ? Math.max(0, Math.floor((now - new Date(i.due_date).getTime()) / DAY)) : 0;
-      const interest = round2(outstanding * rate * days / 365);
+      const interest = interestFor(outstanding, days);
       const debtor = (debtors || []).find((d: any) => d.id === i.debtor_id);
       return { id: i.id, invoice_number: i.invoice_number, debtor: debtor?.name, description: i.description,
                amount: Number(i.amount), paid, outstanding, due_date: i.due_date, days_overdue: days, interest };
@@ -152,6 +166,9 @@ Deno.serve(async (req: Request) => {
       "If an invoice is disputed, do not demand it: acknowledge the dispute and say it is being reviewed, and only demand undisputed invoices. " +
       "If the debtor promised to pay, acknowledge the promise and its date. If they say they paid, ask for remittance details. " +
       "If they raised hardship, offer to discuss a payment arrangement and keep the tone supportive. " +
+      "PRIVACY: statements and letters can be read by other people at the debtor's business. Never mention health, medical, " +
+      "family, bereavement, personal or financial-hardship circumstances, or anything else sensitive the debtor told us. " +
+      "Refer to it only neutrally, e.g. 'as discussed, we are happy to talk about a payment arrangement'. " +
       "Write plain text, Australian English, no markdown.";
 
     let schema: any, task: string;
@@ -170,13 +187,20 @@ Deno.serve(async (req: Request) => {
         recommendation: { type: "string" },
       }, required: ["subject", "body", "demanded_invoice_numbers", "recommendation"] };
     } else {
-      task = "Write short 'Account notes' for an account statement covering these contacts: 2-5 plain sentences the recipient will read, " +
-        "noting any promises, payment plans, disputed items under review, and what is now due. Neutral and factual.";
-      task += " Return JSON: notes (printed on the statement); internal_summary (one or two sentences for staff only, not printed).";
+      task = "Write notes for an account statement. The statement is a table with one row per invoice, and each note is printed " +
+        "directly under its invoice row, so keep each note to ONE short sentence (max 25 words) about that invoice only: " +
+        "a promise and its date, a payment the debtor says they made (ask for remittance), a dispute under review (say no payment is " +
+        "requested for it while the review continues), a payment arrangement on offer, or a plain reminder that it is overdue. " +
+        "Use an empty note for invoices with nothing to say beyond the figures already shown. Do not repeat the amount or due date. " +
+        "Also write an optional cover message of 1-2 sentences printed above the table (empty string if not needed).";
+      task += " Return JSON: line_notes (one entry per invoice in FACTS, with invoice_number and note); message; " +
+        "internal_summary (one or two sentences for staff only, never printed).";
       schema = { type: "object", additionalProperties: false, properties: {
-        notes: { type: "string" },
+        line_notes: { type: "array", items: { type: "object", additionalProperties: false, properties: {
+          invoice_number: { type: "string" }, note: { type: "string" } }, required: ["invoice_number", "note"] } },
+        message: { type: "string" },
         internal_summary: { type: "string" },
-      }, required: ["notes", "internal_summary"] };
+      }, required: ["line_notes", "message", "internal_summary"] };
     }
 
     const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
