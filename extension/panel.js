@@ -33,7 +33,15 @@
   const VIEWS = ["viewSignIn", "viewReady", "viewBusy", "viewReview", "viewSaved"];
   function show(view) { VIEWS.forEach((v) => { $(v).hidden = v !== view; }); }
   function showError(msg) { const e = $("error"); e.textContent = msg || ""; e.hidden = !msg; }
-  function busy(text) { $("busyText").textContent = text; show("viewBusy"); }
+  let busyTimer = null;
+  function busy(text, watchdog) {
+    $("busyText").textContent = text;
+    $("busyHelp").hidden = true; $("busyManualBtn").hidden = true;
+    clearTimeout(busyTimer);
+    if (watchdog) busyTimer = setTimeout(() => { $("busyHelp").hidden = false; $("busyManualBtn").hidden = false; }, 20000);
+    show("viewBusy");
+  }
+  function notBusy() { clearTimeout(busyTimer); }
   function setAiStatus(text, tone) { const el = $("aiStatus"); el.textContent = text; el.className = "ai-status" + (tone ? " " + tone : ""); }
 
   /* ---------------- Auth (Supabase REST) ---------------- */
@@ -236,12 +244,15 @@
   async function runNano(e, cand) {
     const monitor = (m) => {
       m.addEventListener("downloadprogress", (ev) => {
-        busy("Downloading Chrome's on-device AI… " + Math.round((ev.loaded || 0) * 100) + "% (one-off; keep this panel open)");
+        const pct = Math.round((ev.loaded || 0) * 100);
+        $("busyText").textContent = pct >= 100
+          ? "Download finished. Getting the AI ready…"
+          : "Downloading Chrome's on-device AI… " + pct + "% (one-off; keep Chrome open)";
       });
     };
     const lm = await LanguageModel.create({ ...LM_OPTIONS, monitor, initialPrompts: [{ role: "system", content: SYSTEM_PROMPT }] });
     try {
-      busy("Picking out key points on this computer…");
+      busy("Picking out key points on this computer…", true);
       const invoiceHint = cand && cand.invoices.length
         ? "Known open invoices for the likely debtor (" + cand.name + "): " +
           cand.invoices.map((i) => i.invoice_number + " $" + Number(i.amount).toFixed(2) + " due " + i.due_date).join("; ")
@@ -327,18 +338,24 @@
     if (!email) return;
     candidates = matchDebtors(email);
     try {
-      busy("Starting on-device AI…");
+      busy("Starting on-device AI…", true);
+      analyseRun = (analyseRun || 0) + 1; const run = analyseRun;
       const result = await runNano(email, candidates[0] || null);
+      notBusy();
+      if (run !== analyseRun || $("viewBusy").hidden) return; // user chose to write the note themselves
       usedAi = true;
       openReview(result, "AI suggestion: check every field before saving.");
     } catch (err) {
+      notBusy();
       usedAi = false;
+      if ($("viewBusy").hidden) return;
       openReview({}, "The on-device AI couldn't read this email (" + (err && err.message ? err.message : err) + "). Fill in the note yourself.");
     }
   }
 
+  let analyseRun = 0;
   function manualNote() {
-    showError(null);
+    showError(null); notBusy(); analyseRun++;
     candidates = email ? matchDebtors(email) : [];
     usedAi = false;
     openReview({}, null);
@@ -438,6 +455,7 @@
   $("readBtn").addEventListener("click", () => readEmail().catch((e) => showError(e.message)));
   $("analyseBtn").addEventListener("click", () => analyse());
   $("manualBtn").addEventListener("click", manualNote);
+  $("busyManualBtn").addEventListener("click", manualNote);
   $("debtorSelect").addEventListener("change", () => renderDebtorDetails());
   $("debtorSearchBtn").addEventListener("click", searchDebtors);
   $("debtorSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); searchDebtors(); } });
