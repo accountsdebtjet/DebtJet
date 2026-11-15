@@ -120,6 +120,10 @@ for ci, c in enumerate(CLIENTS):
         })
         inv_no += 1
 assert len(invoices) == 150
+# Every invoice gets a reference (blank ones become a PO number; no extra randomness, so emails are unchanged).
+for idx, inv in enumerate(invoices):
+    if not inv["reference"]:
+        inv["reference"] = f"PO {41000 + idx}"
 
 def addr(c):
     nums = random.Random(c[1]).randint(2, 220)
