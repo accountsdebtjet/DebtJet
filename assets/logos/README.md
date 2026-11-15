@@ -1,14 +1,21 @@
 # Partner logos
 
-DebtJet shows a partner's logo when a file with the matching name is in this folder. If the file is missing, it shows the plain text label (or the coloured letter tile on Integrations) instead.
+These are official files from each company's brand pages, supplied by DebtJet. They are used only inside the app, next to the connection controls, so users can recognise which system they're connecting. Don't recolour, crop, stretch or redraw them.
 
-| File name | Used for |
+| File | Where it shows |
 | --- | --- |
-| `xero.svg` | Account Statements source bar, Integrations |
-| `quickbooks.svg` | Account Statements source bar, Integrations |
-| `outlook.svg` | Integrations |
-| `google-workspace.svg` | Integrations |
+| `xero-midnight.svg` | Xero, light theme: "Invoices from" bar and Integrations card |
+| `xero-white.svg` | Xero, dark theme |
+| `quickbooks-dark-text.webp` | QuickBooks preferred logo, light theme |
+| `quickbooks-white-text.webp` | QuickBooks preferred logo, dark theme |
 
-Only use each company's **official** logo files, downloaded from its own brand or developer pages. Follow its brand guidelines for partner apps, which cover minimum size, clear space, colours and wording such as "Connect to Xero". Don't recolour, redraw or crop them.
+## Rules followed
 
-SVG works best. PNG also works if you change the file name in `index.html`. The logos display about 18 px high on buttons, and fill a small square on Integrations cards.
+- **Size:** the partner logos are always smaller and less prominent than DebtJet's own brand.
+- **QuickBooks:** the preferred logo is used, never on a green background and never inside a containing shape.
+- **Xero:** not used on the marketing site or in DebtJet's own logo. Marketing use of the Xero brand (website, ads, "works with Xero" claims) waits for Xero App Partner status and the partner badge. Questions go to api@xero.com.
+- **QuickBooks marketing:** the only approved wording is "Member: Intuit Developer Program". Never "Intuit partner".
+
+## Not used
+
+Google Workspace logos and product icons (Gmail, Calendar, Drive, Docs, Meet) are **not** used in DebtJet. Google's downloadable kit is for a customer's internal communications only. Third-party apps need Google's permission to use Google logos. DebtJet refers to Google products in text instead, for example "for Gmail™".

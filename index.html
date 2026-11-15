@@ -247,9 +247,6 @@
   select{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--text);font-size:13px;}
 
   .int-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-  .int-logo{position:relative;overflow:hidden;}
-  .int-logo.has-img{background:#fff !important;color:transparent;border:1px solid var(--border);}
-  .int-logo-img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;}
   .int-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
   .int-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
   .int-logo{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
@@ -277,7 +274,19 @@
   .src-label{font-size:12px;font-weight:600;color:var(--text-muted);margin-right:2px;}
   .src-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-strong);background:var(--surface);border-radius:9px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;}
   .src-btn:hover{border-color:var(--accent);}
-  .src-logo{height:18px;width:auto;display:block;}
+  .src-logo{height:16px;width:auto;display:block;}
+  .src-btn.has-logo .src-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+  .lg-dark{display:none !important;}
+  :root[data-theme="dark"] .lg-dark{display:block !important;}
+  :root[data-theme="dark"] .lg-light{display:none !important;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .lg-dark{display:block !important;}
+    :root:not([data-theme="light"]) .lg-light{display:none !important;}
+  }
+  .int-wordmark{height:38px;display:flex;align-items:center;}
+  .int-wordmark img{height:22px;width:auto;}
+  .src-logo[src*=quickbooks]{height:22px;}
+  .int-wordmark img[src*=quickbooks]{height:32px;}
   .src-ico{font-size:14px;color:var(--text-muted);}
   .src-state{font-size:11px;font-weight:500;color:var(--text-faint);}
   .src-state.on{color:#1f7a45;}
@@ -643,8 +652,8 @@
     <section class="view" data-view="statements" hidden>
       <div class="src-bar">
         <span class="src-label">Invoices from</span>
-        <button class="src-btn" id="stmtImportXeroBtn" type="button"><img class="src-logo" src="assets/logos/xero.svg" alt="" onerror="this.remove()" /><span class="src-name">Xero</span><span class="src-state" id="srcXeroState"></span></button>
-        <button class="src-btn" id="stmtImportQbBtn" type="button"><img class="src-logo" src="assets/logos/quickbooks.svg" alt="" onerror="this.remove()" /><span class="src-name">QuickBooks</span><span class="src-state" id="srcQbState"></span></button>
+        <button class="src-btn" id="stmtImportXeroBtn" type="button"><img class="src-logo lg-light" src="assets/logos/xero-midnight.svg" alt="Xero" onload="this.closest('.src-btn').classList.add('has-logo')" onerror="this.remove()" /><img class="src-logo lg-dark" src="assets/logos/xero-white.svg" alt="Xero" onerror="this.remove()" /><span class="src-name">Xero</span><span class="src-state" id="srcXeroState"></span></button>
+        <button class="src-btn" id="stmtImportQbBtn" type="button"><img class="src-logo lg-light" src="assets/logos/quickbooks-dark-text.webp" alt="QuickBooks" onload="this.closest('.src-btn').classList.add('has-logo')" onerror="this.remove()" /><img class="src-logo lg-dark" src="assets/logos/quickbooks-white-text.webp" alt="QuickBooks" onerror="this.remove()" /><span class="src-name">QuickBooks</span><span class="src-state" id="srcQbState"></span></button>
         <button class="src-btn" id="stmtImportCsvBtn" type="button"><span class="src-ico" aria-hidden="true">⇪</span><span class="src-name">CSV file</span></button>
         <button class="linkbtn" id="stmtCsvTemplate" type="button" title="Download a CSV with the right column headings">CSV template</button>
         <input type="file" id="stmtCsvInput" accept=".csv" hidden />
@@ -1413,10 +1422,10 @@
 
   /* ---------- integrations ---------- */
   var PROVIDER_META = {
-    xero: { label:'Xero', color:'#13B5EA', letter:'X', logo:'assets/logos/xero.svg', desc:'Syncs invoices, contacts and payment status. New overdue invoices create a case automatically.' },
-    quickbooks: { label:'QuickBooks', color:'#2CA01C', letter:'Q', logo:'assets/logos/quickbooks.svg', desc:'Syncs invoices and customer records for businesses using QuickBooks Online instead of Xero.' },
-    outlook: { label:'Outlook', color:'#2E8FC4', letter:'O', logo:'assets/logos/outlook.svg', desc:'Sends letters of demand and reminders, and logs replies against the matching case automatically.' },
-    google_workspace: { label:'Google Workspace', color:'#D9B310', letter:'G', logo:'assets/logos/google-workspace.svg', desc:'Alternative send channel for letters and reminders, plus calendar holds for follow-up call reminders.' }
+    xero: { label:'Xero', color:'#13B5EA', letter:'X', logo:['assets/logos/xero-midnight.svg','assets/logos/xero-white.svg'], desc:'Syncs invoices, contacts and payment status. New overdue invoices create a case automatically.' },
+    quickbooks: { label:'QuickBooks', color:'#2CA01C', letter:'Q', logo:['assets/logos/quickbooks-dark-text.webp','assets/logos/quickbooks-white-text.webp'], desc:'Syncs invoices and customer records for businesses using QuickBooks Online instead of Xero.' },
+    outlook: { label:'Outlook', color:'#2E8FC4', letter:'O', desc:'Sends letters of demand and reminders, and logs replies against the matching case automatically.' },
+    google_workspace: { label:'Google Workspace', color:'#D9B310', letter:'G', desc:'Alternative send channel for letters and reminders, plus calendar holds for follow-up call reminders.' }
   };
   async function renderIntegrations(){
     var r = await sb.from('integration_connections').select('*').eq('org_id', currentOrg.id);
@@ -1440,7 +1449,9 @@
       }
       var syncBtn = (p === 'xero' && connected) ? '<button class="btn sm primary" data-xero-sync="1">Sync now</button>' : '';
       var actionBtn = '<button class="btn sm '+(connected?'':'primary')+'" data-provider="'+p+'" data-connected="'+connected+'">'+(connected?'Disconnect':(p==='xero'?'Connect with Xero':'Connect (demo status)'))+'</button>';
-      return '<div class="int-card"><div class="int-top"><div class="int-logo" style="background:'+meta.color+';">'+meta.letter+(meta.logo ? '<img class="int-logo-img" src="'+meta.logo+'" alt="" onerror="this.remove()" onload="this.parentNode.classList.add(\'has-img\')" />' : '')+'</div>'
+      return '<div class="int-card"><div class="int-top">'+(meta.logo
+          ? '<div class="int-wordmark"><img class="lg-light" src="'+meta.logo[0]+'" alt="'+escapeHtml(meta.label)+'" /><img class="lg-dark" src="'+meta.logo[1]+'" alt="'+escapeHtml(meta.label)+'" /></div>'
+          : '<div class="int-logo" style="background:'+meta.color+';">'+meta.letter+'</div>')
         +'<span class="pill '+(connected?'connected':'not_connected')+'">'+(connected?'Connected':'Not connected')+'</span></div>'
         +'<b>'+meta.label+'</b><p>'+meta.desc+'</p>'
         +'<div class="int-meta">'+escapeHtml(metaLine)+'</div>'
