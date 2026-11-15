@@ -1,0 +1,9 @@
+{
+  "name": "debtjet-summarise",
+  "version": "1.0.0",
+  "description": "DebtJet email summariser for Google Cloud Run (Gemini on Vertex AI, keyless service account)",
+  "main": "index.js",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.js" }
+}

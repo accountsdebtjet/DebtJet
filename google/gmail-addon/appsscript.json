@@ -1,0 +1,23 @@
+{
+  "timeZone": "Australia/Brisbane",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/gmail.addons.execute",
+    "https://www.googleapis.com/auth/gmail.addons.current.message.readonly",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.locale"
+  ],
+  "addOns": {
+    "common": {
+      "name": "DebtJet",
+      "logoUrl": "https://accountsdebtjet.github.io/DebtJet/extension/icons/icon128.png",
+      "layoutProperties": { "primaryColor": "#0B2A5B", "secondaryColor": "#1E6FD9" },
+      "homepageTrigger": { "runFunction": "onHomepage" },
+      "openLinkUrlPrefixes": ["https://accountsdebtjet.github.io/"]
+    },
+    "gmail": {
+      "contextualTriggers": [{ "unconditional": {}, "onTriggerFunction": "onGmailMessage" }]
+    }
+  }
+}

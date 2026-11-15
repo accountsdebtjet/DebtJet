@@ -1102,7 +1102,20 @@
         +'<b>'+meta.label+'</b><p>'+meta.desc+'</p>'
         +'<div class="int-meta">'+escapeHtml(metaLine)+'</div>'
         +'<div class="int-actions">'+syncBtn+actionBtn+'</div></div>';
-    }).join('');
+    }).join('')
+      + '<div class="int-card"><div class="int-top"><div class="int-logo" style="background:#EA4335;">M</div>'
+      + '<span class="pill not_connected">Add-on</span></div>'
+      + '<b>Gmail add-on</b><p>Summarise debtor emails with Google\'s Gemini inside Gmail and file the key points against the right case. Emails stay with Google; only the summary you approve comes to DebtJet.</p>'
+      + '<div class="int-meta" id="addonCodeMeta">Install the DebtJet add-on in Gmail, then get a one-time code here to connect it to your login.</div>'
+      + '<div class="int-actions"><button class="btn sm primary" id="addonCodeBtn">Get connection code</button></div></div>';
+    document.getElementById('addonCodeBtn').addEventListener('click', async function(){
+      var btn = this; btn.disabled = true; btn.textContent = 'Creating…';
+      try{
+        var d = await invokeFn('addon-link', {});
+        if(!d.ok || !d.code){ toast(d.error || 'Could not create a code.'); return; }
+        document.getElementById('addonCodeMeta').innerHTML = 'Your code (valid for 10 minutes, works once): <b style="font-size:16px;letter-spacing:0.08em;color:var(--text);">'+escapeHtml(d.code)+'</b><br>Type it into the DebtJet panel in Gmail.';
+      } finally { btn.disabled = false; btn.textContent = 'Get a new code'; }
+    });
     var syncBtnEl = document.querySelector('[data-xero-sync]');
     if(syncBtnEl){
       syncBtnEl.addEventListener('click', async function(){
