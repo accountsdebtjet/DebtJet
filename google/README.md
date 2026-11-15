@@ -37,10 +37,10 @@ gcloud run deploy debtjet-summarise \
 
 3. If it asks to enable APIs (Cloud Run, Cloud Build, Artifact Registry) or to create a repository, answer **Y**.
 4. When it finishes, copy the **Service URL**. It looks like `https://debtjet-summarise-123456789012.australia-southeast1.run.app`.
-5. Check it's running with this command. The expected reply is `{"ok":true,...}`.
+5. Check it's running with this command. The expected reply is `{"ok":true,...}`. (Cloud Run reserves paths ending in "z", so `/healthz` returns a Google 404 page.)
 
 ```bash
-curl https://YOUR-SERVICE-URL/healthz
+curl https://YOUR-SERVICE-URL/health
 ```
 
 **About `--no-invoker-iam-check`:** anyone can reach the URL, but the service refuses every request that doesn't carry a valid DebtJet login. New Google organisations block the older "allow unauthenticated" option, which is why this flag is used instead.

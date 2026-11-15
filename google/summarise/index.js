@@ -158,7 +158,7 @@ async function summarise(email, hints) {
 // ---------- HTTP ----------
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === "GET" && req.url === "/healthz") return send(res, 200, { ok: true, model: MODEL_ID });
+    if (req.method === "GET" && (req.url === "/health" || req.url === "/healthz")) return send(res, 200, { ok: true, model: MODEL_ID });
     if (req.method !== "POST" || req.url !== "/summarise") return send(res, 404, { error: "Not found" });
     if (!SUPABASE_ANON_KEY) return send(res, 500, { error: "SUPABASE_ANON_KEY is not configured" });
 
