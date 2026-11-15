@@ -342,6 +342,47 @@
   .line-note b{font-size:12px;padding-top:7px;}
   .line-note b small{display:block;font-weight:500;font-size:10.5px;color:var(--text-faint);}
   .line-note input{width:100%;}
+  .chg-kpis{grid-template-columns:repeat(5,1fr);margin-bottom:14px;}
+  .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:9px;overflow:hidden;margin-bottom:14px;}
+  .seg-btn{background:var(--surface);border:none;padding:8px 16px;font:inherit;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-right:1px solid var(--border);}
+  .seg-btn:last-child{border-right:none;}
+  .seg-btn.active{background:var(--accent);color:#fff;}
+  .chg-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .chg-bar select,.chg-bar input{border:1px solid var(--border-strong);border-radius:8px;padding:7px 10px;font:inherit;font-size:13px;background:var(--surface);color:var(--text);}
+  .chg-bar input{flex:1 1 200px;}
+  .chg-bulk{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);border-radius:9px;padding:8px 10px;margin-bottom:10px;font-size:12.5px;font-weight:600;}
+  .chg-bulk[hidden]{display:none;}
+  .chg-table-wrap{max-height:620px;overflow:auto;border:1px solid var(--border);border-radius:10px;}
+  .chg-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .chg-table th{position:sticky;top:0;padding:8px 8px !important;background:var(--surface-alt);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding:8px 9px;border-bottom:1px solid var(--border);z-index:1;white-space:nowrap;}
+  .chg-table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .chg-table .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .chg-table tr.dim td{color:var(--text-faint);}
+  .chg-table td .sub{display:block;font-size:11px;color:var(--text-faint);}
+  .chg-table tfoot td{font-weight:700;background:var(--surface-alt);position:sticky;bottom:0;}
+  .chg-pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap;}
+  .chg-pill.applied{background:#e6f4ea;color:#1f7a45;}
+  .chg-pill.pending{background:#fff5e6;color:#9a5b00;}
+  .chg-pill.waived,.chg-pill.off,.chg-pill.nothing{background:var(--surface-alt);color:var(--text-muted);}
+  .chg-pill.waiting{background:#eef4ff;color:#2f5bb7;}
+  .chg-pill.disputed{background:#fdecec;color:#a32626;}
+  .chg-acts{display:flex;gap:4px;justify-content:flex-end;}
+  .chg-acts button{border:1px solid var(--border-strong);background:var(--surface);border-radius:6px;padding:3px 8px;font-size:11.5px;cursor:pointer;color:var(--text);}
+  .chg-acts button.go{border-color:#1f7a45;color:#1f7a45;}
+  .chg-acts button:disabled{opacity:.4;cursor:default;}
+  .chg-detail td{background:var(--surface-alt);font-size:12px;color:var(--text-muted);}
+  .mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mode-card{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--border-strong);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:12px;color:var(--text-muted);line-height:1.45;}
+  .mode-card b{display:block;color:var(--text);font-size:13px;margin-bottom:2px;}
+  .mode-card:has(input:checked){border-color:var(--accent);background:var(--accent-soft);}
+  .start-quick{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:var(--text-faint);}
+  .chip{border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--text);}
+  .chip.on{border-color:var(--accent);background:var(--accent-soft);font-weight:600;}
+  .start-explain{font-size:12px;color:var(--text-muted);background:var(--surface-alt);border-radius:8px;padding:8px 10px;}
+  .calc-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+  [data-chgpane][hidden]{display:none;}
+  #chgRules,[data-chgpane="calc"]{max-width:880px;}
+  .chg-table td:last-child{white-space:nowrap;}
   .pay-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
   .pay-grid.single{grid-template-columns:minmax(0,820px);}
   .form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
@@ -389,6 +430,8 @@
     .info-grid{grid-template-columns:1fr;}
     .int-grid{grid-template-columns:1fr;}
     .pay-grid{grid-template-columns:1fr;}
+    .chg-kpis{grid-template-columns:repeat(2,1fr);}
+    .mode-cards,.calc-grid{grid-template-columns:1fr 1fr;}
   }
   @media (max-width:640px){
     .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:20;transform:translateX(-100%);transition:transform .2s ease;}
@@ -637,43 +680,107 @@
 
         <!-- INTEREST & FEES -->
     <section class="view" data-view="interest" hidden>
-      <div class="pay-grid">
-          <div class="card">
-            <div class="card-head"><h3>Interest &amp; fees</h3></div>
-            <div class="card-body">
-              <label class="terms-check"><input type="checkbox" id="chgTerms" /> <span><b>Our terms of trade allow us to charge interest and these fees.</b> In Australia you can only add interest or fees your contract (or the law) allows, and fees should reflect your reasonable costs. DebtJet won't add any charges until this is ticked.</span></label>
-              <div class="form-grid">
-                <label class="span2 inline-check"><input type="checkbox" id="chgInterestOn" /> Charge interest on overdue invoices</label>
-                <label>Rate (% per year)<input id="chgRate" type="number" min="0" max="100" step="0.01" /></label>
-                <label>Method<select id="chgMethod"><option value="simple">Simple daily interest</option><option value="compound_monthly">Compounding monthly</option></select></label>
-                <label>Grace period (days after due)<input id="chgGrace" type="number" min="0" max="365" step="1" /></label>
-                <label>No interest on balances under ($)<input id="chgMinBal" type="number" min="0" step="0.01" /></label>
-                <label class="span2">Cap interest at (% of the invoice balance, blank = no cap)<input id="chgCap" type="number" min="0" max="500" step="0.1" /></label>
-              </div>
-              <h4 class="sub-h">Fees</h4>
-              <div id="chgFees"></div>
-              <div class="fee-quick">
-                <button class="btn sm" type="button" data-addfee="admin">+ Admin fee</button>
-                <button class="btn sm" type="button" data-addfee="late">+ Late payment fee</button>
-                <button class="btn sm" type="button" data-addfee="reminder">+ Reminder fee</button>
-                <button class="btn sm ghost" type="button" data-addfee="custom">+ Other</button>
-              </div>
-              <div class="send-row"><button class="btn primary" id="chgSaveBtn" type="button">Save interest &amp; fees</button></div>
-              <div class="fine">Used on account statements, letters of demand and the dashboard. On statements, invoices marked as disputed attract no interest or fees and are left out of the amount due.</div>
-            </div>
+      <div class="kpi-row chg-kpis" id="chgKpis"></div>
+      <div class="seg" role="tablist">
+        <button type="button" class="seg-btn active" data-chgtab="invoices">Overdue invoices</button>
+        <button type="button" class="seg-btn" data-chgtab="rules">Rules</button>
+        <button type="button" class="seg-btn" data-chgtab="calc">Calculator</button>
+      </div>
+      <div class="stmt-warn" id="chgBanner"></div>
+
+      <div class="card" data-chgpane="invoices">
+        <div class="card-body" style="padding-top:16px;">
+          <div class="chg-bar">
+            <select id="chgFilter" aria-label="Show">
+              <option value="all">All overdue invoices</option>
+              <option value="applied">Charging</option>
+              <option value="pending">Awaiting approval</option>
+              <option value="waived">Waived</option>
+              <option value="waiting">Not started yet</option>
+              <option value="disputed">Disputed</option>
+              <option value="none">No charges</option>
+            </select>
+            <select id="chgAge" aria-label="Days overdue">
+              <option value="0">Any days overdue</option>
+              <option value="10">10+ days</option>
+              <option value="30">30+ days</option>
+              <option value="60">60+ days</option>
+              <option value="90">90+ days</option>
+            </select>
+            <input type="search" id="chgSearch" placeholder="Search debtor or invoice…" aria-label="Search" />
+            <button type="button" class="btn sm ghost" id="chgExport">⇩ CSV</button>
           </div>
-          <div class="card">
-            <div class="card-head"><h3>Calculator</h3><span class="hint-r">Uses the settings on the left, even before you save</span></div>
-            <div class="card-body">
-              <div class="form-grid">
-                <label>Amount owing ($)<input id="calcAmount" type="number" min="0" step="0.01" value="5000" /></label>
-                <label>Due date<input id="calcDue" type="date" /></label>
-                <label>Calculate as at<input id="calcAsAt" type="date" /></label>
-                <label>Or pick an invoice<select id="calcInvoice"><option value="">—</option></select></label>
-              </div>
-              <div id="calcOut"></div>
-            </div>
+          <div class="chg-bulk" id="chgBulk" hidden>
+            <span id="chgBulkCount"></span>
+            <button type="button" class="btn sm primary" data-bulk="apply">Apply charges</button>
+            <button type="button" class="btn sm" data-bulk="waive">Waive…</button>
+            <button type="button" class="btn sm ghost" data-bulk="reset">Back to the rule</button>
           </div>
+          <div class="chg-table-wrap"><table class="chg-table" id="chgTable"></table></div>
+          <div class="fine">Charges shown are as at today, using the rules on the Rules tab. “Charging” amounts appear on statements, letters and the dashboard. Decisions are logged with who made them and when.</div>
+        </div>
+      </div>
+
+      <div class="card" data-chgpane="rules" hidden id="chgRules">
+        <div class="card-head"><h3>Rules</h3><span class="hint-r" id="chgRoleNote"></span></div>
+        <div class="card-body">
+          <label class="terms-check"><input type="checkbox" id="chgTerms" /> <span><b>Our terms of trade allow us to charge interest and these fees.</b> In Australia you can only add interest or fees your contract (or the law) allows, and fees should reflect your reasonable costs. DebtJet won't add any charges until this is ticked.</span></label>
+          <h4 class="sub-h">How charges are applied</h4>
+          <div class="mode-cards">
+            <label class="mode-card"><input type="radio" name="chgMode" value="auto" /><span><b>Automatically</b>Every overdue invoice that meets the rules is charged. Staff can waive any invoice.</span></label>
+            <label class="mode-card"><input type="radio" name="chgMode" value="manual" /><span><b>Manually</b>DebtJet works out what could be charged; nothing is added until staff approve each invoice.</span></label>
+          </div>
+          <h4 class="sub-h">Interest</h4>
+          <div class="form-grid">
+            <label class="span2 inline-check"><input type="checkbox" id="chgInterestOn" /> Charge interest on overdue invoices</label>
+            <label>Rate (% per year)<input id="chgRate" type="number" min="0" max="100" step="0.01" /></label>
+            <label>Method<select id="chgMethod"><option value="simple">Simple daily interest</option><option value="compound_monthly">Compounding monthly</option></select></label>
+            <label class="span2">Interest starts<select id="chgStart">
+              <option value="due_date">From the due date</option>
+              <option value="grace">After a number of days overdue</option>
+              <option value="first_demand">From the date of the first letter of demand</option>
+              <option value="final_demand">From the date of the final letter of demand</option>
+            </select></label>
+            <div class="span2 start-quick" id="chgStartQuick">
+              <span>Quick pick:</span>
+              <button type="button" class="chip" data-start="due">Due date</button>
+              <button type="button" class="chip" data-start="7">Day 7</button>
+              <button type="button" class="chip" data-start="10">Day 10</button>
+              <button type="button" class="chip" data-start="14">Day 14</button>
+              <button type="button" class="chip" data-start="30">Day 30</button>
+              <button type="button" class="chip" data-start="demand">Letter of demand</button>
+            </div>
+            <label id="chgGraceWrap">Days overdue before interest starts<input id="chgGrace" type="number" min="0" max="365" step="1" /></label>
+            <label id="chgBackdateWrap" class="inline-check" style="align-self:end;padding-bottom:9px;"><input type="checkbox" id="chgBackdate" /> Once it starts, backdate to the due date</label>
+            <div class="span2 start-explain" id="chgStartExplain"></div>
+            <label>No interest on balances under ($)<input id="chgMinBal" type="number" min="0" step="0.01" /></label>
+            <label>Cap interest at (% of balance, blank = no cap)<input id="chgCap" type="number" min="0" max="500" step="0.1" /></label>
+          </div>
+          <h4 class="sub-h">Fees</h4>
+          <div id="chgFees"></div>
+          <div class="fee-quick">
+            <button class="btn sm" type="button" data-addfee="admin">+ Admin fee</button>
+            <button class="btn sm" type="button" data-addfee="late">+ Late payment fee</button>
+            <button class="btn sm" type="button" data-addfee="reminder">+ Reminder fee</button>
+            <button class="btn sm ghost" type="button" data-addfee="custom">+ Other</button>
+          </div>
+          <div class="send-row"><button class="btn primary" id="chgSaveBtn" type="button">Save rules</button></div>
+          <div class="fine">Rules apply to account statements, letters of demand and the dashboard. Disputed invoices never attract interest or fees. Only owners and admins can change rules; any team member can apply or waive charges on an invoice.</div>
+        </div>
+      </div>
+
+      <div class="card" data-chgpane="calc" hidden>
+        <div class="card-head"><h3>What-if calculator</h3><span class="hint-r">Uses the Rules tab, even before you save</span></div>
+        <div class="card-body">
+          <div class="form-grid calc-grid">
+            <label>Amount owing ($)<input id="calcAmount" type="number" min="0" step="0.01" value="5000" /></label>
+            <label>Due date<input id="calcDue" type="date" /></label>
+            <label>Calculate as at<input id="calcAsAt" type="date" /></label>
+            <label>Letter of demand sent<input id="calcDemand" type="date" /></label>
+            <label class="span2">Or start from an invoice<select id="calcInvoice"><option value="">—</option></select></label>
+          </div>
+          <div id="calcOut"></div>
+        </div>
       </div>
     </section>
 
@@ -866,7 +973,8 @@
         var outstanding = Math.max(0, Math.round((Number(i.amount) - (paidBy[i.id]||0)) * 100) / 100);
         var days = i.due_date ? Math.max(0, daysPastDue(i.due_date)) : 0;
         // Interest follows Interest & Fees settings once saved; before that, the case's own rate.
-        var interest = orgCharges ? calcCharges(outstanding, days).interest : Math.round(outstanding * Number(c.interest_rate) * days / 365 * 100) / 100;
+        var ch = orgCharges ? invoiceCharges({ id: i.id, case_id: c.id, due_date: i.due_date, balance: outstanding }) : null;
+        var interest = ch ? (ch.applied ? ch.interest : 0) : Math.round(outstanding * Number(c.interest_rate) * days / 365 * 100) / 100;
         return Object.assign({}, i, { paid: paidBy[i.id]||0, outstanding: outstanding, daysOverdue: days, interest: interest });
       }).filter(function(i){ return i.outstanding > 0.009; });
       var principal = Math.round(open.reduce(function(s,i){ return s + i.outstanding; }, 0) * 100) / 100;
@@ -893,7 +1001,7 @@
     var totalInterest = cases.reduce(function(s,c){ return s + c.interest; }, 0);
     document.getElementById('kpiRow').innerHTML =
       '<div class="kpi"><div class="label">Total outstanding</div><div class="value">'+money(totalOutstanding)+'</div><div class="delta">Across '+cases.length+' open cases</div></div>'+
-      '<div class="kpi"><div class="label">Accrued interest</div><div class="value">'+money(totalInterest)+'</div><div class="delta">Live, computed from due dates</div></div>'+
+      '<div class="kpi"><div class="label">Accrued interest</div><div class="value">'+money(totalInterest)+'</div><div class="delta">Charged under your Interest &amp; Fees rules</div></div>'+
       '<div class="kpi"><div class="label">Letter templates</div><div class="value">'+letterTemplates.length+'</div><div class="delta">reminder / first / final</div></div>'+
       '<div class="kpi"><div class="label">In recovery / tribunal</div><div class="value">'+cases.filter(function(c){return c.status==='debt_recovery'||c.status==='tribunal'||c.status==='escalated';}).length+'</div><div class="delta">'+cases.filter(function(c){return c.status==='tribunal';}).length+' at tribunal</div></div>';
 
@@ -1062,7 +1170,7 @@
     letters:['Letters of Demand','Draft, preview and send recovery correspondence'],
     statements:['Account Statements','Compile multi-invoice statements for one or more contacts'],
     payments:['Payment Portal','Where and how debtors pay you'],
-    interest:['Interest & Fees','Interest, fees and the interest calculator'],
+    interest:['Interest & Fees','Rules, overdue invoices and what each will be charged'],
     portal:['Debtor Portal','Live preview of the self-service page your debtors see'],
     integrations:['Integrations','Connected accounting, email and calendar tools']
   };
@@ -1600,35 +1708,76 @@
      renderStatementDoc(model, template) and every value is escaped.
      ===================================================================== */
   function r2(n){ return Math.round((Number(n)||0) * 100) / 100; }
+  // ---------- Charges engine: one place decides interest + fees for an invoice ----------
+  // cfg: saved Interest & Fees rules (or the unsaved form, for previews).
+  // Starts: due_date | after_grace | grace_backdated | first_demand | final_demand.
+  // Mode: auto (charged unless waived) | manual (charged only once someone approves).
+  var chargeDecisions = {}, demandDates = {}, disputedInvoices = {};
+  function isoAddDays(iso, n){ var p = String(iso).slice(0, 10).split('-'); return new Date(Date.UTC(+p[0], +p[1]-1, +p[2]) + n * 864e5).toISOString().slice(0, 10); }
+  function isoDiff(a, b){ var x = String(a).slice(0, 10).split('-'), y = String(b).slice(0, 10).split('-'); return Math.round((Date.UTC(+x[0], +x[1]-1, +x[2]) - Date.UTC(+y[0], +y[1]-1, +y[2])) / 864e5); }
+  function localTodayISO(){ var t = new Date(); return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())).toISOString().slice(0, 10); }
   function chargesOn(){ return !!(orgCharges && orgCharges.terms_allow_charges); }
+  var START_LABEL = { due_date: 'From the due date', after_grace: 'After the grace period', grace_backdated: 'After the grace period, backdated to the due date', first_demand: 'From the first letter of demand', final_demand: 'From the final letter of demand' };
 
-  // Interest and per-invoice fees for one invoice balance. cfg defaults to the saved settings.
-  function calcCharges(balance, daysOverdue, cfg){
-    cfg = cfg || orgCharges;
-    var out = { chargeDays: 0, interest: 0, fees: [], feeTotal: 0 };
-    balance = Number(balance) || 0;
-    if(!cfg || !cfg.terms_allow_charges || balance <= 0 || daysOverdue <= 0) return out;
-    var rate = Number(cfg.rate_pa) || 0, grace = Number(cfg.grace_days) || 0;
-    if(cfg.interest_enabled && rate > 0 && balance >= (Number(cfg.min_balance) || 0) && daysOverdue > grace){
-      var d = daysOverdue - grace;
-      var i = cfg.method === 'compound_monthly' ? balance * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : balance * rate * d / 365;
-      if(cfg.cap_pct) i = Math.min(i, balance * Number(cfg.cap_pct));
-      out.chargeDays = d; out.interest = r2(i);
+  function invoiceCharges(inv, cfg, opts){
+    cfg = cfg === undefined ? orgCharges : cfg; opts = opts || {};
+    var asAt = opts.asAt || localTodayISO();
+    var balance = r2(Math.max(0, Number(inv.balance) || 0));
+    var od = inv.due_date ? isoDiff(asAt, inv.due_date) : 0;
+    var out = { state: 'nothing', label: 'No charges', daysOverdue: od, startDate: null, chargeDays: 0, interest: 0, perDay: 0, fees: [], feeTotal: 0, applied: false, decision: null, note: '' };
+    if(inv.fullyPaid || balance <= 0){ out.state = 'paid'; out.label = 'Paid'; return out; }
+    if(od <= 0){ out.state = 'not_due'; out.label = od === 0 ? 'Due today' : 'Not due yet'; return out; }
+    if(!cfg || !cfg.terms_allow_charges){ out.state = 'off'; out.label = 'Charges off'; out.note = 'Turn on charges under Rules (your terms of trade must allow them).'; return out; }
+    var rate = Number(cfg.rate_pa) || 0, grace = Number(cfg.grace_days) || 0, basis = cfg.interest_start || 'after_grace';
+    // When does interest start counting?
+    var start = null, waitingFor = '';
+    if(basis === 'due_date') start = inv.due_date;
+    else if(basis === 'after_grace'){ if(od > grace) start = isoAddDays(inv.due_date, grace); else waitingFor = 'Starts ' + fmt(isoAddDays(inv.due_date, grace + 1)); }
+    else if(basis === 'grace_backdated'){ if(od >= Math.max(1, grace)) start = inv.due_date; else waitingFor = 'Starts ' + fmt(isoAddDays(inv.due_date, grace)) + ', backdated'; }
+    else {
+      var dd = opts.demandDate !== undefined ? opts.demandDate : ((demandDates[inv.case_id] || {})[basis === 'final_demand' ? 'final' : 'first'] || null);
+      if(dd){ start = String(dd).slice(0, 10) > String(inv.due_date).slice(0, 10) ? String(dd).slice(0, 10) : String(inv.due_date).slice(0, 10); }
+      else waitingFor = basis === 'final_demand' ? 'After the final letter of demand' : 'After a letter of demand';
+    }
+    if(cfg.interest_enabled && rate > 0 && start){
+      var d = Math.max(0, isoDiff(asAt, start));
+      if(balance < (Number(cfg.min_balance) || 0)){ out.note = 'Balance is under the ' + money(cfg.min_balance) + ' minimum for interest.'; }
+      else if(d > 0){
+        var i = cfg.method === 'compound_monthly' ? balance * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : balance * rate * d / 365;
+        var capped = cfg.cap_pct && i > balance * Number(cfg.cap_pct);
+        if(capped){ i = balance * Number(cfg.cap_pct); out.note = 'Capped at ' + r2(cfg.cap_pct * 100) + '% of the balance.'; }
+        out.startDate = start; out.chargeDays = d; out.interest = r2(i); out.perDay = capped ? 0 : r2(balance * rate / 365);
+      }
     }
     (cfg.fees || []).forEach(function(f){
-      if(f.applies !== 'per_invoice' || daysOverdue < (Number(f.after_days) || 1)) return;
+      if(f.applies !== 'per_invoice' || od < (Number(f.after_days) || 1)) return;
       var a = f.type === 'percent' ? balance * Number(f.amount) / 100 : Number(f.amount);
       if(f.max && a > Number(f.max)) a = Number(f.max);
-      a = r2(a);
-      if(a > 0){ out.fees.push({ name: f.name || 'Fee', amount: a }); out.feeTotal = r2(out.feeTotal + a); }
+      a = r2(a); if(a > 0){ out.fees.push({ name: f.name || 'Fee', amount: a }); out.feeTotal = r2(out.feeTotal + a); }
     });
+    var potential = out.interest + out.feeTotal;
+    var dec = opts.decision !== undefined ? opts.decision : (chargeDecisions[inv.id] || null);
+    out.decision = dec;
+    var disputed = opts.disputed !== undefined ? opts.disputed : (inv.disputed || !!disputedInvoices[inv.id]);
+    if(disputed){ out.state = 'disputed'; out.label = 'Disputed, no charges'; return out; }
+    if(dec && dec.decision === 'waive'){ out.state = 'waived'; out.label = 'Waived'; return out; }
+    if(potential <= 0){
+      if(waitingFor){ out.state = 'waiting'; out.label = waitingFor; }
+      else if(!cfg.interest_enabled && !(cfg.fees || []).length){ out.state = 'off'; out.label = 'Nothing switched on'; }
+      return out;
+    }
+    if(dec && dec.decision === 'apply'){ out.state = 'applied'; out.label = 'Charging'; out.applied = true; }
+    else if((cfg.apply_mode || 'auto') === 'manual'){ out.state = 'pending'; out.label = 'Awaiting approval'; }
+    else { out.state = 'applied'; out.label = 'Charging'; out.applied = true; }
+    if(waitingFor && !out.interest) out.note = (out.note ? out.note + ' ' : '') + 'Interest: ' + waitingFor.toLowerCase() + '.';
     return out;
   }
-  // Once-per-statement fees, charged when any undisputed invoice on it is overdue long enough.
+  // Once-per-statement fees: only when at least one invoice on the statement is being charged.
   function calcStatementFees(items, cfg){
-    cfg = cfg || orgCharges;
+    cfg = cfg === undefined ? orgCharges : cfg;
     if(!cfg || !cfg.terms_allow_charges) return [];
-    var live = items.filter(function(i){ return !i.disputed && !i.fullyPaid && i.balance > 0; });
+    var live = items.filter(function(i){ return !i.disputed && !i.fullyPaid && i.balance > 0 && i.chargesApplied !== false; });
+    if(!live.length) return [];
     var maxOd = live.reduce(function(m, i){ return Math.max(m, i.daysOverdue); }, 0);
     var base = live.reduce(function(s, i){ return s + i.balance; }, 0);
     var out = [];
@@ -1639,6 +1788,22 @@
       a = r2(a); if(a > 0) out.push({ name: f.name || 'Fee', amount: a });
     });
     return out;
+  }
+  async function loadChargeContext(){
+    var res = await Promise.all([
+      sb.from('invoice_charge_decisions').select('invoice_id, decision, reason, decided_by, decided_at').eq('org_id', currentOrg.id),
+      sb.from('letters').select('case_id, type, sent_at').eq('org_id', currentOrg.id).eq('status', 'sent').order('sent_at', { ascending: true }),
+      sb.from('case_notes').select('invoice_id, category, occurred_at').eq('org_id', currentOrg.id).not('invoice_id', 'is', null).order('occurred_at', { ascending: false })
+    ]);
+    chargeDecisions = {}; (res[0].data || []).forEach(function(d){ chargeDecisions[d.invoice_id] = d; });
+    demandDates = {};
+    (res[1].data || []).forEach(function(l){
+      var d = demandDates[l.case_id] = demandDates[l.case_id] || {};
+      if((l.type === 'first_demand' || l.type === 'final_demand') && !d.first) d.first = l.sent_at;
+      if(l.type === 'final_demand' && !d.final) d.final = l.sent_at;
+    });
+    disputedInvoices = {}; var seen = {};
+    (res[2].data || []).forEach(function(n){ if(seen[n.invoice_id]) return; seen[n.invoice_id] = true; if(n.category === 'dispute') disputedInvoices[n.invoice_id] = true; });
   }
 
   async function loadOrgSettings(){
@@ -1653,6 +1818,8 @@
     if(orgCharges && !Array.isArray(orgCharges.fees)) orgCharges.fees = [];
     paymentChanges = res[2].data || [];
     stmtTemplates = res[3].data || [];
+    if(orgCharges){ orgCharges.apply_mode = orgCharges.apply_mode || 'auto'; orgCharges.interest_start = orgCharges.interest_start || 'after_grace'; }
+    await loadChargeContext();
     if(!stmtTplKey || (stmtTplKey.indexOf('preset:') !== 0 && !stmtTemplates.some(function(t){ return t.id === stmtTplKey; }))){
       var def = stmtTemplates.filter(function(t){ return t.is_default; })[0];
       selectStatementTemplate(def ? def.id : 'preset:classic', true);
@@ -1918,12 +2085,13 @@
       var note = stmtNotesByInvoice[i.id];
       var disputed = !i.fullyPaid && !!note && note.category === 'dispute';
       var balance = i.fullyPaid ? 0 : r2(Math.max(0, i.amount - (i.paid || 0)));
-      var ch = disputed ? calcCharges(0, 0) : calcCharges(balance, i.daysOverdue);
+      var ch = invoiceCharges({ id: i.id, case_id: i.case_id, due_date: i.due_date, balance: balance, fullyPaid: i.fullyPaid, disputed: disputed });
+      if(!ch.applied){ ch = { interest: 0, feeTotal: 0, fees: [], applied: false }; }
       var item = {
         id: i.id, debtor_id: i.debtor_id, debtor_name: i.debtor_name, invoice_number: i.invoice_number, description: i.description,
         issued_date: i.issued_date, due_date: i.due_date, amount: i.amount, paid: i.paid || 0, balance: balance,
         daysOverdue: i.daysOverdue, fullyPaid: i.fullyPaid, disputed: disputed,
-        interest: ch.interest, fees: ch.feeTotal, feeLines: ch.fees,
+        interest: ch.interest, fees: ch.feeTotal, feeLines: ch.fees, chargesApplied: ch.applied,
         note: (stmtLineNotes[i.id] || '').trim(), pay_url: stmtPayLinks[i.id] || i.pay_url || null
       };
       item.status = statusLabel(item);
@@ -2269,11 +2437,11 @@
     document.getElementById('payShowPayid').checked = !!p.show_payid;
     document.getElementById('payShowBpay').checked = !!p.show_bpay;
     var edit = canEditPayments();
-    Array.prototype.forEach.call(document.querySelectorAll('[data-view="payments"] input, [data-view="payments"] select, [data-view="payments"] textarea, [data-view="interest"] input, [data-view="interest"] select, #paySaveBtn, #chgSaveBtn, [data-addfee]'), function(el){
-      if(el.closest('#calcOut') || /^calc/.test(el.id)) return;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-view="payments"] input, [data-view="payments"] select, [data-view="payments"] textarea, #chgRules input, #chgRules select, #chgRules [data-start], #paySaveBtn, #chgSaveBtn, [data-addfee]'), function(el){
       el.disabled = !edit;
     });
     document.getElementById('payRoleNote').textContent = edit ? '' : 'View only: ask an owner or admin to change these';
+    document.getElementById('chgRoleNote').textContent = edit ? '' : 'View only: ask an owner or admin to change the rules';
     renderFlags(document.getElementById('payBanner'), bankChangedRecently() ? [{ level: 'stop', message: 'Bank details changed ' + fmtDateTime(p.bank_changed_at) + '. If this wasn\'t you, change your password and fix the details now.' }] : []);
     document.getElementById('payChangeLog').innerHTML = paymentChanges.length
       ? '<table class="change-log"><tbody>' + paymentChanges.map(function(x){
@@ -2285,6 +2453,10 @@
     document.getElementById('chgInterestOn').checked = orgCharges ? !!c.interest_enabled : false;
     set('chgRate', orgCharges ? r2(Number(c.rate_pa) * 100) : 10);
     set('chgMethod', c.method || 'simple'); set('chgGrace', orgCharges ? c.grace_days : 0);
+    var basis = c.interest_start || 'after_grace';
+    set('chgStart', basis === 'after_grace' || basis === 'grace_backdated' ? 'grace' : basis);
+    document.getElementById('chgBackdate').checked = basis === 'grace_backdated';
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="chgMode"]'), function(r){ r.checked = r.value === (c.apply_mode || 'auto'); });
     set('chgMinBal', orgCharges ? c.min_balance : 0); set('chgCap', c.cap_pct ? r2(Number(c.cap_pct) * 100) : '');
     chgFeesDraft = JSON.parse(JSON.stringify(c.fees || []));
     renderFeeRows();
@@ -2297,6 +2469,8 @@
     }
     if(!document.getElementById('calcAsAt').value) document.getElementById('calcAsAt').value = new Date().toISOString().slice(0, 10);
     renderCalculator();
+    if(!chgTab) showChargeTab(orgCharges && orgCharges.terms_allow_charges ? 'invoices' : 'rules');
+    renderChargesPortal();
   }
   var FEE_PRESETS = {
     admin:    { name: 'Admin fee', type: 'fixed', amount: 25, applies: 'per_statement', after_days: 30 },
@@ -2322,22 +2496,25 @@
     var f = chgFeesDraft[Number(row.getAttribute('data-fee'))];
     f[k] = (k === 'amount' || k === 'after_days') ? Number(e.target.value) : e.target.value;
     if(k === 'type') renderFeeRows();
-    renderCalculator();
+    renderCalculator(); renderChargesPortal();
   });
   document.getElementById('chgFees').addEventListener('change', function(e){ if(e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
   document.getElementById('chgFees').addEventListener('click', function(e){
     var i = e.target.getAttribute('data-fee-remove'); if(i == null) return;
-    chgFeesDraft.splice(Number(i), 1); renderFeeRows(); renderCalculator();
+    chgFeesDraft.splice(Number(i), 1); renderFeeRows(); renderCalculator(); renderChargesPortal();
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-addfee]'), function(b){
     b.addEventListener('click', function(){
       if(chgFeesDraft.length >= 12){ toast('Up to 12 fees.'); return; }
-      chgFeesDraft.push(Object.assign({}, FEE_PRESETS[this.getAttribute('data-addfee')])); renderFeeRows(); renderCalculator();
+      chgFeesDraft.push(Object.assign({}, FEE_PRESETS[this.getAttribute('data-addfee')])); renderFeeRows(); renderCalculator(); renderChargesPortal();
     });
   });
   function readChargesForm(){
     var pct = function(id){ var v = document.getElementById(id).value; return v === '' ? null : Number(v) / 100; };
+    var modeEl = document.querySelector('input[name="chgMode"]:checked');
     return {
+      apply_mode: modeEl ? modeEl.value : 'auto',
+      interest_start: startBasisFromForm(),
       terms_allow_charges: document.getElementById('chgTerms').checked,
       interest_enabled: document.getElementById('chgInterestOn').checked,
       rate_pa: Math.min(1, Math.max(0, pct('chgRate') || 0)),
@@ -2354,31 +2531,32 @@
   function renderCalculator(){
     var cfg = readChargesForm();
     var amt = Math.max(0, Number(document.getElementById('calcAmount').value) || 0);
-    var due = document.getElementById('calcDue').value, asAt = document.getElementById('calcAsAt').value;
+    var due = document.getElementById('calcDue').value, asAt = document.getElementById('calcAsAt').value, dem = document.getElementById('calcDemand').value || null;
+    document.getElementById('calcDemand').closest('label').hidden = !/demand/.test(cfg.interest_start);
     var out = document.getElementById('calcOut');
     if(!due || !asAt){ out.innerHTML = ''; return; }
-    var dd = due.split('-'), aa = asAt.split('-');
-    var od = Math.round((Date.UTC(+aa[0], +aa[1]-1, +aa[2]) - Date.UTC(+dd[0], +dd[1]-1, +dd[2])) / 864e5);
-    var ch = calcCharges(amt, Math.max(0, od), cfg);
-    var sf = calcStatementFees([{ balance: amt, daysOverdue: od, disputed: false, fullyPaid: false }], cfg);
+    var ch = invoiceCharges({ id: 'calc', case_id: 'calc', due_date: due, balance: amt }, cfg, { asAt: asAt, demandDate: dem, decision: null, disputed: false });
+    var sf = ch.applied || ch.state === 'pending' ? calcStatementFees([{ balance: amt, daysOverdue: ch.daysOverdue, disputed: false, fullyPaid: false }], cfg) : [];
     var total = r2(amt + ch.interest + ch.feeTotal + sf.reduce(function(s, f){ return s + f.amount; }, 0));
-    var why = !cfg.terms_allow_charges ? 'No charges: tick “Our terms of trade allow…” first.'
-      : od <= 0 ? 'Not overdue on that date.'
+    var rate = r2(cfg.rate_pa * 100);
+    var why = !cfg.terms_allow_charges ? 'No charges: tick “Our terms of trade allow…” on the Rules tab.'
+      : ch.daysOverdue <= 0 ? 'Not overdue on that date.'
       : !cfg.interest_enabled ? 'Interest is switched off.'
-      : od <= cfg.grace_days ? 'Still inside the ' + cfg.grace_days + '-day grace period.'
-      : amt < cfg.min_balance ? 'Balance is under the minimum for interest.'
-      : (cfg.method === 'compound_monthly'
-          ? money(amt) + ' × ((1 + ' + r2(cfg.rate_pa * 100) + '% ÷ 12) ^ (' + ch.chargeDays + ' ÷ 30.42) − 1)'
-          : money(amt) + ' × ' + r2(cfg.rate_pa * 100) + '% × ' + ch.chargeDays + ' ÷ 365') + (cfg.cap_pct && ch.interest >= r2(amt * cfg.cap_pct) ? ', capped at ' + r2(cfg.cap_pct * 100) + '%' : '');
+      : !ch.interest ? (ch.note || ch.label)
+      : (cfg.method === 'compound_monthly' ? money(amt) + ' × ((1 + ' + rate + '% ÷ 12) ^ (' + ch.chargeDays + ' ÷ 30.42) − 1)' : money(amt) + ' × ' + rate + '% × ' + ch.chargeDays + ' ÷ 365') + (ch.note ? ' · ' + ch.note : '');
     out.innerHTML = '<table class="calc-table"><tbody>'
-      + '<tr><td>Days overdue</td><td class="num">'+Math.max(0, od)+'</td></tr>'
-      + '<tr><td>Days interest is charged'+(cfg.grace_days ? ' (after '+cfg.grace_days+'-day grace)' : '')+'</td><td class="num">'+ch.chargeDays+'</td></tr>'
+      + '<tr><td>Days overdue</td><td class="num">'+Math.max(0, ch.daysOverdue)+'</td></tr>'
+      + '<tr><td>Interest counts from</td><td class="num">'+(ch.startDate ? escapeHtml(fmt(ch.startDate)) : '—')+'</td></tr>'
+      + '<tr><td>Days interest is charged</td><td class="num">'+ch.chargeDays+'</td></tr>'
       + '<tr><td>Amount owing</td><td class="num">'+money(amt)+'</td></tr>'
       + '<tr><td>Interest<div class="hint-r">'+escapeHtml(why)+'</div></td><td class="num">'+money(ch.interest)+'</td></tr>'
       + ch.fees.concat(sf).map(function(f){ return '<tr><td>'+escapeHtml(f.name)+'</td><td class="num">'+money(f.amount)+'</td></tr>'; }).join('')
-      + '<tr class="tot"><td>Total payable</td><td class="num">'+money(total)+'</td></tr></tbody></table>';
+      + '<tr class="tot"><td>Total payable</td><td class="num">'+money(total)+'</td></tr>'
+      + (ch.perDay ? '<tr><td class="hint-r">Interest grows by</td><td class="num hint-r">'+money(ch.perDay)+' a day</td></tr>' : '')
+      + (cfg.apply_mode === 'manual' ? '<tr><td colspan="2" class="hint-r">Manual mode: on a real invoice these charges wait for approval in Overdue invoices.</td></tr>' : '')
+      + '</tbody></table>';
   }
-  ['calcAmount','calcDue','calcAsAt','chgTerms','chgInterestOn','chgRate','chgMethod','chgGrace','chgMinBal','chgCap'].forEach(function(id){
+  ['calcAmount','calcDue','calcAsAt','calcDemand'].forEach(function(id){
     document.getElementById(id).addEventListener('input', renderCalculator);
     document.getElementById(id).addEventListener('change', renderCalculator);
   });
@@ -2386,6 +2564,8 @@
     var inv = stmtInvoices.filter(function(x){ return x.id === this.value; }, this)[0]; if(!inv) return;
     document.getElementById('calcAmount').value = r2(inv.amount - (inv.paid || 0));
     document.getElementById('calcDue').value = String(inv.due_date).slice(0, 10);
+    var dd = demandDates[inv.case_id] || {};
+    document.getElementById('calcDemand').value = (dd.first || '').slice(0, 10);
     document.getElementById('calcAsAt').value = new Date().toISOString().slice(0, 10);
     renderCalculator();
   });
@@ -2438,8 +2618,210 @@
     orgCharges = r.data; if(!Array.isArray(orgCharges.fees)) orgCharges.fees = [];
     await loadCases(); renderDashboard(); renderCasesTable(currentCaseFilter || 'all');
     renderPaymentsView(); renderStatementPreview();
-    toast('Interest & fees saved. Statements, letters and the dashboard now use them.');
+    toast('Rules saved. Statements, letters and the dashboard now use them.');
   });
+  /* ---------- Interest & Fees portal ---------- */
+  function savedChargeKey(c){
+    if(!c) return '';
+    return JSON.stringify([!!c.terms_allow_charges, c.apply_mode || 'auto', !!c.interest_enabled, r2(Number(c.rate_pa) * 10000), c.method || 'simple',
+      c.interest_start || 'after_grace', Number(c.grace_days) || 0, r2(c.min_balance), c.cap_pct ? r2(Number(c.cap_pct) * 10000) : null,
+      (c.fees || []).map(function(f){ return [f.name, f.type, r2(f.amount), f.applies, Number(f.after_days)]; })]);
+  }
+  function chargeRowsFor(cfg){
+    var today = localTodayISO();
+    return stmtInvoices.filter(function(i){ return !i.fullyPaid && i.due_date && isoDiff(today, i.due_date) > 0; }).map(function(i){
+      var bal = r2(Math.max(0, i.amount - (i.paid || 0)));
+      var ch = invoiceCharges({ id: i.id, case_id: i.case_id, due_date: i.due_date, balance: bal }, cfg);
+      return { inv: i, balance: bal, ch: ch };
+    }).filter(function(r){ return r.balance > 0; }).sort(function(a, b){ return b.ch.daysOverdue - a.ch.daysOverdue; });
+  }
+  var chgSelected = {}, chgOpen = {}, chgTab = null;
+  function chargeFilterMatch(r){
+    var f = document.getElementById('chgFilter').value, age = Number(document.getElementById('chgAge').value) || 0;
+    var q = document.getElementById('chgSearch').value.trim().toLowerCase();
+    if(r.ch.daysOverdue < age) return false;
+    if(q && ((r.inv.debtor.name || '') + ' ' + (r.inv.invoice_number || '')).toLowerCase().indexOf(q) < 0) return false;
+    if(f === 'all') return true;
+    if(f === 'none') return r.ch.state === 'nothing' || r.ch.state === 'off';
+    return r.ch.state === f;
+  }
+  function renderChargesPortal(){
+    if(!document.getElementById('chgTable')) return;
+    var formCfg = readChargesForm();
+    var dirty = savedChargeKey(formCfg) !== savedChargeKey(orgCharges);
+    var cfg = dirty ? formCfg : orgCharges;
+    var rows = chargeRowsFor(cfg);
+    // KPI tiles
+    var sum = function(arr, f){ return r2(arr.reduce(function(s, r){ return s + f(r); }, 0)); };
+    var by = function(st){ return rows.filter(function(r){ return r.ch.state === st; }); };
+    var applied = by('applied'), pending = by('pending'), waived = by('waived');
+    var pot = function(r){ return r.ch.interest + r.ch.feeTotal; };
+    document.getElementById('chgKpis').innerHTML =
+      '<div class="kpi"><div class="label">Overdue invoices</div><div class="value">'+rows.length+'</div><div class="delta">'+money(sum(rows, function(r){ return r.balance; }))+' owing</div></div>'
+      + '<div class="kpi"><div class="label">Being charged</div><div class="value">'+money(sum(applied, pot))+'</div><div class="delta">'+applied.length+' invoices</div></div>'
+      + '<div class="kpi"><div class="label">Awaiting approval</div><div class="value">'+money(sum(pending, pot))+'</div><div class="delta">'+pending.length+' invoices</div></div>'
+      + '<div class="kpi"><div class="label">Waived</div><div class="value">'+money(sum(waived, pot))+'</div><div class="delta">'+waived.length+' invoices</div></div>'
+      + '<div class="kpi"><div class="label">Interest per day</div><div class="value">'+money(sum(applied, function(r){ return r.ch.perDay; }))+'</div><div class="delta">on invoices being charged</div></div>';
+    var banner = [];
+    if(!cfg || !cfg.terms_allow_charges) banner.push({ level: 'info', message: 'Charges are off. Open the Rules tab, tick that your terms of trade allow charges, and save.' });
+    if(dirty) banner.push({ level: 'caution', message: 'Previewing unsaved rules. Save them on the Rules tab to use them on statements and letters.' });
+    renderFlags(document.getElementById('chgBanner'), banner);
+    // table
+    var shown = rows.filter(chargeFilterMatch);
+    Object.keys(chgSelected).forEach(function(k){ if(!shown.some(function(r){ return r.inv.id === k; })) delete chgSelected[k]; });
+    var allOn = shown.length && shown.every(function(r){ return chgSelected[r.inv.id]; });
+    var head = '<thead><tr><th><input type="checkbox" id="chgAll"'+(allOn ? ' checked' : '')+' aria-label="Select all" /></th><th>Invoice</th><th>Due</th><th class="num">Days overdue</th><th class="num">Balance</th><th>Interest from</th><th class="num">Interest</th><th class="num">Fees</th><th class="num">Per day</th><th>Status</th><th></th></tr></thead>';
+    var body = shown.length ? shown.map(function(r){
+      var c = r.ch, i = r.inv, id = escapeHtml(i.id);
+      var dim = c.state === 'waived' || c.state === 'disputed' || c.state === 'off' || c.state === 'nothing';
+      var canApply = c.state === 'pending' || c.state === 'waived';
+      var canWaive = c.state === 'applied' || c.state === 'pending';
+      var dec = c.decision;
+      var tr = '<tr class="'+(dim ? 'dim' : '')+'" data-row="'+id+'"><td><input type="checkbox" data-sel="'+id+'"'+(chgSelected[i.id] ? ' checked' : '')+' /></td>'
+        + '<td><b style="white-space:nowrap;">'+escapeHtml(i.invoice_number || '—')+'</b><span class="sub">'+escapeHtml(i.debtor.name || '')+'</span></td>'
+        + '<td style="white-space:nowrap;">'+escapeHtml(fmt(i.due_date))+'</td>'
+        + '<td class="num"><b>'+c.daysOverdue+'</b></td>'
+        + '<td class="num">'+money(r.balance)+'</td>'
+        + '<td style="white-space:nowrap;">'+(c.startDate ? escapeHtml(fmt(c.startDate))+'<span class="sub">'+c.chargeDays+' day'+(c.chargeDays === 1 ? '' : 's')+' charged</span>' : '—')+'</td>'
+        + '<td class="num">'+(c.interest ? money(c.interest) : '—')+'</td>'
+        + '<td class="num">'+(c.feeTotal ? money(c.feeTotal) : '—')+'</td>'
+        + '<td class="num">'+(c.perDay ? money(c.perDay) : '—')+'</td>'
+        + '<td><span class="chg-pill '+c.state+'">'+escapeHtml(c.label)+'</span>'+(dec ? '<span class="sub">'+(dec.decision === 'waive' ? 'Waived' : 'Approved')+' '+escapeHtml(new Date(dec.decided_at).toLocaleDateString('en-AU',{day:'numeric',month:'short'}))+(dec.decided_by === session.user.id ? ', you' : '')+'</span>' : '')+'</td>'
+        + '<td><div class="chg-acts">'
+        +   (canApply ? '<button type="button" class="go" data-act="apply" data-id="'+id+'">Apply</button>' : '')
+        +   (canWaive ? '<button type="button" data-act="waive" data-id="'+id+'">Waive</button>' : '')
+        +   (dec ? '<button type="button" data-act="reset" data-id="'+id+'" title="Back to the rule">↺</button>' : '')
+        +   '<button type="button" data-act="more" data-id="'+id+'" title="Show the working">'+(chgOpen[i.id] ? '▴' : '▾')+'</button>'
+        + '</div></td></tr>';
+      if(chgOpen[i.id]) tr += '<tr class="chg-detail"><td></td><td colspan="10">'+chargeWorking(r, cfg)+'</td></tr>';
+      return tr;
+    }).join('') : '<tr><td colspan="11" class="empty-note">No overdue invoices match.</td></tr>';
+    var chg = shown.filter(function(r){ return r.ch.applied; });
+    var foot = shown.length ? '<tfoot><tr><td></td><td colspan="3">'+shown.length+' shown · totals of charges being made</td><td class="num">'+money(sum(shown, function(r){ return r.balance; }))+'</td><td></td>'
+      + '<td class="num">'+money(sum(chg, function(r){ return r.ch.interest; }))+'</td><td class="num">'+money(sum(chg, function(r){ return r.ch.feeTotal; }))+'</td>'
+      + '<td class="num">'+money(sum(chg, function(r){ return r.ch.perDay; }))+'</td><td colspan="2"></td></tr></tfoot>' : '';
+    document.getElementById('chgTable').innerHTML = head + '<tbody>' + body + '</tbody>' + foot;
+    var n = Object.keys(chgSelected).length;
+    document.getElementById('chgBulk').hidden = !n;
+    document.getElementById('chgBulkCount').textContent = n + ' selected';
+    renderChargeRuleHelp();
+  }
+  function chargeWorking(r, cfg){
+    var c = r.ch, parts = [];
+    var rate = cfg ? r2(Number(cfg.rate_pa) * 100) : 0;
+    if(c.interest){
+      parts.push(cfg.method === 'compound_monthly'
+        ? 'Interest: ' + money(r.balance) + ' × ((1 + ' + rate + '% ÷ 12) ^ (' + c.chargeDays + ' ÷ 30.42) − 1) = ' + money(c.interest)
+        : 'Interest: ' + money(r.balance) + ' × ' + rate + '% × ' + c.chargeDays + ' days ÷ 365 = ' + money(c.interest));
+      parts.push('Counting from ' + fmt(c.startDate) + ' (' + (START_LABEL[cfg.interest_start] || '').toLowerCase() + (cfg.grace_days && /grace/.test(cfg.interest_start) ? ', ' + cfg.grace_days + ' days' : '') + ').');
+    }
+    c.fees.forEach(function(f){ parts.push(f.name + ': ' + money(f.amount)); });
+    if(c.note) parts.push(c.note);
+    if(c.state === 'disputed') parts.push('This invoice has a dispute note from the debtor, so no interest or fees are added while it is reviewed.');
+    if(c.state === 'pending') parts.push('Manual mode: nothing is added to statements or letters until someone clicks Apply.');
+    if(c.decision && c.decision.reason) parts.push('Reason: ' + c.decision.reason);
+    var notes = stmtNotesByInvoice[r.inv.id];
+    if(notes) parts.push('Latest email note: ' + (NOTE_CATEGORY_LABEL[notes.category] || 'Note') + ' — ' + notes.summary);
+    return parts.length ? parts.map(function(p){ return '<div>' + escapeHtml(p) + '</div>'; }).join('') : 'No charges on this invoice under the current rules.';
+  }
+  async function decideCharges(ids, decision){
+    if(!ids.length) return;
+    var reason = null;
+    if(decision === 'waive'){
+      reason = prompt('Reason for waiving charges on ' + ids.length + ' invoice' + (ids.length === 1 ? '' : 's') + ' (kept in the log):', '');
+      if(reason === null) return;
+      reason = reason.trim().slice(0, 300) || null;
+    }
+    var r;
+    if(decision === 'reset') r = await sb.from('invoice_charge_decisions').delete().in('invoice_id', ids);
+    else r = await sb.from('invoice_charge_decisions').upsert(ids.map(function(id){ return { invoice_id: id, org_id: currentOrg.id, decision: decision, reason: reason }; }), { onConflict: 'invoice_id' }).select('*');
+    if(r.error){ toast('Could not save: ' + r.error.message); return; }
+    if(decision === 'reset') ids.forEach(function(id){ delete chargeDecisions[id]; });
+    else (r.data || []).forEach(function(d){ chargeDecisions[d.invoice_id] = d; });
+    chgSelected = {};
+    await loadCases(); renderDashboard(); renderCasesTable(currentCaseFilter || 'all');
+    renderChargesPortal(); renderStatementPreview();
+    toast((decision === 'apply' ? 'Charges applied to ' : decision === 'waive' ? 'Charges waived on ' : 'Back to the rule for ') + ids.length + ' invoice' + (ids.length === 1 ? '' : 's') + '.');
+  }
+  document.getElementById('chgTable').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]');
+    if(b){
+      var id = b.getAttribute('data-id'), act = b.getAttribute('data-act');
+      if(act === 'more'){ chgOpen[id] = !chgOpen[id]; renderChargesPortal(); return; }
+      decideCharges([id], act); return;
+    }
+  });
+  document.getElementById('chgTable').addEventListener('change', function(e){
+    if(e.target.id === 'chgAll'){
+      var on = e.target.checked;
+      chargeRowsFor(savedChargeKey(readChargesForm()) !== savedChargeKey(orgCharges) ? readChargesForm() : orgCharges).filter(chargeFilterMatch).forEach(function(r){ if(on) chgSelected[r.inv.id] = true; else delete chgSelected[r.inv.id]; });
+      renderChargesPortal(); return;
+    }
+    var id = e.target.getAttribute('data-sel'); if(!id) return;
+    if(e.target.checked) chgSelected[id] = true; else delete chgSelected[id];
+    var n = Object.keys(chgSelected).length;
+    document.getElementById('chgBulk').hidden = !n; document.getElementById('chgBulkCount').textContent = n + ' selected';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-bulk]'), function(b){
+    b.addEventListener('click', function(){ decideCharges(Object.keys(chgSelected), this.getAttribute('data-bulk')); });
+  });
+  ['chgFilter','chgAge'].forEach(function(id){ document.getElementById(id).addEventListener('change', renderChargesPortal); });
+  document.getElementById('chgSearch').addEventListener('input', renderChargesPortal);
+  document.getElementById('chgExport').addEventListener('click', function(){
+    var cfg = savedChargeKey(readChargesForm()) !== savedChargeKey(orgCharges) ? readChargesForm() : orgCharges;
+    var q = function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var lines = [['Invoice','Debtor','Due date','Days overdue','Balance','Interest from','Days charged','Interest','Fees','Per day','Status','Decision','Decided at','Reason'].join(',')];
+    chargeRowsFor(cfg).filter(chargeFilterMatch).forEach(function(r){
+      var c = r.ch, d = c.decision || {};
+      lines.push([r.inv.invoice_number, r.inv.debtor.name, r.inv.due_date, c.daysOverdue, r.balance.toFixed(2), c.startDate || '', c.chargeDays, c.interest.toFixed(2), c.feeTotal.toFixed(2), c.perDay.toFixed(2), c.label, d.decision || '', d.decided_at || '', d.reason || ''].map(q).join(','));
+    });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+    a.download = 'debtjet-interest-' + localTodayISO() + '.csv'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  });
+  function showChargeTab(t){
+    chgTab = t;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-chgtab]'), function(b){ b.classList.toggle('active', b.getAttribute('data-chgtab') === t); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-chgpane]'), function(p){ p.hidden = p.getAttribute('data-chgpane') !== t; });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-chgtab]'), function(b){ b.addEventListener('click', function(){ showChargeTab(this.getAttribute('data-chgtab')); }); });
+
+  // Start-rule controls
+  function startBasisFromForm(){
+    var v = document.getElementById('chgStart').value;
+    if(v === 'grace') return document.getElementById('chgBackdate').checked ? 'grace_backdated' : 'after_grace';
+    return v;
+  }
+  function renderChargeRuleHelp(){
+    var basis = startBasisFromForm(), g = parseInt(document.getElementById('chgGrace').value, 10) || 0;
+    var isGrace = basis === 'after_grace' || basis === 'grace_backdated';
+    document.getElementById('chgGraceWrap').hidden = !isGrace;
+    document.getElementById('chgBackdateWrap').hidden = !isGrace;
+    var ex = { due_date: 'Interest counts from the day after the due date. An invoice 30 days overdue is charged 30 days.',
+      after_grace: 'No interest for the first ' + g + ' days overdue, then interest counts from day ' + g + ' onwards. An invoice 30 days overdue is charged ' + Math.max(0, 30 - g) + ' days.',
+      grace_backdated: 'No interest for the first ' + g + ' days overdue. On day ' + g + ' interest switches on and is backdated to the due date. An invoice 30 days overdue is charged ' + (30 >= g ? 30 : 0) + ' days.',
+      first_demand: 'Interest counts from the date the first letter of demand was sent (or the due date, if later). No letter yet, no interest.',
+      final_demand: 'Interest counts from the date the final letter of demand was sent. Until then, no interest.' }[basis];
+    document.getElementById('chgStartExplain').textContent = ex;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-start]'), function(c){
+      var k = c.getAttribute('data-start');
+      c.classList.toggle('on', (k === 'due' && basis === 'due_date') || (k === 'demand' && basis === 'first_demand') || (isGrace && String(g) === k));
+    });
+  }
+  document.getElementById('chgStartQuick').addEventListener('click', function(e){
+    var k = e.target.getAttribute('data-start'); if(!k || !canEditPayments()) return;
+    var sel = document.getElementById('chgStart');
+    if(k === 'due') sel.value = 'due_date';
+    else if(k === 'demand') sel.value = 'first_demand';
+    else { sel.value = 'grace'; document.getElementById('chgGrace').value = k; }
+    onChargeRulesChanged();
+  });
+  function onChargeRulesChanged(){ renderChargeRuleHelp(); renderCalculator(); renderChargesPortal(); }
+  ['chgStart','chgBackdate','chgTerms','chgInterestOn','chgRate','chgMethod','chgGrace','chgMinBal','chgCap'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', onChargeRulesChanged);
+    document.getElementById(id).addEventListener('change', onChargeRulesChanged);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="chgMode"]'), function(r){ r.addEventListener('change', onChargeRulesChanged); });
 
   async function loadSavedStatements(){
     var r = await sb.from('statements').select('*').eq('org_id', currentOrg.id).order('generated_at', { ascending: false }).limit(20);

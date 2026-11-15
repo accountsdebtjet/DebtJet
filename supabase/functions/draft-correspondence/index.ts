@@ -74,17 +74,44 @@ Deno.serve(async (req: Request) => {
       : { data: [] as any[] };
 
     // ---------- Work out figures (interest per invoice, by that invoice's own days overdue) ----------
-    // Payments & fees settings (if saved) decide interest: terms must allow it, then grace, method, cap.
+    // Interest & Fees rules (if saved): terms must allow it; start rule; auto vs manual; per-invoice
+    // apply/waive decisions; disputed invoices never charged. Mirrors invoiceCharges() in the app.
     const { data: chg } = await sb.from("org_charge_settings").select("*").eq("org_id", orgId).maybeSingle();
+    const { data: decs } = invs.length
+      ? await sb.from("invoice_charge_decisions").select("invoice_id, decision").in("invoice_id", invs.map((i: any) => i.id))
+      : { data: [] as any[] };
+    const decisionOf: Record<string, string> = {};
+    (decs || []).forEach((d: any) => { decisionOf[d.invoice_id] = d.decision; });
+    const disputedIds = new Set<string>();
+    { const seen = new Set<string>();
+      (notes || []).forEach((n: any) => { if (!n.invoice_id || seen.has(n.invoice_id)) return; seen.add(n.invoice_id); if (n.category === "dispute") disputedIds.add(n.invoice_id); }); }
+    const demand: { first?: string; final?: string } = {};
+    [...(letters || [])].reverse().forEach((l: any) => {
+      if ((l.type === "first_demand" || l.type === "final_demand") && !demand.first) demand.first = String(l.sent_at).slice(0, 10);
+      if (l.type === "final_demand" && !demand.final) demand.final = String(l.sent_at).slice(0, 10);
+    });
     const now = Date.now();
     const rate = kind !== "letter" ? 0
       : chg ? (chg.terms_allow_charges && chg.interest_enabled ? Number(chg.rate_pa) : 0)
       : Number(caseRow.interest_rate || 0);
-    const interestFor = (bal: number, days: number) => {
+    const dayMs = (iso: string) => Date.parse(String(iso).slice(0, 10) + "T00:00:00Z");
+    const interestFor = (inv: any, bal: number, days: number) => {
       if (!chg) return round2(bal * rate * days / 365);
-      const grace = Number(chg.grace_days || 0);
-      if (!rate || bal < Number(chg.min_balance || 0) || days <= grace) return 0;
-      const d = days - grace;
+      if (!rate || disputedIds.has(inv.id) || decisionOf[inv.id] === "waive") return 0;
+      if ((chg.apply_mode || "auto") === "manual" && decisionOf[inv.id] !== "apply") return 0;
+      if (bal < Number(chg.min_balance || 0)) return 0;
+      const grace = Number(chg.grace_days || 0), basis = chg.interest_start || "after_grace";
+      let d = 0;
+      if (basis === "due_date") d = days;
+      else if (basis === "after_grace") d = days > grace ? days - grace : 0;
+      else if (basis === "grace_backdated") d = days >= Math.max(1, grace) ? days : 0;
+      else {
+        const letter = basis === "final_demand" ? demand.final : demand.first;
+        if (!letter || !inv.due_date) return 0;
+        const start = Math.max(dayMs(letter), dayMs(inv.due_date));
+        d = Math.max(0, Math.floor((now - start) / DAY));
+      }
+      if (d <= 0) return 0;
       let i = chg.method === "compound_monthly" ? bal * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : bal * rate * d / 365;
       if (chg.cap_pct) i = Math.min(i, bal * Number(chg.cap_pct));
       return round2(i);
@@ -95,7 +122,7 @@ Deno.serve(async (req: Request) => {
       const paid = round2(paidBy[i.id] || 0);
       const outstanding = round2(Math.max(0, Number(i.amount) - paid));
       const days = i.due_date ? Math.max(0, Math.floor((now - new Date(i.due_date).getTime()) / DAY)) : 0;
-      const interest = interestFor(outstanding, days);
+      const interest = interestFor(i, outstanding, days);
       const debtor = (debtors || []).find((d: any) => d.id === i.debtor_id);
       return { id: i.id, invoice_number: i.invoice_number, debtor: debtor?.name, description: i.description,
                amount: Number(i.amount), paid, outstanding, due_date: i.due_date, days_overdue: days, interest };
