@@ -434,6 +434,30 @@
   .hist-inv{font-size:10.5px;font-weight:700;background:var(--surface-alt);border:1px solid var(--border);border-radius:5px;padding:0 5px;}
   .hist-tag{font-size:10px;font-weight:700;color:#1f7a45;background:#e6f4ea;border-radius:5px;padding:1px 5px;}
   .hist-time{font-size:11px;color:var(--text-faint);white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .cases-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .nc-dot{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:10.5px;font-weight:800;vertical-align:2px;margin-left:2px;}
+  .nc-dot.ok{background:#e6f4ea;color:#1f7a45;} .nc-dot.warn{background:#fff5e6;color:#9a5b00;} .nc-dot.crit{background:#fdecec;color:#a32626;}
+  .nc-badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;}
+  .nc-badge.ok{background:#e6f4ea;color:#1f7a45;} .nc-badge.warn{background:#fff5e6;color:#9a5b00;} .nc-badge.crit{background:#fdecec;color:#a32626;} .nc-badge.none{background:var(--surface-alt);color:var(--text-muted);}
+  .cc-card .card-head{align-items:flex-start;flex-wrap:wrap;gap:8px;}
+  .cc-sub{margin-top:4px;}
+  .cc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:12px;}
+  .cc-grid h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:0 0 8px;}
+  .cc-grid h4:not(:first-child){margin-top:16px;}
+  .cc-dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0;font-size:12.5px;}
+  .cc-dl dt{color:var(--text-muted);white-space:nowrap;}
+  .cc-dl dd{margin:0;overflow-wrap:anywhere;}
+  .cc-person{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:8px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere;}
+  .cc-tag{font-size:10px;font-weight:700;background:var(--accent-soft);color:var(--accent);border-radius:5px;padding:1px 5px;}
+  .cc-addr,.cc-notes{font-size:12.5px;line-height:1.55;white-space:pre-line;}
+  .cc-search{border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;background:var(--surface-alt);}
+  .cc-search-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .cc-search-bar input{flex:1 1 240px;border:1px solid var(--border-strong);border-radius:8px;padding:7px 10px;font:inherit;font-size:13px;background:var(--surface);color:var(--text);}
+  .cc-results{width:100%;font-size:12.5px;border-collapse:collapse;}
+  .cc-results td,.cc-results th{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}
+  .cc-results th{background:transparent !important;color:var(--text-muted) !important;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+  .cc-form{max-width:760px;}
+  .cc-person-form{margin-top:10px;}
   .pay-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;}
   .pay-grid.single{grid-template-columns:minmax(0,820px);}
   .form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
@@ -481,6 +505,7 @@
     .info-grid{grid-template-columns:1fr;}
     .int-grid{grid-template-columns:1fr;}
     .pay-grid{grid-template-columns:1fr;}
+    .cc-grid{grid-template-columns:1fr;}
     .chg-kpis{grid-template-columns:repeat(2,1fr);}
     .mode-cards,.calc-grid{grid-template-columns:1fr 1fr;}
   }
@@ -593,7 +618,7 @@
 
     <!-- CASES LIST -->
     <section class="view" data-view="cases" hidden>
-      <div class="toolbar" id="caseFilters"></div>
+      <div class="cases-top"><div class="toolbar" id="caseFilters"></div><button class="btn sm" type="button" id="checkAllAbnsBtn" title="Check every debtor's ABN against the Australian Business Register">Check all ABNs</button></div>
       <div class="card">
         <table><thead><tr><th>Debtor</th><th class="num">Amount owed</th><th>Days overdue</th><th>Status</th><th></th></tr></thead>
         <tbody id="casesBody"></tbody></table>
@@ -1020,7 +1045,7 @@
   /* ---------- data loading ---------- */
   async function loadCases(){
     var r = await sb.from('cases')
-      .select('id, status, interest_rate, opened_at, tribunal_body, debtors(id,name,abn,contact_name,email,phone), invoices(id,invoice_number,description,amount,due_date,issued_date,status), payments(invoice_id,amount)')
+      .select('id, status, interest_rate, opened_at, tribunal_body, debtors(*), invoices(id,invoice_number,description,amount,due_date,issued_date,status), payments(invoice_id,amount)')
       .eq('org_id', currentOrg.id)
       .order('opened_at', { ascending: true });
     if(r.error){ toast('Could not load cases: ' + r.error.message); cases = []; return; }
@@ -1103,10 +1128,202 @@
   function renderCasesTable(filter){
     var rows = cases.filter(function(c){ return filter==='all' || c.status===filter; });
     document.getElementById('casesBody').innerHTML = rows.length ? rows.map(function(c){
-      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+escapeHtml(c.debtor.name)+'<div class="sub">'+escapeHtml(c.invoiceNumber)+' · ABN '+escapeHtml(c.debtor.abn||'—')+'</div></td>'+
+      return '<tr class="clickable" data-case="'+c.id+'"><td class="name-cell">'+escapeHtml(c.debtor.name)+' '+nameCheckBadge(c.debtor, true)+'<div class="sub">'+escapeHtml(c.invoiceNumber)+' · ABN '+escapeHtml(c.debtor.abn ? fmtAbn(c.debtor.abn) : '—')+(c.debtor.legal_name && c.debtor.name_check !== 'match' ? ' · '+escapeHtml(c.debtor.legal_name) : '')+'</div></td>'+
         '<td class="num">'+money(c.total)+'</td><td>'+c.daysOverdue+' days</td><td>'+pill(c.status)+'</td><td><button class="btn sm ghost">Open →</button></td></tr>';
     }).join('') : '<tr><td colspan="5" class="empty-note">No cases match this filter.</td></tr>';
     Array.prototype.forEach.call(document.getElementById('casesBody').querySelectorAll('[data-case]'), function(el){ el.addEventListener('click', function(){ openCase(this.getAttribute('data-case')); }); });
+  }
+
+  /* ---------- Debtor contact cards + ABN register check ---------- */
+  var NAME_CHECK = {
+    match:       { label: 'Matches ABN register', cls: 'ok',   icon: '✓' },
+    similar:     { label: 'Similar to register name', cls: 'warn', icon: '!' },
+    different:   { label: 'Differs from register name', cls: 'crit', icon: '!' },
+    not_found:   { label: 'ABN not found', cls: 'crit', icon: '✕' },
+    invalid_abn: { label: 'ABN invalid', cls: 'crit', icon: '✕' },
+    cancelled:   { label: 'ABN cancelled', cls: 'crit', icon: '✕' }
+  };
+  var AU_STATES = ['', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+  function fmtAbn(a){ a = String(a || '').replace(/\D/g, ''); return a.length === 11 ? a.slice(0,2)+' '+a.slice(2,5)+' '+a.slice(5,8)+' '+a.slice(8) : (a || '—'); }
+  function fmtAcn(a){ a = String(a || '').replace(/\D/g, ''); return a.length === 9 ? a.slice(0,3)+' '+a.slice(3,6)+' '+a.slice(6) : (a || '—'); }
+  function validAbnClient(abn){ abn = String(abn || '').replace(/\D/g, ''); if(!/^\d{11}$/.test(abn)) return false; var w = [10,1,3,5,7,9,11,13,15,17,19], d = abn.split('').map(Number); d[0] -= 1; return d.reduce(function(s, x, i){ return s + x * w.at(i); }, 0) % 89 === 0; }
+  function nameCheckBadge(d, small){
+    if(!d || !d.abr_checked_at) return small ? '' : '<span class="nc-badge none">Not checked</span>';
+    var n = NAME_CHECK[d.name_check] || { label: 'Checked', cls: 'none', icon: '·' };
+    return small ? '<span class="nc-dot '+n.cls+'" title="'+escapeHtml(n.label)+'">'+n.icon+'</span>' : '<span class="nc-badge '+n.cls+'">'+n.icon+' '+escapeHtml(n.label)+'</span>';
+  }
+  // The name a letter of demand should use: the legal entity, with the trading name when different.
+  function letterAddresseeName(d){
+    if(!d) return '';
+    if(d.legal_name && d.name && d.legal_name.trim().toLowerCase() !== String(d.name).trim().toLowerCase()) return d.legal_name + ' (trading as ' + d.name + ')';
+    return d.legal_name || d.name || '';
+  }
+  function postalLines(d){
+    return [d.address_line1, d.address_line2, [d.suburb, d.state, d.postcode].filter(Boolean).join(' '), d.country && d.country !== 'Australia' ? d.country : ''].filter(function(x){ return x && String(x).trim(); });
+  }
+  var ccContacts = {}, ccEditing = false, ccSearch = null;
+  async function loadDebtorContacts(debtorId){
+    var r = await sb.from('debtor_contacts').select('*').eq('debtor_id', debtorId).order('is_primary', { ascending: false }).order('created_at');
+    ccContacts[debtorId] = r.data || [];
+  }
+  function renderContactCard(c){
+    var d = c.debtor, box = document.getElementById('contactCard'); if(!box) return;
+    if(ccEditing){ box.innerHTML = renderContactEdit(d); return; }
+    var dl = function(rows){ return '<dl class="cc-dl">'+rows.filter(function(r){ return r[1]; }).map(function(r){ return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'; }).join('')+'</dl>'; };
+    var abnLink = d.abn ? '<a href="https://abr.business.gov.au/ABN/View?abn='+escapeHtml(String(d.abn).replace(/\D/g, ''))+'" target="_blank" rel="noopener">'+escapeHtml(fmtAbn(d.abn))+'</a>' : '';
+    var warn = '';
+    if(d.abr_checked_at && (d.name_check === 'different' || d.name_check === 'similar'))
+      warn = '<div class="ai-flag '+(d.name_check === 'different' ? 'stop' : 'caution')+'">The name on file, “'+escapeHtml(d.name)+'”, '+(d.name_check === 'different' ? "doesn't match" : 'is close to but not the same as')+' the registered entity “'+escapeHtml(d.legal_name || '')+'”. A letter of demand should name the legal entity: <b>'+escapeHtml(letterAddresseeName(d))+'</b>. Confirm the ABN is the right business before sending.</div>';
+    else if(d.name_check === 'cancelled') warn = '<div class="ai-flag stop">This ABN is <b>'+escapeHtml(d.abn_status || 'not active')+'</b>'+(d.abn_status_from ? ' since '+escapeHtml(fmt(d.abn_status_from)) : '')+'. The business may have closed or been deregistered. Check ASIC before taking recovery action.</div>';
+    else if(d.name_check === 'invalid_abn' || d.name_check === 'not_found') warn = '<div class="ai-flag stop">The ABN on file '+(d.name_check === 'invalid_abn' ? "isn't a valid ABN" : "wasn't found on the register")+'. Edit it or use “Find ABN”.</div>';
+    else if(!d.abn) warn = '<div class="ai-flag info">No ABN on file. Use “Find ABN” to search the register by name, then confirm it is the right business.</div>';
+    var contacts = ccContacts[d.id] || [];
+    var people = (d.contact_name || d.email || d.phone ? [{ name: d.contact_name || 'Main contact', role: 'From '+(d.xero_contact_id ? 'Xero' : 'import'), email: d.email, phone: d.phone, primary: true, fixed: true }] : [])
+      .concat(contacts.map(function(x){ return { id: x.id, name: x.name, role: x.role, email: x.email, phone: x.phone, primary: x.is_primary, notes: x.notes }; }));
+    var postal = postalLines(d);
+    box.innerHTML = '<div class="card cc-card"><div class="card-head"><div><h3>Contact card</h3><div class="cc-sub">'+nameCheckBadge(d)+(d.abr_checked_at ? ' <span class="hint-r">Register checked '+escapeHtml(fmtDateTime(d.abr_checked_at))+'</span>' : '')+'</div></div>'
+      + '<div class="action-row"><button class="btn sm" type="button" data-cc="edit">Edit details</button>'
+      + (d.abn ? '<button class="btn sm" type="button" data-cc="check">Re-check ABN</button>' : '<button class="btn sm primary" type="button" data-cc="find">Find ABN</button>')
+      + '<a class="btn sm ghost" href="https://connectonline.asic.gov.au/" target="_blank" rel="noopener" title="Free ASIC search: company status and registered office suburb. Paid extracts show the full address and directors.">ASIC search ↗</a></div></div>'
+      + '<div class="card-body">' + warn
+      + (ccSearch ? renderAbnSearch() : '')
+      + '<div class="cc-grid">'
+      +   '<div><h4>Business</h4>' + dl([
+            ['Name on file', escapeHtml(d.name)],
+            ['Legal name', escapeHtml(d.legal_name || '')],
+            ['Business names', escapeHtml((d.business_names || []).join(', '))],
+            ['ABN', abnLink + (d.abn_status ? ' <span class="hint-r">'+escapeHtml(d.abn_status)+(d.abn_status_from ? ' from '+escapeHtml(fmt(d.abn_status_from)) : '')+'</span>' : '')],
+            ['ACN', d.acn ? escapeHtml(fmtAcn(d.acn)) : ''],
+            ['Entity type', escapeHtml(d.entity_type || '')],
+            ['GST', d.abr_checked_at ? (d.gst_from ? 'Registered from '+escapeHtml(fmt(d.gst_from)) : 'Not registered') : ''],
+            ['Register location', escapeHtml([d.abr_state, d.abr_postcode].filter(Boolean).join(' '))]
+          ]) + '</div>'
+      +   '<div><h4>People</h4>' + (people.length ? people.map(function(p){
+            return '<div class="cc-person"><div><b>'+escapeHtml(p.name)+'</b>'+(p.primary ? ' <span class="cc-tag">Primary</span>' : '')+(p.role ? '<div class="hint-r">'+escapeHtml(p.role)+'</div>' : '')
+              + (p.email ? '<div><a href="mailto:'+escapeHtml(p.email)+'">'+escapeHtml(p.email)+'</a></div>' : '') + (p.phone ? '<div><a href="tel:'+escapeHtml(String(p.phone).replace(/[^\d+]/g, ''))+'">'+escapeHtml(p.phone)+'</a></div>' : '')
+              + (p.notes ? '<div class="hint-r">'+escapeHtml(p.notes)+'</div>' : '') + '</div>'
+              + (p.id ? '<button class="linkbtn" type="button" data-cc-del="'+escapeHtml(p.id)+'">Remove</button>' : '') + '</div>';
+          }).join('') : '<div class="empty-note">No contacts yet.</div>')
+      +     '<button class="linkbtn" type="button" data-cc="addperson">+ Add a contact</button><div id="ccPersonForm"></div></div>'
+      +   '<div><h4>Postal address</h4>' + (postal.length ? '<div class="cc-addr">'+postal.map(escapeHtml).join('<br>')+'</div>' : '<div class="empty-note">No postal address. Letters of demand need one.</div>')
+      +     (d.website ? '<h4>Website</h4><div><a href="'+escapeHtml(/^https?:/i.test(d.website) ? d.website : 'https://'+d.website)+'" target="_blank" rel="noopener">'+escapeHtml(d.website)+'</a></div>' : '')
+      +     (d.notes ? '<h4>Notes</h4><div class="cc-notes">'+escapeHtml(d.notes)+'</div>' : '')
+      +     '<h4>On letters of demand</h4><div class="cc-addr">'+escapeHtml(letterAddresseeName(d))+(d.abn ? '<br>ABN '+escapeHtml(fmtAbn(d.abn)) : '')+(postal.length ? '<br>'+postal.map(escapeHtml).join('<br>') : '')+'</div>'
+      +   '</div>'
+      + '</div></div></div>';
+  }
+  function renderContactEdit(d){
+    var f = function(k, label, extra){ return '<label'+(extra && extra.wide ? ' class="span2"' : '')+'>'+label+'<input data-ce="'+k+'" value="'+escapeHtml(d[k] || '')+'"'+(extra && extra.attrs ? ' '+extra.attrs : '')+' /></label>'; };
+    return '<div class="card cc-card"><div class="card-head"><h3>Edit contact card</h3></div><div class="card-body"><div class="form-grid cc-form">'
+      + f('name', 'Name on file (as in Xero)', { wide: true })
+      + f('abn', 'ABN', { attrs: 'inputmode="numeric" maxlength="14"' }) + f('website', 'Website')
+      + f('contact_name', 'Main contact') + f('email', 'Email', { attrs: 'type="email"' })
+      + f('phone', 'Phone') + '<span></span>'
+      + f('address_line1', 'Address line 1', { wide: true }) + f('address_line2', 'Address line 2', { wide: true })
+      + f('suburb', 'Suburb') + '<label>State<select data-ce="state">'+AU_STATES.map(function(s){ return '<option'+(s === (d.state || '') ? ' selected' : '')+'>'+s+'</option>'; }).join('')+'</select></label>'
+      + f('postcode', 'Postcode', { attrs: 'inputmode="numeric" maxlength="4"' }) + f('country', 'Country')
+      + '<label class="span2">Notes<textarea data-ce="notes" rows="3" maxlength="2000">'+escapeHtml(d.notes || '')+'</textarea></label>'
+      + '</div><div class="fine">If this debtor syncs from Xero, Xero will overwrite the name, ABN, email and phone on the next sync. Change those in Xero instead. Address, website and notes are kept.</div>'
+      + '<div class="send-row"><button class="btn primary" type="button" data-cc="save">Save</button><button class="btn ghost" type="button" data-cc="cancel">Cancel</button></div></div></div>';
+  }
+  function renderAbnSearch(){
+    var s = ccSearch;
+    return '<div class="cc-search"><div class="cc-search-bar"><input id="ccSearchName" value="'+escapeHtml(s.q)+'" placeholder="Business name or ABN" /><button class="btn sm primary" type="button" data-cc="dosearch">Search register</button><button class="btn sm ghost" type="button" data-cc="closesearch">Close</button></div>'
+      + (s.loading ? '<div class="empty-note">Searching the ABN register…</div>'
+        : s.error ? '<div class="ai-flag caution">'+escapeHtml(s.error)+'</div>'
+        : s.results ? (s.results.length ? '<table class="cc-results"><thead><tr><th>Name</th><th>ABN</th><th>Status</th><th>Location</th><th></th></tr></thead><tbody>'+s.results.map(function(r){
+            return '<tr><td>'+escapeHtml(r.name)+'<div class="hint-r">'+escapeHtml(r.name_type || '')+'</div></td><td style="white-space:nowrap;">'+escapeHtml(fmtAbn(r.abn))+'</td><td>'+escapeHtml(r.status || '')+'</td><td>'+escapeHtml([r.state, r.postcode].filter(Boolean).join(' '))+'</td><td><button class="btn sm" type="button" data-cc-pick="'+escapeHtml(r.abn)+'">This one</button></td></tr>';
+          }).join('')+'</tbody></table><div class="fine">Pick only when you are sure it is the same business: check the location, and the legal name on an invoice or contract.</div>' : '<div class="empty-note">No matches. Try a shorter name, or ask the debtor for their ABN.</div>') : '')
+      + '</div>';
+  }
+  async function abnCheck(c, abn){
+    var d = await invokeFn('abn-lookup', { abn: abn || c.debtor.abn, debtor_id: c.debtor.id, save: true });
+    if(!d.ok){ toast(d.error || 'ABN check failed.'); }
+    else toast('ABN checked: ' + ((NAME_CHECK[d.name_check] || {}).label || 'done') + '.');
+    await refreshDebtorOnCase(c);
+    return d;
+  }
+  async function refreshDebtorOnCase(c){
+    var r = await sb.from('debtors').select('*').eq('id', c.debtor.id).maybeSingle();
+    if(r.data){ cases.forEach(function(x){ if(x.debtor.id === r.data.id) x.debtor = r.data; }); c.debtor = r.data; }
+    renderContactCard(c); renderCasesTable(currentCaseFilter || 'all');
+  }
+  function wireContactCard(c){
+    var box = document.getElementById('contactCard'); if(!box) return;
+    box.addEventListener('click', async function(e){
+      var t = e.target, act = t.getAttribute('data-cc');
+      if(t.getAttribute('data-cc-pick')){ ccSearch = null; t.disabled = true; await abnCheck(c, t.getAttribute('data-cc-pick')); return; }
+      if(t.getAttribute('data-cc-del')){
+        if(!confirm('Remove this contact?')) return;
+        var del = await sb.from('debtor_contacts').delete().eq('id', t.getAttribute('data-cc-del'));
+        if(del.error){ toast(del.error.message); return; }
+        await loadDebtorContacts(c.debtor.id); renderContactCard(c); return;
+      }
+      if(!act) return;
+      if(act === 'edit'){ ccEditing = true; renderContactCard(c); return; }
+      if(act === 'cancel'){ ccEditing = false; renderContactCard(c); return; }
+      if(act === 'check'){ t.disabled = true; t.textContent = 'Checking…'; await abnCheck(c); return; }
+      if(act === 'find'){ ccSearch = { q: c.debtor.name || '' }; renderContactCard(c); runAbnSearch(c); return; }
+      if(act === 'closesearch'){ ccSearch = null; renderContactCard(c); return; }
+      if(act === 'dosearch'){ ccSearch.q = document.getElementById('ccSearchName').value.trim(); runAbnSearch(c); return; }
+      if(act === 'addperson'){
+        document.getElementById('ccPersonForm').innerHTML = '<div class="form-grid cc-person-form"><label>Name<input data-cp="name" maxlength="120" /></label><label>Role<input data-cp="role" maxlength="80" placeholder="e.g. Accounts payable" /></label>'
+          + '<label>Email<input data-cp="email" type="email" maxlength="320" /></label><label>Phone<input data-cp="phone" maxlength="40" /></label>'
+          + '<label class="span2 inline-check"><input type="checkbox" data-cp="primary" /> Primary contact for collections</label></div>'
+          + '<div class="send-row"><button class="btn sm primary" type="button" data-cc="saveperson">Add contact</button></div>';
+        return;
+      }
+      if(act === 'saveperson'){
+        var g = function(k){ var el = box.querySelector('[data-cp="'+k+'"]'); return el.type === 'checkbox' ? el.checked : el.value.trim(); };
+        if(!g('name')){ toast('Add a name.'); return; }
+        if(g('primary')) await sb.from('debtor_contacts').update({ is_primary: false }).eq('debtor_id', c.debtor.id);
+        var ins = await sb.from('debtor_contacts').insert({ org_id: currentOrg.id, debtor_id: c.debtor.id, name: g('name'), role: g('role') || null, email: g('email') || null, phone: g('phone') || null, is_primary: !!g('primary') });
+        if(ins.error){ toast(ins.error.message); return; }
+        await loadDebtorContacts(c.debtor.id); renderContactCard(c); toast('Contact added.'); return;
+      }
+      if(act === 'save'){
+        var v = function(k){ var el = box.querySelector('[data-ce="'+k+'"]'); var x = el.value.trim(); return x === '' ? null : x; };
+        var abn = (v('abn') || '').replace(/\D/g, '') || null;
+        if(abn && !validAbnClient(abn)){ toast("That ABN isn't valid. Check it for typos."); return; }
+        if(v('postcode') && !/^\d{4}$/.test(v('postcode'))){ toast('Postcode should be 4 digits.'); return; }
+        var row = { name: v('name') || c.debtor.name, abn: abn, website: v('website'), contact_name: v('contact_name'), email: v('email'), phone: v('phone'),
+          address_line1: v('address_line1'), address_line2: v('address_line2'), suburb: v('suburb'), state: v('state'), postcode: v('postcode'), country: v('country'), notes: v('notes') };
+        var abnChanged = abn !== (c.debtor.abn || null) || row.name !== c.debtor.name;
+        if(abnChanged) Object.assign(row, { name_check: null, abr_checked_at: null });
+        var up = await sb.from('debtors').update(row).eq('id', c.debtor.id);
+        if(up.error){ toast('Could not save: ' + up.error.message); return; }
+        ccEditing = false;
+        if(abn && abnChanged) await abnCheck(c, abn); else await refreshDebtorOnCase(c);
+        toast('Contact card saved.');
+      }
+    });
+    box.addEventListener('keydown', function(e){ if(e.key === 'Enter' && e.target.id === 'ccSearchName'){ e.preventDefault(); box.querySelector('[data-cc="dosearch"]').click(); } });
+  }
+  async function runAbnSearch(c){
+    var q = (ccSearch.q || '').trim(); if(!q) return;
+    ccSearch.loading = true; ccSearch.error = null; ccSearch.results = null; renderContactCard(c);
+    var digitsOnly = q.replace(/\D/g, '');
+    var d = /^\d{11}$/.test(digitsOnly) ? await invokeFn('abn-lookup', { abn: digitsOnly }) : await invokeFn('abn-lookup', { name: q });
+    if(!ccSearch) return;
+    ccSearch.loading = false;
+    if(!d.ok) ccSearch.error = d.error || 'Search failed.';
+    else ccSearch.results = d.results || (d.details ? [{ abn: d.details.abn, name: d.details.legal_name, name_type: d.details.entity_type, status: d.details.abn_status, state: d.details.abr_state, postcode: d.details.abr_postcode }] : []);
+    renderContactCard(c);
+  }
+  // Check every debtor that has an ABN (Debtors & Cases toolbar).
+  async function checkAllAbns(btn){
+    var seen = {}, list = cases.map(function(c){ return c.debtor; }).filter(function(d){ if(!d.abn || seen[d.id]) return false; seen[d.id] = true; return true; });
+    if(!list.length){ toast('No debtors have an ABN yet. Open a case and use “Find ABN”.'); return; }
+    btn.disabled = true; var done = 0, issues = 0;
+    for(var i = 0; i < list.length; i++){
+      btn.textContent = 'Checking ' + (i + 1) + ' of ' + list.length + '…';
+      var d = await invokeFn('abn-lookup', { abn: list.at(i).abn, debtor_id: list.at(i).id, save: true });
+      if(d && d.error && /isn't set up/.test(d.error)){ toast(d.error); break; }
+      done++; if(!d.ok || (d.name_check && d.name_check !== 'match')) issues++;
+    }
+    await loadCases(); renderCasesTable(currentCaseFilter || 'all');
+    btn.disabled = false; btn.textContent = 'Check all ABNs';
+    toast('Checked ' + done + ' debtor' + (done === 1 ? '' : 's') + (issues ? ', ' + issues + ' need a look.' : ', all match.'));
   }
 
   /* ---------- case detail ---------- */
@@ -1143,8 +1360,9 @@
     var notes = nt.data || [];
     var html = ''
       +'<button class="back-link" id="backToCases">← Back to Debtors &amp; Cases</button>'
-      +'<div class="detail-head"><div><h2>'+escapeHtml(c.debtor.name)+'</h2><div class="meta">ABN '+escapeHtml(c.debtor.abn||'—')+' · '+escapeHtml(c.debtor.contact_name||'')+' · '+escapeHtml(c.debtor.email||'')+' · '+escapeHtml(c.debtor.phone||'')+'</div></div>'
+      +'<div class="detail-head"><div><h2>'+escapeHtml(c.debtor.name)+' '+nameCheckBadge(c.debtor, true)+'</h2><div class="meta">'+(c.debtor.legal_name ? escapeHtml(c.debtor.legal_name)+' · ' : '')+'ABN '+escapeHtml(c.debtor.abn ? fmtAbn(c.debtor.abn) : '—')+'</div></div>'
         +'<div class="action-row"><button class="btn primary" data-goto="letters" data-preselect="'+c.id+'">Send letter of demand</button></div></div>'
+      +'<div id="contactCard" style="margin-bottom:16px;"></div>'
       +'<div class="card" style="margin-bottom:16px;"><div class="card-head"><h3>Escalation pipeline</h3></div><div class="card-body">'
         +renderPipeline(c) + renderPipelineActions(c)
       +'</div></div>'
@@ -1182,6 +1400,9 @@
       +'</div></div>';
     document.getElementById('detailView').innerHTML = html;
     showView('detail');
+    ccEditing = false; ccSearch = null;
+    await loadDebtorContacts(c.debtor.id);
+    renderContactCard(c); wireContactCard(c);
     document.getElementById('backToCases').addEventListener('click', function(){ showView('cases'); setActiveNav('cases'); });
     var gotoBtn = document.getElementById('detailView').querySelector('[data-goto]');
     if(gotoBtn) gotoBtn.addEventListener('click', function(){ selectLetterCase(c.id); showView('letters'); setActiveNav('letters'); });
@@ -3096,6 +3317,7 @@
   }
   initHistoryPanel('stmt'); initHistoryPanel('letters');
 
+  document.getElementById('checkAllAbnsBtn').addEventListener('click', function(){ checkAllAbns(this); });
   /* -- import -- */
   function statementsImportInfo(provider){
     if(provider === 'xero' && xeroConnected){
