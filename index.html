@@ -290,8 +290,23 @@
   .debt-main b{font-size:12.5px;}
   .debt-desc{color:var(--text-faint);font-size:11px;}
   .debt-note{display:block;color:#8a6d1f;font-size:10.5px;margin-top:2px;}
-  .debt-due{color:var(--text-muted);white-space:nowrap;width:84px;}
+  .debt-due{color:var(--text-muted);white-space:nowrap;width:96px;}
   .debt-amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;width:86px;text-align:right;}
+  .stmt-filter-bar{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .stmt-filter-bar select{flex:1 1 220px;min-width:0;}
+  .stmt-filter-bar input{flex:1 1 180px;min-width:0;border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--text);font-size:13px;}
+  .stmt-filter-meta{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-faint);margin-bottom:8px;}
+  .linkbtn{background:none;border:none;color:var(--accent);font-size:11.5px;cursor:pointer;padding:0;}
+  .linkbtn:disabled{color:var(--text-faint);cursor:default;}
+  .stage-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;font-size:10px;font-weight:600;background:var(--surface-alt);color:var(--text-muted);border:1px solid var(--border);vertical-align:1px;}
+  .stage-tag.reminder{background:#eef4ff;color:#2f5bb7;border-color:#cfdcf7;}
+  .stage-tag.first_demand{background:#fff5e6;color:#9a5b00;border-color:#f3dcb4;}
+  .stage-tag.final_demand,.stage-tag.recovery{background:#fdecec;color:#a32626;border-color:#f3c9c9;}
+  .stage-tag.plan{background:#eaf7ef;color:#1f7a45;border-color:#c5e8d3;}
+  .debt-row.dim{opacity:.5;}
+  .debt-due small{display:block;font-size:10.5px;color:var(--text-faint);}
+  .debt-due small.od{color:#a32626;}
+  .contact-total .sub{display:block;font-weight:400;font-size:10.5px;color:var(--text-faint);text-align:right;}
   .stmt-selection-summary{font-size:12px;color:var(--text-muted);margin:10px 0 2px;}
   .stmt-recipient-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
   .stmt-recipient-row label{font-size:11.5px;font-weight:600;color:var(--text-muted);}
@@ -488,6 +503,11 @@
         <div class="card">
           <div class="card-head"><h3>Contacts &amp; debts</h3><span style="font-size:11.5px;color:var(--text-faint);">Tick contacts to merge, tick invoices to include</span></div>
           <div class="card-body">
+            <div class="stmt-filter-bar">
+              <select id="stmtFilter" aria-label="Filter contacts"></select>
+              <input type="search" id="stmtSearch" placeholder="Search name, ABN or invoice…" aria-label="Search contacts" />
+            </div>
+            <div class="stmt-filter-meta"><span id="stmtFilterCount"></span><button type="button" class="linkbtn" id="stmtClearSel">Clear selection</button></div>
             <div class="contact-list" id="stmtContactList"></div>
             <div class="stmt-selection-summary" id="stmtSelectionSummary"></div>
           </div>
@@ -552,7 +572,7 @@
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var session = null, currentOrg = null, cases = [], letterTemplates = [], currentTpl = 'reminder';
-  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtNotesByInvoice = {};
+  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtNotesByInvoice = {}, stmtFilter = 'open', stmtSearch = '';
   var STATUS_LABEL = {new:'New',letter_sent:'Letter sent',awaiting_response:'Awaiting response',payment_plan:'Payment plan',escalated:'Escalated',debt_recovery:'Debt recovery',tribunal:'Tribunal',resolved:'Resolved'};
   var NOTE_CATEGORY_LABEL = {promise_to_pay:'Promise to pay',dispute:'Dispute raised',payment_plan_request:'Payment plan request',payment_made:'Says payment made',hardship:'Hardship',reminder_ack:'Acknowledged reminder',contact_change:'Contact details changed',other:'Note'};
   var NOTE_TONE = {dispute:'crit',hardship:'warn',payment_made:'warn',promise_to_pay:'ok',payment_plan_request:'ok'};
@@ -1190,12 +1210,13 @@
       var paidSum = paidRows.reduce(function(s,p){ return s + Number(p.amount); }, 0);
       var fullyPaid = i.status === 'paid' || paidSum >= Number(i.amount) - 0.01;
       var lastPaidAt = paidRows.length ? paidRows.reduce(function(mx,p){ return p.paid_at > mx ? p.paid_at : mx; }, paidRows[0].paid_at) : null;
-      var isLate = fullyPaid ? (lastPaidAt ? new Date(lastPaidAt) > new Date(i.due_date) : false) : new Date(i.due_date) < today;
+      var daysOverdue = daysPastDue(i.due_date);
+      var isLate = fullyPaid ? (lastPaidAt ? String(lastPaidAt).slice(0,10) > String(i.due_date).slice(0,10) : false) : daysOverdue > 0;
       return {
         id: i.id, debtor_id: i.debtor_id, case_id: i.case_id, debtor: i.debtors || {},
         invoice_number: i.invoice_number, description: i.description, amount: Number(i.amount),
         issued_date: i.issued_date, due_date: i.due_date, status: i.status,
-        fullyPaid: fullyPaid, isLate: isLate
+        fullyPaid: fullyPaid, isLate: isLate, daysOverdue: daysOverdue
       };
     });
     var dmap = {};
@@ -1204,35 +1225,162 @@
       if(!dmap[i.debtor_id]) dmap[i.debtor_id] = { id: i.debtor_id, name: i.debtor.name, abn: i.debtor.abn, contact_name: i.debtor.contact_name, email: i.debtor.email, invoices: [] };
       dmap[i.debtor_id].invoices.push(i);
     });
+    // Collection stage per debtor: furthest letter sent on an open case, plus case status.
+    var cs = await sb.from('cases').select('id, debtor_id, status').eq('org_id', currentOrg.id);
+    var caseById = {};
+    (cs.data || []).forEach(function(c){ caseById[c.id] = c; });
+    var lt = await sb.from('letters').select('case_id, type, sent_at').eq('org_id', currentOrg.id).eq('status', 'sent');
+    var LETTER_RANK = { reminder: 1, first_demand: 2, final_demand: 3 };
+    Object.keys(dmap).forEach(function(k){ dmap[k].stage = null; dmap[k].stageAt = null; dmap[k].caseStatus = null; });
+    (cs.data || []).forEach(function(c){
+      var d = dmap[c.debtor_id]; if(!d || c.status === 'resolved') return;
+      if(['debt_recovery','tribunal','payment_plan'].indexOf(c.status) >= 0) d.caseStatus = c.status;
+    });
+    (lt.data || []).forEach(function(l){
+      var c = caseById[l.case_id]; if(!c || c.status === 'resolved') return;
+      var d = dmap[c.debtor_id]; if(!d || !LETTER_RANK[l.type]) return;
+      if(!d.stage || LETTER_RANK[l.type] > LETTER_RANK[d.stage] || (l.type === d.stage && l.sent_at > d.stageAt)){ d.stage = l.type; d.stageAt = l.sent_at; }
+    });
     stmtDebtors = Object.keys(dmap).map(function(k){ return dmap[k]; }).sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
   }
 
-  function invoiceDefaultChecked(inv){ return !inv.fullyPaid; }
+  // Whole days an ISO date (YYYY-MM-DD) is past due, by the local calendar date. Negative = days until due.
+  function daysPastDue(iso){
+    if(!iso) return 0;
+    var t = new Date(), p = String(iso).slice(0,10).split('-');
+    return Math.round((Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()) - Date.UTC(+p[0], +p[1]-1, +p[2])) / 864e5);
+  }
+
+  var STMT_FILTERS = [
+    { group: 'Balance', items: [
+      ['open', 'All with a balance owing'],
+      ['all', 'All contacts (including fully paid)'] ] },
+    { group: 'Due date', items: [
+      ['upcoming', 'Upcoming (not yet due)'],
+      ['due_today', 'Due today'],
+      ['due_tomorrow', 'Due tomorrow'],
+      ['due_7', 'Due in the next 7 days'],
+      ['overdue', 'Overdue (any)'],
+      ['od_1_9', 'Overdue 1–9 days'],
+      ['od_10', 'Overdue 10+ days'],
+      ['od_30', 'Overdue 30+ days'],
+      ['od_60', 'Overdue 60+ days'],
+      ['od_90', 'Overdue 90+ days'] ] },
+    { group: 'Collection stage', items: [
+      ['stage_none', 'Overdue, no letter sent yet'],
+      ['stage_reminder', 'Friendly reminder sent'],
+      ['stage_first', 'First letter of demand sent'],
+      ['stage_final', 'Final letter of demand sent'],
+      ['stage_recovery', 'Debt recovery / tribunal'],
+      ['stage_plan', 'On a payment plan'] ] },
+    { group: 'Debtor notes', items: [
+      ['note_dispute', 'Dispute raised'],
+      ['note_promise', 'Promise to pay'],
+      ['note_plan', 'Asked for a payment plan'],
+      ['note_hardship', 'Hardship'],
+      ['note_paid', 'Says already paid'] ] }
+  ];
+  var NOTE_FILTER_CAT = { note_dispute: 'dispute', note_promise: 'promise_to_pay', note_plan: 'payment_plan_request', note_hardship: 'hardship', note_paid: 'payment_made' };
+  var STAGE_FILTER = { stage_reminder: 'reminder', stage_first: 'first_demand', stage_final: 'final_demand' };
+  var STAGE_LABEL = { reminder: 'Reminder sent', first_demand: 'First demand sent', final_demand: 'Final demand sent' };
+
+  // Does this invoice match the filter? Contact-level filters (stage) match every open invoice of a matching contact.
+  function invoiceMatchesFilter(inv, d, f){
+    if(f === 'all') return true;
+    if(inv.fullyPaid) return false;
+    var od = inv.daysOverdue;
+    switch(f){
+      case 'open': return true;
+      case 'upcoming': return od < 0;
+      case 'due_today': return od === 0;
+      case 'due_tomorrow': return od === -1;
+      case 'due_7': return od <= 0 && od >= -7;
+      case 'overdue': return od > 0;
+      case 'od_1_9': return od >= 1 && od <= 9;
+      case 'od_10': return od >= 10;
+      case 'od_30': return od >= 30;
+      case 'od_60': return od >= 60;
+      case 'od_90': return od >= 90;
+      case 'stage_none': return od > 0 && !d.stage && !d.caseStatus;
+      case 'stage_recovery': return d.caseStatus === 'debt_recovery' || d.caseStatus === 'tribunal';
+      case 'stage_plan': return d.caseStatus === 'payment_plan';
+    }
+    if(STAGE_FILTER[f]) return d.stage === STAGE_FILTER[f];
+    if(NOTE_FILTER_CAT[f]){ var n = stmtNotesByInvoice[inv.id]; return !!n && n.category === NOTE_FILTER_CAT[f]; }
+    return true;
+  }
+  function filterIsInvoiceLevel(f){ return f !== 'all' && f !== 'open' && !STAGE_FILTER[f] && f !== 'stage_recovery' && f !== 'stage_plan'; }
+
+  function debtorMatchesSearch(d, q){
+    if(!q) return true;
+    q = q.toLowerCase().trim();
+    var digits = q.replace(/\s/g,'');
+    if((d.name||'').toLowerCase().indexOf(q) >= 0) return true;
+    if((d.contact_name||'').toLowerCase().indexOf(q) >= 0) return true;
+    if(/^\d+$/.test(digits) && (d.abn||'').replace(/\s/g,'').indexOf(digits) >= 0) return true;
+    return d.invoices.some(function(i){ return (i.invoice_number||'').toLowerCase().indexOf(q) >= 0; });
+  }
+
+  function visibleStatementDebtors(){
+    return stmtDebtors.filter(function(d){
+      return debtorMatchesSearch(d, stmtSearch) && d.invoices.some(function(i){ return invoiceMatchesFilter(i, d, stmtFilter); });
+    });
+  }
+
+  function renderStatementFilter(){
+    var sel = document.getElementById('stmtFilter');
+    sel.innerHTML = STMT_FILTERS.map(function(g){
+      return '<optgroup label="'+escapeHtml(g.group)+'">'+g.items.map(function(it){
+        var n = stmtDebtors.filter(function(d){ return d.invoices.some(function(i){ return invoiceMatchesFilter(i, d, it[0]); }); }).length;
+        return '<option value="'+it[0]+'"'+(it[0]===stmtFilter?' selected':'')+'>'+escapeHtml(it[1])+' ('+n+')</option>';
+      }).join('')+'</optgroup>';
+    }).join('');
+  }
+
+  function invoiceDefaultChecked(inv){
+    if(inv.fullyPaid) return false;
+    if(!filterIsInvoiceLevel(stmtFilter)) return true;
+    var d = stmtDebtors.filter(function(x){ return x.id === inv.debtor_id; })[0];
+    return d ? invoiceMatchesFilter(inv, d, stmtFilter) : true;
+  }
   function isInvoiceChecked(inv){ return stmtInvoiceOverride.hasOwnProperty(inv.id) ? stmtInvoiceOverride[inv.id] : invoiceDefaultChecked(inv); }
 
   function renderStatementContacts(){
     var list = document.getElementById('stmtContactList');
-    list.innerHTML = stmtDebtors.length ? stmtDebtors.map(function(d){
+    renderStatementFilter();
+    var shown = visibleStatementDebtors();
+    var invLevel = filterIsInvoiceLevel(stmtFilter);
+    var selCount = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; }).length;
+    document.getElementById('stmtFilterCount').textContent = 'Showing '+shown.length+' of '+stmtDebtors.length+' contacts'+(selCount ? ' · '+selCount+' selected' : '');
+    document.getElementById('stmtClearSel').disabled = !selCount;
+    list.innerHTML = shown.length ? shown.map(function(d){
       var totalOwing = d.invoices.filter(function(i){ return !i.fullyPaid; }).reduce(function(s,i){ return s+i.amount; }, 0);
+      var matchTotal = invLevel ? d.invoices.filter(function(i){ return invoiceMatchesFilter(i, d, stmtFilter); }).reduce(function(s,i){ return s+i.amount; }, 0) : null;
+      var stageTag = (d.caseStatus === 'debt_recovery' || d.caseStatus === 'tribunal') ? '<span class="stage-tag recovery">'+escapeHtml(STATUS_LABEL[d.caseStatus])+'</span>'
+        : d.caseStatus === 'payment_plan' ? '<span class="stage-tag plan">Payment plan</span>'
+        : d.stage ? '<span class="stage-tag '+d.stage+'" title="Sent '+escapeHtml(fmt(d.stageAt))+'">'+STAGE_LABEL[d.stage]+' · '+Math.max(0, daysPastDue(String(d.stageAt).slice(0,10)))+'d ago</span>' : '';
       var checked = !!stmtSelectedDebtors[d.id];
       var rows = d.invoices.map(function(inv){
         var chk = isInvoiceChecked(inv);
         var note = stmtNotesByInvoice[inv.id];
         var noteHtml = note ? '<span class="debt-note">'+(NOTE_CATEGORY_LABEL[note.category]||'Note')+': '+escapeHtml(note.summary)+'</span>' : '';
-        return '<label class="debt-row"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
+        var dim = invLevel && !invoiceMatchesFilter(inv, d, stmtFilter);
+        var od = inv.daysOverdue;
+        var when = inv.fullyPaid ? '' : od > 0 ? '<small class="od">'+od+' day'+(od===1?'':'s')+' overdue</small>' : od === 0 ? '<small class="od">Due today</small>' : od === -1 ? '<small>Due tomorrow</small>' : '<small>in '+(-od)+' days</small>';
+        return '<label class="debt-row'+(dim?' dim':'')+'"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
           +'<span class="debt-main"><b>'+escapeHtml(inv.invoice_number||'—')+'</b><span class="debt-desc">'+escapeHtml(inv.description||'')+'</span>'+noteHtml+'</span>'
-          +'<span class="debt-due">'+fmt(inv.due_date)+'</span>'
+          +'<span class="debt-due">'+fmt(inv.due_date)+when+'</span>'
           +'<span class="debt-amt">'+money(inv.amount)+'</span>'
           +'<span class="pill '+(inv.fullyPaid?'resolved':(inv.isLate?'escalated':'new'))+'">'+(inv.fullyPaid?'Paid':(inv.isLate?'Late':'Open'))+'</span></label>';
       }).join('');
       return '<div class="contact-group'+(checked?' sel':'')+'">'
         +'<label class="contact-head"><input type="checkbox" class="contact-check" data-debtor="'+d.id+'" '+(checked?'checked':'')+' />'
-        +'<span class="contact-name">'+escapeHtml(d.name)+'<span class="sub">ABN '+escapeHtml(d.abn||'—')+' · '+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+'</span></span>'
-        +'<span class="contact-total">'+money(totalOwing)+'</span>'
+        +'<span class="contact-name">'+escapeHtml(d.name)+stageTag+'<span class="sub">ABN '+escapeHtml(d.abn||'—')+' · '+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+'</span></span>'
+        +'<span class="contact-total">'+(matchTotal !== null ? money(matchTotal)+'<span class="sub">of '+money(totalOwing)+' owing</span>' : money(totalOwing))+'</span>'
         +'<button type="button" class="chev" data-toggle="'+d.id+'">'+(checked?'▴':'▾')+'</button></label>'
         +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'>'+rows+'</div>'
         +'</div>';
-    }).join('') : '<div class="empty-note">No debtors with invoices yet. Import data above, or add debtors under Debtors &amp; Cases, to get started.</div>';
+    }).join('') : (stmtDebtors.length ? '<div class="empty-note">No contacts match this filter.</div>' : '<div class="empty-note">No debtors with invoices yet. Import data above, or add debtors under Debtors &amp; Cases, to get started.</div>');
     Array.prototype.forEach.call(list.querySelectorAll('.contact-check'), function(cb){
       cb.addEventListener('change', function(){
         var id = this.getAttribute('data-debtor');
@@ -1400,6 +1548,13 @@
   }
   document.getElementById('stmtImportXeroBtn').addEventListener('click', function(){ statementsImportInfo('xero'); });
   document.getElementById('stmtImportQbBtn').addEventListener('click', function(){ statementsImportInfo('quickbooks'); });
+  document.getElementById('stmtFilter').addEventListener('change', function(){
+    stmtFilter = this.value;
+    stmtInvoiceOverride = {};  // re-tick invoices to suit the new filter
+    renderStatementContacts();
+  });
+  document.getElementById('stmtSearch').addEventListener('input', function(){ stmtSearch = this.value; renderStatementContacts(); });
+  document.getElementById('stmtClearSel').addEventListener('click', function(){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; renderStatementContacts(); });
   document.getElementById('stmtImportCsvBtn').addEventListener('click', function(){ document.getElementById('stmtCsvInput').click(); });
 
   function parseCsv(text){
