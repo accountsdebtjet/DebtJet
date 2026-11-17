@@ -547,6 +547,79 @@
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;z-index:50;max-width:340px;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+  /* Debt Recovery */
+  .rec-top{grid-template-columns:minmax(260px,1.4fr) minmax(200px,1fr) auto;}
+  .rec-shell{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;}
+  .rec-main{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .rec-side{position:sticky;top:96px;display:flex;flex-direction:column;gap:12px;}
+  .rec-step{padding:0;}
+  .rec-step-head{display:flex;align-items:center;gap:10px;padding:14px 18px 6px;}
+  .rec-step-head h3{margin:0;font-size:15px;}
+  .rec-num{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;background:var(--surface-alt);color:var(--text-muted);flex:0 0 auto;}
+  .rec-step.current .rec-num{background:var(--accent);color:#fff;}
+  .rec-step.done .rec-num{background:var(--success-soft);color:var(--success);}
+  .rec-step-body{padding:4px 18px 16px 54px;}
+  .rec-checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .rec-checks li{border-radius:8px;padding:8px 10px 8px 32px;position:relative;font-size:13px;display:flex;flex-direction:column;gap:2px;}
+  .rec-checks li span{font-size:12.5px;opacity:.9;}
+  .rec-checks li::before{position:absolute;left:10px;top:8px;font-weight:700;}
+  .rec-checks li.ok{background:var(--success-soft);color:var(--success);} .rec-checks li.ok::before{content:"\2713";}
+  .rec-checks li.info{background:var(--info-soft);color:var(--info);} .rec-checks li.info::before{content:"i";}
+  .rec-checks li.caution{background:var(--warning-soft);color:var(--warning);} .rec-checks li.caution::before{content:"!";}
+  .rec-checks li.stop{background:var(--critical-soft);color:var(--critical);} .rec-checks li.stop::before{content:"\00D7";}
+  .rec-togs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:10px;}
+  .rec-tog{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;}
+  .rec-tog em{font-style:normal;color:var(--text-muted);font-weight:500;}
+  .rec-total{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 8px;}
+  .rec-total div{background:var(--surface-alt);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;}
+  .rec-total span{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+  .rec-total b{font-size:15px;font-variant-numeric:tabular-nums;}
+  .rec-total .t{background:var(--accent-soft);} .rec-total .t b{color:var(--accent-strong);}
+  .rec-tablewrap{overflow-x:auto;}
+  .rec-table td,.rec-table th{padding:7px 8px;}
+  .rec-start .card-body{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .rec-start p{margin:4px 0 0;}
+  .rec-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .rec-cols h4{margin:4px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+  .rec-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .rec-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+  .rec-f{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--text-muted);min-width:0;}
+  .rec-f.wide{width:100%;}
+  .rec-f em{font-style:normal;font-weight:500;font-size:11.5px;}
+  .rec-f input,.rec-f select,.rec-f textarea{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;font-weight:400;background:var(--surface);color:var(--text);min-width:0;}
+  .rec-f textarea{resize:vertical;line-height:1.5;}
+  .rec-f input[readonly]{background:var(--surface-alt);}
+  .rec-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;}
+  .rec-ev{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:5px;font-size:13px;}
+  .rec-ev li{padding-left:24px;position:relative;}
+  .rec-ev li.ok::before{content:"\2713";position:absolute;left:4px;color:var(--success);font-weight:700;}
+  .rec-ev li.todo::before{content:"\25CB";position:absolute;left:4px;color:var(--text-muted);}
+  .rec-ev li.man{padding-left:0;} .rec-ev li.man label{display:flex;gap:8px;align-items:flex-start;}
+  .rec-sum-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .rec-sum-amt{font-size:26px;font-weight:800;margin-top:10px;font-variant-numeric:tabular-nums;font-family:"Sora",sans-serif;}
+  .rec-dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:12px 0;font-size:12.5px;}
+  .rec-dl dt{color:var(--text-muted);} .rec-dl dd{margin:0;font-weight:600;}
+  .rec-next{background:var(--accent-soft);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;font-size:12.5px;margin-bottom:10px;}
+  .rec-next b{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-strong);}
+  .rec-next em{font-style:normal;font-weight:700;} .rec-next em.late{color:var(--critical);}
+  .rec-note .card-body{color:var(--text-muted);line-height:1.5;}
+  .rec-disputes{margin-top:16px;}
+  .rec-dispute{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;}
+  .rec-d-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .rec-d-head .pill{margin-left:auto;}
+  .rec-d-says{background:var(--surface-alt);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:10px;}
+  .rec-d-says span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:700;margin-bottom:2px;}
+  .rec-evchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 8px;}
+  .rec-evchip{font-size:11.5px;font-weight:600;background:var(--info-soft);color:var(--info);border-radius:6px;padding:2px 7px;cursor:help;}
+  .rec-gaps{background:var(--warning-soft);color:var(--warning);border-radius:8px;padding:8px 10px;font-size:12.5px;margin:4px 0 8px;}
+  .rec-gaps ul{margin:4px 0 0;padding-left:18px;}
+  .rec-approve{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;}
+  .rec-pick{margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto;font-size:12px;}
+  .rec-pick label{display:flex;gap:6px;align-items:flex-start;}
+  .rec-add{margin-top:8px;} .rec-add summary{list-style:none;display:inline-flex;} .rec-add summary::-webkit-details-marker{display:none;}
+  .rec-add[open] summary{margin-bottom:10px;}
+  #recFiles tr.sel td{background:var(--accent-soft);}
+
   @media (max-width:900px){
     .kpi-row{grid-template-columns:repeat(2,1fr);}
     .grid-2{grid-template-columns:1fr;}
@@ -554,6 +627,10 @@
     .stmt-shell{grid-template-columns:1fr;}
     .info-grid{grid-template-columns:1fr;}
     .ld-shell,.ld-top-bar{grid-template-columns:1fr;}
+    .rec-shell,.rec-cols,.rec-row,.rec-top{grid-template-columns:1fr;}
+    .rec-total{grid-template-columns:repeat(2,1fr);}
+    .rec-side{position:static;}
+    .rec-step-body{padding-left:18px;}
     .ld-side{position:static;max-height:none;}
     .int-grid{grid-template-columns:1fr;}
     .pay-grid{grid-template-columns:1fr;}
@@ -623,6 +700,7 @@
       <button class="nav-btn" data-view="interest"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="6.5" r="2"/><circle cx="13.5" cy="13.5" r="2"/><path d="M15 5L5 15"/></svg>Interest &amp; Fees</button>
       <button class="nav-btn" data-view="statements"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2.5" width="14" height="15" rx="1.6"/><path d="M6 6.5h8M6 9.8h8M6 13.1h5"/></svg>Account Statements</button>
       <button class="nav-btn" data-view="letters"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3.5" width="15" height="13" rx="1.6"/><path d="M3.2 4.5l6.8 6 6.8-6"/></svg>Letters of Demand</button>
+      <button class="nav-btn" data-view="recovery"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v13.5M6 16.5h8M4 6h12M10 3.5 8.8 6M10 3.5 11.2 6"/><path d="M4 6 2 10.5a2.2 2.2 0 0 0 4 0L4 6ZM16 6l-2 4.5a2.2 2.2 0 0 0 4 0L16 6Z"/></svg>Debt Recovery</button>
       <button class="nav-btn" data-view="portal"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="2.5" width="11" height="15" rx="2"/><path d="M8 15h4"/></svg>Debtor Portal</button>
       <button class="nav-btn" data-view="payments"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="10.5" rx="1.6"/><path d="M2.5 8.5h15M5.5 12.5h3"/></svg>Payment Portal</button>
       <button class="nav-btn" data-view="integrations"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="3"/><circle cx="14" cy="14" r="3"/><path d="M8.2 7.8l3.6 4.4"/></svg>Integrations</button>
@@ -805,6 +883,25 @@
     </section>
 
     <!-- DEBTOR PORTAL PREVIEW -->
+    <section class="view" data-view="recovery" hidden>
+      <div class="ld-top-bar card rec-top">
+        <label>Case<select id="recCaseSelect"></select></label>
+        <label>State or territory<select id="recJurSelect">
+          <option value="QLD">Queensland · QCAT</option><option value="NSW">NSW · coming soon</option><option value="VIC">Victoria · coming soon</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option><option value="ACT">ACT · coming soon</option><option value="NT">NT · coming soon</option>
+        </select></label>
+        <div></div>
+      </div>
+      <div class="card" id="recFiles" hidden style="margin-bottom:14px;">
+        <div class="card-head"><h3>Recovery files</h3></div>
+        <div class="card-body" style="padding-top:0;"><table><thead><tr><th>Debtor</th><th>Forum</th><th>Status</th><th class="num">Claimed</th><th>File no.</th><th>Next date</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div id="recRoot"></div>
+      <details class="card hist-panel" id="hist-recovery" style="margin-top:20px;">
+        <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
+        <div class="card-body hist-body"></div>
+      </details>
+      <div id="recPrint" hidden></div>
+    </section>
     <section class="view" data-view="portal" hidden>
       <div class="note-callout">
         <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" style="flex:0 0 auto;margin-top:1px;"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v4.2M10 6.8v.1"/></svg>
@@ -1092,6 +1189,9 @@
     await loadSavedStatements();
     renderStatementTemplateOptions();
     renderPaymentsView();
+    await loadRecoveryMatters();
+    renderRecoveryCaseOptions();
+    if(!document.querySelector('.view[data-view="recovery"]').hidden) selectRecoveryCase(recState.caseId);
   }
   document.getElementById('refreshBtn').addEventListener('click', function(){ refreshAll(); toast('Refreshed.'); });
 
@@ -1393,9 +1493,10 @@
     if(c.status === 'resolved') return '<div class="empty-note" style="margin-top:10px;">This case is resolved.</div>';
     var html = '<div class="action-row" style="margin-top:10px;align-items:center;">';
     if(c.status === 'tribunal'){
-      html += '<div class="info-box" style="margin:0;"><div class="k">Referred to</div><div class="v small">'+escapeHtml(c.tribunalBody||'—')+'</div></div>';
+      html += '<div class="info-box" style="margin:0;"><div class="k">Referred to</div><div class="v small">'+escapeHtml(c.tribunalBody||'—')+'</div></div>'
+        + '<button class="btn primary" id="openRecoveryBtn">Open in Debt Recovery</button>';
     } else if(c.status === 'debt_recovery' || c.status === 'escalated'){
-      html += '<select id="tribunalSelect">'+TRIBUNAL_OPTIONS.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('')+'</select>'
+      html += '<button class="btn primary" id="openRecoveryBtn">Open in Debt Recovery</button><select id="tribunalSelect">'+TRIBUNAL_OPTIONS.map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('')+'</select>'
         + '<button class="btn primary" id="toTribunalBtn">Refer to tribunal</button>';
     } else {
       html += '<button class="btn primary" id="toDebtRecoveryBtn">Move to Debt Recovery</button>';
@@ -1479,6 +1580,8 @@
       toast('Case moved to Debt Recovery.');
       await loadCases(); openCase(c.id); renderDashboard(); renderCasesTable(currentCaseFilter);
     });
+    var openRec = document.getElementById('openRecoveryBtn');
+    if(openRec) openRec.addEventListener('click', function(){ recState.caseId = c.id; showView('recovery'); setActiveNav('recovery'); });
     var toTrib = document.getElementById('toTribunalBtn');
     if(toTrib) toTrib.addEventListener('click', async function(){
       var body = document.getElementById('tribunalSelect').value;
@@ -1503,6 +1606,7 @@
     cases:['Debtors & Cases','Every open and resolved recovery case'],
     detail:['Case detail','Full history for this debtor'],
     letters:['Letters of Demand','Draft, preview and send recovery correspondence'],
+    recovery:['Debt Recovery','Take an unpaid debt to your state’s tribunal or court, step by step'],
     statements:['Account Statements','Compile multi-invoice statements for one or more contacts'],
     payments:['Payment Portal','Where and how debtors pay you'],
     interest:['Interest & Fees','Rules, overdue invoices and what each will be charged'],
@@ -1515,6 +1619,7 @@
     document.getElementById('pageSub').textContent = TITLES[name][1];
     document.getElementById('sidebar').classList.remove('open');
     window.scrollTo(0,0);
+    if(name === 'recovery'){ renderRecoveryCaseOptions(); selectRecoveryCase(recState.caseId); }
   }
   function setActiveNav(name){ Array.prototype.forEach.call(document.querySelectorAll('.nav-btn'), function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); }); }
   Array.prototype.forEach.call(document.querySelectorAll('.nav-btn[data-view]'), function(btn){ btn.addEventListener('click', function(){ var v=this.getAttribute('data-view'); showView(v); setActiveNav(v); }); });
@@ -3200,9 +3305,11 @@
     var src = onStatements && paper.querySelector('.sd, table') ? paper : (onLetters && lpaper.querySelector('.ld') ? lpaper : null);
     var ok = !!src;
     document.getElementById('printRoot').innerHTML = ok ? src.outerHTML.replace(/id="(statementPaper|letterPaper)"/, '') : '';
+    var recBox = document.getElementById('recPrint');
+    if(!document.querySelector('.view[data-view="recovery"]').hidden && recBox && recBox.innerHTML){ document.getElementById('printRoot').innerHTML = recBox.innerHTML; ok = true; }
     document.body.classList.toggle('printing-stmt', ok);
   });
-  window.addEventListener('afterprint', function(){ document.getElementById('printRoot').innerHTML = ''; document.body.classList.remove('printing-stmt'); });
+  window.addEventListener('afterprint', function(){ document.getElementById('printRoot').innerHTML = ''; document.body.classList.remove('printing-stmt'); var rb = document.getElementById('recPrint'); if(rb) rb.innerHTML = ''; });
 
   function viewSavedStatement(id){
     var s = savedStatements.filter(function(x){ return x.id===id; })[0]; if(!s) return;
@@ -3837,6 +3944,600 @@
     loadHistory(panel, histState[panel].debtorIds, true);
   }
   initHistoryPanel('stmt'); initHistoryPanel('letters');
+  /* =====================================================================
+     DEBT RECOVERY (QLD QCAT minor debt first)
+     DebtJet is software: it organises the business's own records and the
+     tribunal's published steps. The business decides whether to apply,
+     signs, lodges, serves and presents its own case.
+     Rules are data so other states can be added without a rebuild.
+     ===================================================================== */
+  var RECOVERY_RULES = {
+    QLD: { live: true, short: 'QCAT', forum: 'QCAT_MINOR_DEBT',
+      forumName: 'Queensland Civil and Administrative Tribunal (QCAT): minor civil dispute, minor debt',
+      limit: 25000, limitNote: 'including interest',
+      form: 'Form 3: Application for minor civil dispute (minor debt)',
+      lodge: 'Online through QCase (Brisbane), or lodge Form 3 at a QCAT or Magistrates Court registry, and pay the filing fee when you lodge.',
+      responseDays: 28, limitationYears: 6,
+      fees: [{ upTo: 1000, fee: 96.30 }, { upTo: 10000, fee: 164.30 }, { upTo: 25000, fee: 405.60 }], feesFrom: '1 July 2026',
+      recoverable: 'the filing fee, the bailiff or process server fee for serving the application, and a business name or company search fee',
+      checked: '2026-11-17',
+      links: {
+        guide: 'https://www.qcat.qld.gov.au/case-types/debt-disputes/debt-dispute-process/application-for-minor-civil-dispute-minor-debt/application-for-minor-civil-dispute-minor-debt/application-for-minor-civil-dispute-minor-debt',
+        form: 'https://www.qcat.qld.gov.au/__data/assets/pdf_file/0019/100855/form-03-app-mcd-minor-debt-dispute.pdf',
+        fees: 'https://www.qcat.qld.gov.au/resources/fees-and-allowances',
+        legalaid: 'https://legalaid.qld.gov.au/Find-legal-information/Publications-and-resources/Legal-information-guides/Does-someone-owe-you-money-a-guide-to-help-you-claim-a-minor-debt'
+      } },
+    NSW: { live: false, short: 'Local Court', forumName: 'Local Court of NSW, Small Claims Division', limit: 20000 },
+    VIC: { live: false, short: 'Magistrates’ Court', forumName: 'Magistrates’ Court of Victoria (VCAT for some goods and services disputes)', limit: 100000 },
+    WA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of WA, minor case claim', limit: 10000 },
+    SA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of SA, Civil (Minor Claims) Division', limit: 12000 },
+    TAS: { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of Tasmania, minor civil claim', limit: 5000 },
+    ACT: { live: false, short: 'ACAT', forumName: 'ACT Civil and Administrative Tribunal, civil dispute', limit: 25000 },
+    NT:  { live: false, short: 'NTCAT', forumName: 'NT Civil and Administrative Tribunal, small claim', limit: 25000 }
+  };
+  var REC_STATUS = { preparing:'Preparing', lodged:'Lodged', served:'Served', responded:'Response received', no_response:'No response', hearing:'Hearing set', decided:'Decision made', enforcing:'Enforcing order', paid:'Paid', closed:'Closed', withdrawn:'Withdrawn' };
+  var REC_STATUS_TONE = { preparing:'new', lodged:'letter_sent', served:'awaiting_response', responded:'debt_recovery', no_response:'debt_recovery', hearing:'tribunal', decided:'payment_plan', enforcing:'escalated', paid:'resolved', closed:'resolved', withdrawn:'not_connected' };
+  var RAISED_VIA = { email:'Email', phone:'Phone call', letter:'Letter', portal:'Debtor portal', tribunal_response:'Their QCAT response', other:'Other' };
+  var recMatters = [], recState = { caseId: null, disputes: [], records: null, evidence: null, evidenceErr: '', openEvidence: {}, drafts: {} };
+
+  function isoLocal(d){ d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function addDaysIso(iso, n){ var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoLocal(d); }
+  function daysUntil(iso){ return Math.round((new Date(iso + 'T00:00:00') - new Date(isoLocal() + 'T00:00:00')) / 864e5); }
+  function recCase(){ return cases.filter(function(c){ return c.id === recState.caseId; })[0] || null; }
+  function recMatter(){ return recMatters.filter(function(m){ return m.case_id === recState.caseId; })[0] || null; }
+
+  async function loadRecoveryMatters(){
+    var r = await sb.from('recovery_matters').select('*').eq('org_id', currentOrg.id).order('created_at', { ascending: false });
+    recMatters = r.error ? [] : (r.data || []);
+    recState.tableMissing = !!(r.error && /recovery_matters/.test(r.error.message || ''));
+  }
+
+  function renderRecoveryCaseOptions(){
+    var sel = document.getElementById('recCaseSelect'); if(!sel) return;
+    var withFile = {}; recMatters.forEach(function(m){ withFile[m.case_id] = m; });
+    var list = cases.filter(function(c){ return c.status !== 'resolved' || withFile[c.id]; });
+    if(!recState.caseId || !list.some(function(c){ return c.id === recState.caseId; })) recState.caseId = (recMatters[0] && list.some(function(c){ return c.id === recMatters[0].case_id; })) ? recMatters[0].case_id : (list[0] ? list[0].id : null);
+    sel.innerHTML = list.length ? list.map(function(c){
+      var m = withFile[c.id];
+      return '<option value="'+escapeHtml(c.id)+'"'+(c.id === recState.caseId ? ' selected' : '')+'>'+escapeHtml(c.debtor.name || 'Debtor')+' — '+money(c.total)+(m ? ' · file: '+escapeHtml(REC_STATUS[m.status] || m.status) : '')+'</option>';
+    }).join('') : '<option value="">No open cases</option>';
+  }
+
+  // Amounts for the claim, built from the same figures as letters (disputed invoices left out unless included).
+  function recClaim(c, m){
+    var opt = Object.assign({ include_interest: true, include_fees: false, include_disputed: false }, (m && m.checklist && m.checklist.options) || recState.options || {});
+    var lm = buildLetterModel(c, { pay_days: 7 });
+    var items = lm.items.filter(function(i){ return opt.include_disputed || !i.disputed; });
+    var sum = function(k){ return r2(items.reduce(function(s, x){ return s + (Number(x[k]) || 0); }, 0)); };
+    var principal = sum('balance');
+    var interest = opt.include_interest ? sum('interest') : 0;
+    var fees = opt.include_fees ? r2(sum('fees') + (lm.totals.statement_fees || []).reduce(function(s, f){ return s + f.amount; }, 0)) : 0;
+    var total = r2(principal + interest + fees);
+    var rules = RECOVERY_RULES[(m && m.jurisdiction) || recState.jur || 'QLD'];
+    var band = (rules.fees || []).filter(function(b){ return total <= b.upTo; })[0] || null;
+    return { opt: opt, lm: lm, items: items, disputedItems: lm.items.filter(function(i){ return i.disputed; }), principal: principal, interest: interest, fees: fees, total: total,
+      fullInterest: r2(lm.items.reduce(function(s, i){ return s + (i.disputed && !opt.include_disputed ? 0 : (Number(i.interest) || 0)); }, 0)),
+      fullFees: r2(items.reduce(function(s, x){ return s + (Number(x.fees) || 0); }, 0)), filingFee: band ? band.fee : null, rules: rules };
+  }
+
+  function recChecks(c, cl){
+    var d = c.debtor, R = cl.rules, out = [];
+    var add = function(level, title, text){ out.push({ level: level, title: title, text: text || '' }); };
+    if(cl.total <= 0) add('stop', 'Nothing to claim', 'There is no undisputed amount owing on this case.');
+    else if(cl.total > R.limit) add('stop', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than QCAT’s ' + money(R.limit) + ' minor debt limit (' + R.limitNote + '). QCAT can’t hear this as a minor debt.');
+    else add('ok', 'Within the ' + money(R.limit) + ' limit', money(cl.total) + ' claimed, ' + R.limitNote + '.');
+    var cutoff = addDaysIso(isoLocal(), -Math.round(R.limitationYears * 365.25));
+    var warnCut = addDaysIso(isoLocal(), -Math.round((R.limitationYears - 0.5) * 365.25));
+    var stale = cl.items.filter(function(i){ return i.due_date && i.due_date < cutoff; });
+    var nearly = cl.items.filter(function(i){ return i.due_date && i.due_date >= cutoff && i.due_date < warnCut; });
+    if(stale.length) add('stop', 'Time limit may have passed', stale.map(function(i){ return i.invoice_number; }).join(', ') + ' fell due more than ' + R.limitationYears + ' years ago. Claims for unpaid invoices generally have a ' + R.limitationYears + '-year time limit from when the debt fell due.');
+    else if(nearly.length) add('caution', 'Time limit approaching', nearly.map(function(i){ return i.invoice_number; }).join(', ') + ' will be ' + R.limitationYears + ' years overdue within six months.');
+    else if(cl.items.length) add('ok', 'Inside the ' + R.limitationYears + '-year time limit', 'Oldest invoice in the claim fell due ' + fmt(cl.items[0].due_date) + '.');
+    var dd = demandDates[c.id] || {};
+    if(!dd.first) add('caution', 'No letter of demand recorded', 'QCAT asks you to try to resolve the dispute with the other party first, for example by writing to them. Send a letter of demand from Letters of Demand and record it as sent.');
+    else add('ok', 'Letter of demand sent', (dd.final ? 'Final demand sent ' + fmt(dd.final) : 'First demand sent ' + fmt(dd.first)) + '.');
+    if(!d.legal_name) add('caution', 'Legal name not confirmed', 'Name the respondent by its legal entity name, not just a trading name. Check the ABN on the debtor’s contact card.');
+    else add('ok', 'Respondent: ' + letterAddresseeName(d), (d.abn ? 'ABN ' + fmtAbn(d.abn) : '') + (d.acn ? ' · ACN ' + fmtAcn(d.acn) : ''));
+    if(d.abn_status && !/active/i.test(d.abn_status)) add('caution', 'ABN is ' + d.abn_status.toLowerCase(), 'The business may have closed or the company may be deregistered. Check ASIC before applying.');
+    if(d.name_check && /mismatch|differ|problem/i.test(d.name_check)) add('caution', 'Name check needs attention', 'The name on file doesn’t match the ABN register. Fix it on the contact card.');
+    if(d.acn || /company|pty/i.test((d.entity_type || '') + ' ' + (d.legal_name || ''))) add('info', 'Company respondent', 'Consider a company search (ASIC extract) to confirm the registered office for service. The search fee is a cost you can ask QCAT to award.');
+    if(!postalLines(d).length) add('stop', 'Respondent address missing', 'You need the respondent’s full contact details on the application and an address to serve it. Add it on the contact card.');
+    if(d.state && String(d.state).toUpperCase() !== 'QLD') add('info', 'Respondent is in ' + String(d.state).toUpperCase(), 'QCAT says you can still make a minor debt application if the respondent is interstate.');
+    if(cl.disputedItems.length) add(cl.opt.include_disputed ? 'caution' : 'info', cl.disputedItems.length + ' disputed invoice' + (cl.disputedItems.length > 1 ? 's' : ''),
+      cl.disputedItems.map(function(i){ return i.invoice_number; }).join(', ') + (cl.opt.include_disputed ? ' included in the claim. Record your response to each disputed point below.' : ' left out of the claim. Record the disputed points below if you decide to include them.'));
+    if(cl.interest > 0) add('info', 'Interest included: ' + money(cl.interest), 'From your Interest & Fees rules. Only claim interest your terms with this customer allow.');
+    if(cl.fees > 0) add('caution', 'Fees included: ' + money(cl.fees), 'Only include fees your terms with this customer allow. QCAT’s own costs you can ask for are limited to ' + R.recoverable + '.');
+    return out;
+  }
+
+  function recDefaultDetails(c, cl){
+    var d = c.debtor, dd = demandDates[c.id] || {};
+    var nums = cl.items.map(function(i){ return i.invoice_number; });
+    var list = nums.length <= 1 ? (nums[0] || '') : nums.slice(0, -1).join(', ') + ' and ' + nums.at(-1);
+    var descs = cl.items.map(function(i){ return (i.description || '').trim(); }).filter(Boolean);
+    var lines = [];
+    lines.push('The applicant, ' + currentOrg.name + ', supplied goods and/or services to the respondent, ' + letterAddresseeName(d) + (descs.length ? ', described on the invoices as: ' + descs.slice(0, 4).join('; ') : '') + '.');
+    lines.push('The applicant issued ' + (nums.length > 1 ? 'invoices ' : 'invoice ') + list + ' for a total of ' + money(cl.items.reduce(function(s, i){ return s + i.amount; }, 0)) + '. ' +
+      cl.items.map(function(i){ return i.invoice_number + ' was issued on ' + fmt(i.issued_date) + ' and fell due on ' + fmt(i.due_date) + (i.paid ? '; ' + money(i.paid) + ' has been paid' : '') + '.'; }).join(' '));
+    if(dd.first) lines.push('The applicant wrote to the respondent demanding payment on ' + fmt(dd.first) + (dd.final && dd.final !== dd.first ? ' and again on ' + fmt(dd.final) : '') + '.');
+    lines.push('As at ' + fmt(new Date()) + ', ' + money(cl.principal) + ' remains unpaid' + (cl.interest ? ', plus interest of ' + money(cl.interest) : '') + (cl.fees ? (cl.interest ? ' and ' : ', plus ') + 'fees of ' + money(cl.fees) : '') + ', a total of ' + money(cl.total) + '.');
+    return lines.join('\n\n');
+  }
+
+  async function loadRecoveryRecords(c){
+    var none = Promise.resolve({ data: [] });
+    var res = await Promise.all([
+      sb.from('recovery_disputes').select('*').eq('case_id', c.id).order('created_at'),
+      sb.from('letters').select('id, type, subject, sent_at, send_via, status, snapshot').eq('case_id', c.id).eq('status', 'sent').order('sent_at'),
+      sb.from('correspondence_log').select('*').eq('debtor_id', c.debtor.id).order('occurred_at'),
+      sb.from('case_notes').select('id, invoice_id, category, summary, dispute_reason, occurred_at, source').eq('debtor_id', c.debtor.id).order('occurred_at'),
+      sb.from('case_events').select('id, event_type, title, body, occurred_at').eq('case_id', c.id).order('occurred_at'),
+      sb.from('payments').select('invoice_id, amount, paid_at, method').eq('case_id', c.id).order('paid_at'),
+      sb.from('invoices').select('id, invoice_number, description, amount, issued_date, due_date, status').eq('debtor_id', c.debtor.id).order('due_date')
+    ]);
+    if(recState.caseId !== c.id) return;
+    recState.disputesMissing = !!(res[0].error && /recovery_disputes/.test(res[0].error.message || ''));
+    recState.disputes = res[0].data || [];
+    recState.records = { letters: res[1].data || [], log: res[2].data || [], notes: res[3].data || [], events: res[4].data || [], payments: res[5].data || [], invoices: res[6].data || [] };
+  }
+
+  async function selectRecoveryCase(id){
+    recState.caseId = id; recState.records = null; recState.disputes = []; recState.evidence = null; recState.evidenceErr = ''; recState.drafts = {}; recState.options = null;
+    var c = recCase();
+    renderRecovery();
+    if(!c) return;
+    setHistoryDebtors('recovery', [c.debtor.id]);
+    await loadRecoveryRecords(c);
+    renderRecovery();
+  }
+
+  function recStepState(m){
+    var s = m ? m.status : null, order = ['preparing','lodged','served'];
+    var at = !m ? 1 : s === 'preparing' ? (m.checklist && m.checklist.application_saved ? 4 : 3) : s === 'lodged' ? 6 : 7;
+    return function(n){ return n < at ? 'done' : n === at ? 'current' : 'todo'; };
+  }
+
+  function recNextAction(m, c, cl){
+    if(!m) return { text: 'Check eligibility and the claim amount, then start a recovery file.', due: null };
+    var R = RECOVERY_RULES[m.jurisdiction] || RECOVERY_RULES.QLD;
+    switch(m.status){
+      case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then lodge ' + R.form.split(':')[0] + ' with ' + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
+      case 'lodged': return { text: 'Serve the application on the respondent, then record the date and method.', due: null };
+      case 'served': return { text: 'Wait for the respondent’s response. It is due ' + R.responseDays + ' days after service.', due: m.response_due };
+      case 'responded': return { text: 'Record each point they dispute and your response (Disputed facts), and prepare for mediation or a hearing.', due: m.hearing_at ? String(m.hearing_at).slice(0, 10) : null };
+      case 'no_response': return { text: 'No response by the due date. Check QCAT’s guidance on asking for a decision.', due: null };
+      case 'hearing': return { text: 'Hearing set. Bring the evidence pack and your approved responses.', due: m.hearing_at ? String(m.hearing_at).slice(0, 10) : null };
+      case 'decided': return { text: 'Record whether the order is paid. If it isn’t, check QCAT’s guidance on enforcing an order.', due: null };
+      case 'enforcing': return { text: 'Enforcing the order. Record payments as they arrive.', due: null };
+      default: return { text: 'This file is ' + (REC_STATUS[m.status] || m.status).toLowerCase() + '.', due: null };
+    }
+  }
+
+  function recEvidenceList(c){
+    var r = recState.records; if(!r) return [];
+    var ev = [];
+    r.invoices.forEach(function(i){ ev.push({ at: i.issued_date, kind: 'Invoice issued', text: i.invoice_number + ' · ' + money(i.amount) + (i.description ? ' · ' + i.description : '') + ' · due ' + fmt(i.due_date) }); });
+    r.payments.forEach(function(p){ ev.push({ at: p.paid_at, kind: 'Payment received', text: money(p.amount) + (p.method ? ' · ' + p.method : '') }); });
+    r.letters.forEach(function(l, n){ ev.push({ at: l.sent_at, kind: (TPL_LABEL[l.type] || 'Letter') + ' sent', text: (l.subject || '') + (l.send_via ? ' · via ' + l.send_via : '') + (l.snapshot && l.snapshot.html ? ' · copy at Annexure A' + (n + 1) : '') }); });
+    r.log.forEach(function(x){ ev.push({ at: x.occurred_at, kind: (x.direction === 'in' ? 'Received' : x.direction === 'out' ? 'Sent' : 'Note') + ' (' + (HIST_CHANNEL[x.channel] || x.channel) + ')', text: (x.subject ? x.subject + ': ' : '') + x.summary }); });
+    // Hardship notes can hold health or personal details; they stay out of the pack.
+    r.notes.forEach(function(x){ if(x.category === 'hardship') return; ev.push({ at: x.occurred_at, kind: x.source === 'manual' ? 'Note' : 'Email from debtor (summary)', text: x.summary + (x.dispute_reason ? ' Dispute: ' + x.dispute_reason : '') }); });
+    r.events.forEach(function(x){ if(x.event_type === 'letter_sent') return; ev.push({ at: x.occurred_at, kind: 'Event', text: x.title + (x.body ? ': ' + x.body : '') }); });
+    return ev.filter(function(e){ return e.at; }).sort(function(a, b){ return String(a.at).localeCompare(String(b.at)); });
+  }
+
+  function recField(label, key, val, opts){
+    opts = opts || {};
+    var inner = opts.textarea ? '<textarea data-rf="'+key+'" rows="'+(opts.rows || 3)+'">'+escapeHtml(val || '')+'</textarea>'
+      : opts.select ? '<select data-rf="'+key+'">'+opts.select.map(function(o){ return '<option value="'+escapeHtml(o[0])+'"'+(String(val || '') === o[0] ? ' selected' : '')+'>'+escapeHtml(o[1])+'</option>'; }).join('')+'</select>'
+      : '<input data-rf="'+key+'" type="'+(opts.type || 'text')+'" value="'+escapeHtml(val || '')+'"'+(opts.ph ? ' placeholder="'+escapeHtml(opts.ph)+'"' : '')+'>';
+    return '<label class="rec-f'+(opts.wide ? ' wide' : '')+'"><span>'+escapeHtml(label)+'</span>'+inner+(opts.hint ? '<em>'+escapeHtml(opts.hint)+'</em>' : '')+'</label>';
+  }
+
+  function renderRecovery(){
+    var root = document.getElementById('recRoot'); if(!root) return;
+    renderRecoveryFiles();
+    if(recState.tableMissing){ root.innerHTML = '<div class="card"><div class="card-body">Debt Recovery needs a database update before it can be used. Ask your administrator to apply the latest migration.</div></div>'; return; }
+    var c = recCase();
+    if(!c){ root.innerHTML = '<div class="card"><div class="card-body empty-note">Choose a case to start.</div></div>'; return; }
+    var m = recMatter();
+    var jur = (m && m.jurisdiction) || recState.jur || 'QLD';
+    document.getElementById('recJurSelect').value = jur;
+    var R = RECOVERY_RULES[jur];
+    if(!R.live){
+      root.innerHTML = '<div class="card"><div class="card-body"><h3 style="margin:0 0 6px;">'+escapeHtml(R.forumName)+'</h3><p class="muted">Small claims limit: '+money(R.limit)+'. Step-by-step support for '+escapeHtml(jur)+' is coming. Queensland (QCAT) is available now.</p></div></div>';
+      return;
+    }
+    var cl = recClaim(c, m), checks = recChecks(c, cl), stop = checks.some(function(x){ return x.level === 'stop'; });
+    var st = recStepState(m), na = recNextAction(m, c, cl);
+    var A = (m && m.applicant) || {}, P = (m && m.respondent) || {}, snap = (m && m.claim_snapshot) || {};
+    var defApplicant = { name: currentOrg.name, abn: '', address: (brandSettings('default').from_lines || ''), phone: '', email: session && session.user ? session.user.email : '' };
+    A = Object.assign({}, defApplicant, A);
+    var d = c.debtor;
+    var defResp = { name: d.legal_name || d.name || '', trading: d.legal_name && d.name && d.legal_name !== d.name ? d.name : '', abn: d.abn ? fmtAbn(d.abn) : '', acn: d.acn ? fmtAcn(d.acn) : '', address: postalLines(d).join('\n'), contact: d.contact_name || '', email: d.email || '', phone: d.phone || '' };
+    P = Object.assign({}, defResp, P);
+    var details = snap.details || recDefaultDetails(c, cl);
+    var step = function(n, title, body, extraHead){
+      var s = st(n);
+      return '<section class="card rec-step '+s+'" data-step="'+n+'"><div class="rec-step-head"><span class="rec-num">'+(s === 'done' ? '✓' : n)+'</span><h3>'+title+'</h3>'+(extraHead || '')+'</div><div class="rec-step-body">'+body+'</div></section>';
+    };
+    var html = '';
+    // 1. Eligibility
+    html += step(1, 'Check eligibility', '<ul class="rec-checks">' + checks.map(function(x){ return '<li class="'+x.level+'"><b>'+escapeHtml(x.title)+'</b>'+(x.text ? '<span>'+escapeHtml(x.text)+'</span>' : '')+'</li>'; }).join('') + '</ul>');
+    // 2. Claim amount
+    var locked = m && m.status !== 'preparing';
+    var tog = function(k, label, extra){ return '<label class="rec-tog"><input type="checkbox" data-ropt="'+k+'"'+(cl.opt[k] ? ' checked' : '')+(locked ? ' disabled' : '')+'> '+escapeHtml(label)+(extra ? ' <em>'+escapeHtml(extra)+'</em>' : '')+'</label>'; };
+    var rows = cl.items.map(function(i){ return '<tr><td>'+escapeHtml(i.invoice_number)+(i.disputed ? ' <span class="pill escalated">disputed</span>' : '')+'</td><td>'+fmt(i.issued_date)+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.balance)+'</td><td class="num">'+(cl.opt.include_interest ? money(i.interest) : '—')+'</td><td class="num">'+(cl.opt.include_fees ? money(i.fees) : '—')+'</td></tr>'; }).join('');
+    html += step(2, 'Claim amount',
+      (locked ? '<p class="muted small">Amounts were locked when the application was lodged. Figures below are today’s.</p>' : '')
+      + '<div class="rec-togs">' + tog('include_interest', 'Include interest', money(cl.fullInterest)) + tog('include_fees', 'Include fees', money(cl.fullFees)) + (cl.disputedItems.length ? tog('include_disputed', 'Include disputed invoices') : '') + '</div>'
+      + '<div class="rec-total"><div><span>Unpaid invoices</span><b>'+money(cl.principal)+'</b></div><div><span>Interest</span><b>'+money(cl.interest)+'</b></div><div><span>Fees</span><b>'+money(cl.fees)+'</b></div><div class="t"><span>Amount claimed</span><b>'+money(cl.total)+'</b></div><div><span>Estimated filing fee</span><b>'+(cl.filingFee != null ? money(cl.filingFee) : '—')+'</b></div></div>'
+      + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check QCAT’s current fees</a> before lodging. You can ask QCAT to award '+escapeHtml(R.recoverable)+'.</p>'
+      + '<div class="rec-tablewrap"><table class="rec-table"><thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="num">Unpaid</th><th class="num">Interest</th><th class="num">Fees</th></tr></thead><tbody>'+(rows || '<tr><td colspan="6" class="empty-note">No invoices in the claim.</td></tr>')+'</tbody></table></div>');
+    if(!m){
+      html += '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare a QCAT application?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
+        + '<button class="btn primary" type="button" id="recStartBtn"'+(stop ? ' disabled title="Fix the items marked in red first"' : '')+'>Start recovery file</button></div></div>';
+    } else {
+      // 3. Application details
+      html += step(3, 'Application details',
+        '<p class="muted small">Information for '+escapeHtml(R.form)+', prepared from your records. Check every detail. You copy it into QCase or the form, sign it and lodge it yourself.</p>'
+        + '<div class="rec-cols"><div><h4>Applicant (you)</h4>' + recField('Name', 'a.name', A.name) + recField('ABN', 'a.abn', A.abn) + recField('Address', 'a.address', A.address, { textarea: true, rows: 3 }) + recField('Phone', 'a.phone', A.phone) + recField('Email', 'a.email', A.email, { type: 'email' }) + '</div>'
+        + '<div><h4>Respondent</h4>' + recField('Legal name', 'p.name', P.name, { hint: 'The entity’s legal name from the ABN or ASIC register.' }) + recField('Trading as', 'p.trading', P.trading) + '<div class="rec-2">' + recField('ABN', 'p.abn', P.abn) + recField('ACN', 'p.acn', P.acn) + '</div>' + recField('Address for service', 'p.address', P.address, { textarea: true, rows: 3 }) + recField('Contact person', 'p.contact', P.contact) + '<div class="rec-2">' + recField('Email', 'p.email', P.email) + recField('Phone', 'p.phone', P.phone) + '</div></div></div>'
+        + recField('Details of the claim', 'details', details, { textarea: true, rows: 9, wide: true, hint: 'Facts only: what was supplied, the invoices, dates, demands and what is unpaid. Edit freely.' })
+        + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="save-app">Save application details</button><button class="btn" type="button" data-ract="regen">Rebuild details from records</button><button class="btn" type="button" data-ract="copy-app">Copy all</button><button class="btn" type="button" data-ract="print-app">Print / PDF</button>'
+        + '<a class="btn ghost" href="'+R.links.guide+'" target="_blank" rel="noopener">QCAT: how to apply ↗</a><a class="btn ghost" href="'+R.links.form+'" target="_blank" rel="noopener">Form 3 (PDF) ↗</a></div>');
+      // 4. Evidence pack
+      var r = recState.records || { invoices: [], letters: [], log: [], notes: [], payments: [], events: [] };
+      var ck = (m.checklist && m.checklist.items) || {};
+      var approved = recState.disputes.filter(function(x){ return x.approved_at; }).length;
+      var auto = [
+        [r.invoices.length > 0, 'Invoices (' + r.invoices.length + ')'],
+        [r.letters.length > 0, 'Letters sent, with exact copies (' + r.letters.length + ')'],
+        [r.log.length + r.notes.length > 0, 'Correspondence and notes (' + (r.log.length + r.notes.length) + ')'],
+        [true, 'Chronology of the account (built automatically)'],
+        [!recState.disputes.length || approved === recState.disputes.length, 'Responses to disputed points (' + approved + ' of ' + recState.disputes.length + ' approved)']
+      ];
+      var manual = [['terms', 'Your terms, quote or contract showing the agreed price (and interest or fees, if claimed)'], ['delivery', 'Proof the goods were delivered or the work was done'], ['asic', 'Company search showing the registered office (if the respondent is a company)']];
+      html += step(4, 'Evidence pack',
+        '<p class="muted small">QCAT will need to see evidence. The pack collects your records in date order with copies of every letter you sent. Add your own documents (terms, delivery dockets, photos) when you lodge.</p>'
+        + '<ul class="rec-ev">' + auto.map(function(x){ return '<li class="'+(x[0] ? 'ok' : 'todo')+'">'+escapeHtml(x[1])+'</li>'; }).join('')
+        + manual.map(function(x){ return '<li class="man"><label><input type="checkbox" data-rck="'+x[0]+'"'+(ck[x[0]] ? ' checked' : '')+'> '+escapeHtml(x[1])+'</label></li>'; }).join('') + '</ul>'
+        + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="print-pack">Print evidence pack</button></div>');
+      // 5. Lodge
+      html += step(5, 'Lodge with ' + R.short,
+        '<p class="muted small">'+escapeHtml(R.lodge)+'</p><div class="rec-row">'
+        + recField('Date lodged', 'lodged_on', m.lodged_on, { type: 'date' }) + recField('QCAT file number', 'file_number', m.file_number, { ph: 'e.g. MCDO1234/26' }) + recField('Filing fee paid', 'filing_fee', m.filing_fee != null ? m.filing_fee : (cl.filingFee || ''), { type: 'number' })
+        + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-lodge">'+(m.lodged_on ? 'Update' : 'Record as lodged')+'</button></div>');
+      // 6. Serve
+      html += step(6, 'Serve the respondent',
+        '<p class="muted small">After lodging you must give a copy of the application to the respondent, following QCAT’s rules on service (for example by post). Their response is due '+R.responseDays+' days after they are served.</p><div class="rec-row">'
+        + recField('Date served', 'served_on', m.served_on, { type: 'date' }) + recField('How', 'service_method', m.service_method, { select: [['', 'Choose…'], ['post', 'Post'], ['email', 'Email'], ['hand', 'By hand'], ['process_server', 'Process server / bailiff'], ['other', 'Other']] })
+        + '<label class="rec-f"><span>Response due</span><input type="text" readonly value="'+(m.response_due ? fmt(m.response_due) : (m.served_on ? fmt(addDaysIso(m.served_on, R.responseDays)) : '—'))+'"></label>'
+        + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-serve"'+(m.lodged_on ? '' : ' disabled title="Record the lodgement first"')+'>'+(m.served_on ? 'Update' : 'Record service')+'</button></div>');
+      // 7. Response and outcome
+      html += step(7, 'Response, hearing and outcome',
+        '<div class="rec-row">' + recField('Status', 'status', m.status, { select: Object.keys(REC_STATUS).map(function(k){ return [k, REC_STATUS[k]]; }) })
+        + recField('Hearing or mediation', 'hearing_at', m.hearing_at ? String(m.hearing_at).slice(0, 16) : '', { type: 'datetime-local' }) + '</div>'
+        + recField('Outcome or notes', 'outcome', m.outcome, { textarea: true, rows: 3, wide: true })
+        + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="save-status">Save</button><a class="btn ghost" href="'+R.links.legalaid+'" target="_blank" rel="noopener">Legal Aid QLD minor debt guide ↗</a></div>');
+    }
+    // Side: summary + disputes
+    var dueTxt = na.due ? (function(n){ return n < 0 ? Math.abs(n) + ' days ago' : n === 0 ? 'today' : 'in ' + n + ' days'; })(daysUntil(na.due)) : '';
+    var side = '<div class="card rec-sum"><div class="card-body">'
+      + '<div class="rec-sum-top"><span class="pill '+(m ? REC_STATUS_TONE[m.status] : 'not_connected')+'">'+(m ? escapeHtml(REC_STATUS[m.status]) : 'No file yet')+'</span><span class="muted small">'+escapeHtml(R.short)+' · minor debt</span></div>'
+      + '<div class="rec-sum-amt">'+money(m && m.status !== 'preparing' && m.total_claimed ? m.total_claimed : cl.total)+'</div><div class="muted small">'+(m && m.status !== 'preparing' ? 'claimed' : 'to claim')+' from '+escapeHtml(letterAddresseeName(c.debtor))+'</div>'
+      + '<dl class="rec-dl">' + (m && m.file_number ? '<dt>File</dt><dd>'+escapeHtml(m.file_number)+'</dd>' : '') + (m && m.lodged_on ? '<dt>Lodged</dt><dd>'+fmt(m.lodged_on)+'</dd>' : '') + (m && m.served_on ? '<dt>Served</dt><dd>'+fmt(m.served_on)+'</dd>' : '') + (m && m.response_due ? '<dt>Response due</dt><dd>'+fmt(m.response_due)+'</dd>' : '') + (m && m.hearing_at ? '<dt>Hearing</dt><dd>'+fmtDateTime(m.hearing_at)+'</dd>' : '') + '</dl>'
+      + '<div class="rec-next"><b>Next</b><span>'+escapeHtml(na.text)+'</span>'+(na.due ? '<em class="'+(daysUntil(na.due) < 0 ? 'late' : '')+'">'+fmt(na.due)+' · '+dueTxt+'</em>' : '')+'</div>'
+      + (m ? '<button class="btn ghost sm" type="button" data-ract="delete-file">Delete file</button>' : '')
+      + '</div></div>'
+      + '<div class="card rec-note"><div class="card-body small">DebtJet organises your own records and QCAT’s published steps. It isn’t a law firm and doesn’t give legal advice. You decide whether to apply, and you sign, lodge, serve and present your own case. Rules last checked '+fmt(R.checked)+'.</div></div>';
+    root.innerHTML = '<div class="rec-shell"><div class="rec-main">'+html+'</div><aside class="rec-side">'+side+'</aside></div>' + renderDisputesCard(c, m);
+  }
+
+  function renderRecoveryFiles(){
+    var box = document.getElementById('recFiles'); if(!box) return;
+    if(!recMatters.length){ box.hidden = true; return; }
+    box.hidden = false;
+    var byCase = {}; cases.forEach(function(c){ byCase[c.id] = c; });
+    box.querySelector('tbody').innerHTML = recMatters.map(function(m){
+      var c = byCase[m.case_id], na = c ? recNextAction(m, c, null) : { due: null };
+      return '<tr class="clickable'+(m.case_id === recState.caseId ? ' sel' : '')+'" data-rcase="'+escapeHtml(m.case_id)+'"><td><b>'+escapeHtml(c ? c.debtor.name : '—')+'</b></td><td>'+escapeHtml(RECOVERY_RULES[m.jurisdiction] ? RECOVERY_RULES[m.jurisdiction].short : m.jurisdiction)+'</td><td><span class="pill '+REC_STATUS_TONE[m.status]+'">'+escapeHtml(REC_STATUS[m.status] || m.status)+'</span></td><td class="num">'+money(m.total_claimed)+'</td><td>'+escapeHtml(m.file_number || '—')+'</td><td>'+(na.due ? fmt(na.due) + (daysUntil(na.due) < 0 ? ' <span class="pill escalated">passed</span>' : '') : '—')+'</td></tr>';
+    }).join('');
+  }
+
+  /* ---------- Disputed facts ---------- */
+  function renderDisputesCard(c, m){
+    if(recState.disputesMissing) return '';
+    var invOpts = function(sel){ return '<option value="">Whole account</option>' + (recState.records ? recState.records.invoices : c.invoices).map(function(i){ return '<option value="'+escapeHtml(i.id)+'"'+(sel === i.id ? ' selected' : '')+'>'+escapeHtml(i.invoice_number)+'</option>'; }).join(''); };
+    var invNo = {}; (recState.records ? recState.records.invoices : c.invoices).forEach(function(i){ invNo[i.id] = i.invoice_number; });
+    var notesToImport = recState.records ? recState.records.notes.filter(function(n){ return n.category === 'dispute' && !recState.disputes.some(function(x){ return x.debtor_says === (n.dispute_reason || n.summary); }); }) : [];
+    var list = recState.disputes.map(function(x){
+      var dr = recState.drafts[x.id] || {};
+      var status = x.approved_at ? '<span class="pill resolved">Approved '+fmt(x.approved_at)+'</span>' : x.our_response ? '<span class="pill awaiting_response">'+(x.ai_drafted ? 'AI draft · needs your review' : 'Draft')+'</span>' : '<span class="pill new">No response yet</span>';
+      var ev = (x.evidence || []).map(function(e){ return '<span class="rec-evchip" title="'+escapeHtml(e.text || '')+'">'+escapeHtml(e.key)+'</span>'; }).join('');
+      var gaps = (x.gaps || []).length ? '<div class="rec-gaps"><b>Missing or unsupported</b><ul>' + x.gaps.map(function(g){ return '<li>'+escapeHtml(g)+'</li>'; }).join('') + '</ul></div>' : '';
+      var unknown = dr.unknown && dr.unknown.length ? '<div class="ai-flag stop">The draft cites records that don’t exist ('+escapeHtml(dr.unknown.join(', '))+'). Remove or fix those sentences.</div>' : '';
+      var pickOpen = recState.openEvidence[x.id];
+      var picker = pickOpen ? renderEvidencePicker(x) : '';
+      return '<div class="rec-dispute" data-did="'+escapeHtml(x.id)+'">'
+        + '<div class="rec-d-head"><b>'+(x.invoice_id ? escapeHtml(invNo[x.invoice_id] || 'Invoice') : 'Whole account')+'</b><span class="muted small">'+escapeHtml(RAISED_VIA[x.raised_via] || x.raised_via)+(x.raised_on ? ' · ' + fmt(x.raised_on) : '')+'</span>'+status+'</div>'
+        + '<div class="rec-d-says"><span>They say</span>'+escapeHtml(x.debtor_says)+'</div>'
+        + '<label class="rec-f wide"><span>Our response (facts only, each linked to a record)</span><textarea data-dresp rows="6">'+escapeHtml(dr.text != null ? dr.text : (x.our_response || ''))+'</textarea></label>'
+        + unknown + (ev ? '<div class="rec-evchips"><span class="muted small">Records cited:</span>'+ev+'</div>' : '') + gaps
+        + '<div class="rec-acts">'
+        + '<button class="btn" type="button" data-dact="ai">✨ Draft from our records</button>'
+        + '<button class="btn ghost sm" type="button" data-dact="pick">Choose records'+(dr.keys ? ' ('+dr.keys.length+')' : '')+'</button>'
+        + '<button class="btn" type="button" data-dact="save">Save</button>'
+        + '<label class="rec-approve"><input type="checkbox" data-dact="approve"'+(x.approved_at ? ' checked' : '')+'> I’ve checked every statement against our records and approve this response</label>'
+        + '<button class="btn ghost sm" type="button" data-dact="del">Delete</button></div>' + picker + '</div>';
+    }).join('');
+    return '<section class="card rec-disputes"><div class="card-head"><h3>Disputed facts</h3><span class="pill letter_sent">Beta</span></div><div class="card-body">'
+      + '<p class="muted small">Record each point the debtor disputes and your response. “Draft from our records” writes a short factual response using only your invoices, payments, letters, correspondence and notes, with each fact linked to the record it came from. Anything your records don’t support is listed as missing instead of being written. It doesn’t give legal argument or advice. You edit it and approve it before it goes into the evidence pack.</p>'
+      + (notesToImport.length ? '<div class="ai-flag info">'+notesToImport.length+' dispute'+(notesToImport.length > 1 ? 's' : '')+' found in your email notes. <button class="btn ghost sm" type="button" data-dact="import">Add to the register</button></div>' : '')
+      + (list || '<p class="empty-note">No disputed points recorded for this case.</p>')
+      + '<details class="rec-add"><summary class="btn sm">+ Add a disputed point</summary><div class="rec-row">'
+      + '<label class="rec-f"><span>Invoice</span><select data-dn="invoice">'+invOpts('')+'</select></label>'
+      + '<label class="rec-f"><span>Raised by</span><select data-dn="via">'+Object.keys(RAISED_VIA).map(function(k){ return '<option value="'+k+'">'+escapeHtml(RAISED_VIA[k])+'</option>'; }).join('')+'</select></label>'
+      + '<label class="rec-f"><span>Date</span><input type="date" data-dn="on" value="'+isoLocal()+'"></label></div>'
+      + '<label class="rec-f wide"><span>What the debtor says (in their words if possible)</span><textarea data-dn="says" rows="3"></textarea></label>'
+      + '<div class="rec-acts"><button class="btn primary" type="button" data-dact="add">Add</button></div></details>'
+      + '</div></section>';
+  }
+
+  function renderEvidencePicker(x){
+    if(recState.evidenceErr) return '<div class="ai-flag caution">'+escapeHtml(recState.evidenceErr)+'</div>';
+    if(!recState.evidence) return '<div class="muted small rec-pick">Loading records…</div>';
+    var dr = recState.drafts[x.id] = recState.drafts[x.id] || {};
+    var chosen = dr.keys || recState.evidence.map(function(e){ return e.key; });
+    return '<div class="rec-pick"><div class="muted small">The draft may only use the records ticked here.</div>' + recState.evidence.map(function(e){
+      return '<label><input type="checkbox" data-evk="'+escapeHtml(e.key)+'"'+(chosen.indexOf(e.key) >= 0 ? ' checked' : '')+'> <b>'+escapeHtml(e.key)+'</b> '+escapeHtml(String(e.text).slice(0, 160))+'</label>';
+    }).join('') + '</div>';
+  }
+
+  async function ensureEvidenceList(){
+    if(recState.evidence || recState.evidenceErr) return;
+    var r = await invokeFn('dispute-response', { case_id: recState.caseId, list_only: true });
+    if(r.ok) recState.evidence = r.all_evidence_keys || []; else recState.evidenceErr = r.error || 'Could not load records.';
+    renderRecovery();
+  }
+
+  async function disputeAction(act, el){
+    var box = el.closest('.rec-dispute'), id = box ? box.getAttribute('data-did') : null;
+    var x = id ? recState.disputes.filter(function(d){ return d.id === id; })[0] : null;
+    var c = recCase(), m = recMatter();
+    if(act === 'add' || act === 'import'){
+      var rows = [];
+      if(act === 'add'){
+        var card = el.closest('.rec-add'); var g = function(k){ return card.querySelector('[data-dn="'+k+'"]').value; };
+        if(!g('says').trim()){ toast('Enter what the debtor says.'); return; }
+        rows.push({ invoice_id: g('invoice') || null, raised_via: g('via'), raised_on: g('on') || null, debtor_says: g('says').trim().slice(0, 4000) });
+      } else {
+        recState.records.notes.filter(function(n){ return n.category === 'dispute' && !recState.disputes.some(function(d){ return d.debtor_says === (n.dispute_reason || n.summary); }); })
+          .forEach(function(n){ rows.push({ invoice_id: n.invoice_id || null, raised_via: n.source === 'manual' ? 'other' : 'email', raised_on: String(n.occurred_at).slice(0, 10), debtor_says: String(n.dispute_reason || n.summary).slice(0, 4000) }); });
+      }
+      rows = rows.map(function(r){ return Object.assign(r, { org_id: currentOrg.id, case_id: c.id, matter_id: m ? m.id : null }); });
+      var ins = await sb.from('recovery_disputes').insert(rows).select();
+      if(ins.error){ toast('Could not add: ' + ins.error.message); return; }
+      var newIds = (ins.data || []).map(function(d){ return d.id; }); recState.disputes = recState.disputes.filter(function(d){ return newIds.indexOf(d.id) < 0; }).concat(ins.data || []);
+      toast(rows.length > 1 ? rows.length + ' disputed points added.' : 'Disputed point added.');
+      renderRecovery(); return;
+    }
+    if(!x) return;
+    var ta = box.querySelector('[data-dresp]');
+    var dr = recState.drafts[x.id] = recState.drafts[x.id] || {};
+    if(act === 'pick'){ recState.openEvidence[x.id] = !recState.openEvidence[x.id]; dr.text = ta.value; renderRecovery(); if(recState.openEvidence[x.id]) ensureEvidenceList(); return; }
+    if(act === 'ai'){
+      el.disabled = true; el.textContent = 'Drafting…';
+      var r = await invokeFn('dispute-response', { case_id: c.id, invoice_id: x.invoice_id, debtor_says: x.debtor_says, evidence_keys: dr.keys || null });
+      el.disabled = false; el.textContent = '✨ Draft from our records';
+      if(!r.ok){ toast(r.error || 'Could not draft a response.'); return; }
+      var gaps = (r.draft.gaps || []).concat((r.draft.questions || []).map(function(q){ return 'Question: ' + q; }));
+      var upd = await sb.from('recovery_disputes').update({ our_response: String(r.draft.response || '').slice(0, 6000), gaps: gaps, evidence: (r.evidence || []).slice(0, 40), ai_drafted: true, approved_at: null }).eq('id', x.id).select().maybeSingle();
+      if(upd.error){ toast('Could not save the draft: ' + upd.error.message); return; }
+      Object.assign(x, upd.data); dr.text = null; dr.unknown = r.unknown_citations || [];
+      toast('Draft ready. Check each statement against the records cited, edit, then approve.');
+      renderRecovery(); return;
+    }
+    if(act === 'save' || act === 'approve'){
+      var text = ta.value.trim();
+      var approving = act === 'approve' && el.checked;
+      if(approving && !text){ el.checked = false; toast('Write or draft a response first.'); return; }
+      var patch = { our_response: text || null };
+      if(act === 'approve') patch.approved_at = approving ? new Date().toISOString() : null;
+      var u = await sb.from('recovery_disputes').update(patch).eq('id', x.id).select().maybeSingle();
+      if(u.error){ toast('Could not save: ' + u.error.message); return; }
+      Object.assign(x, u.data); dr.text = null;
+      toast(act === 'approve' ? (approving ? 'Response approved.' : 'Approval removed.') : (x.approved_at ? 'Saved.' : 'Saved. Approve it when you’ve checked it.'));
+      renderRecovery(); return;
+    }
+    if(act === 'del'){
+      if(!confirm('Delete this disputed point and its response?')) return;
+      var dl = await sb.from('recovery_disputes').delete().eq('id', x.id);
+      if(dl.error){ toast('Could not delete: ' + dl.error.message); return; }
+      recState.disputes = recState.disputes.filter(function(d){ return d.id !== x.id; });
+      renderRecovery();
+    }
+  }
+
+  /* ---------- Saving the file ---------- */
+  function readRecFields(){
+    var o = {}; Array.prototype.forEach.call(document.querySelectorAll('#recRoot [data-rf]'), function(el){ o[el.getAttribute('data-rf')] = el.value; }); return o;
+  }
+  async function saveMatter(patch, msg){
+    var m = recMatter(); if(!m) return false;
+    var r = await sb.from('recovery_matters').update(patch).eq('id', m.id).select().maybeSingle();
+    if(r.error){ toast('Could not save: ' + r.error.message); return false; }
+    Object.assign(m, r.data || patch);
+    if(msg) toast(msg);
+    renderRecovery(); return true;
+  }
+  function snapshotFor(c, cl, details){
+    return { at: new Date().toISOString(), details: details, options: cl.opt,
+      items: cl.items.map(function(i){ return { invoice_number: i.invoice_number, issued_date: i.issued_date, due_date: i.due_date, amount: i.amount, paid: i.paid, balance: i.balance, interest: cl.opt.include_interest ? i.interest : 0, fees: cl.opt.include_fees ? i.fees : 0, disputed: i.disputed }; }),
+      totals: { principal: cl.principal, interest: cl.interest, fees: cl.fees, total: cl.total, filing_fee: cl.filingFee } };
+  }
+  async function caseEvent(c, type, title, body){
+    await sb.from('case_events').insert({ org_id: currentOrg.id, case_id: c.id, event_type: type, title: title, body: body || null, created_by: session.user.id });
+  }
+
+  async function recoveryAction(act, el){
+    var c = recCase(); if(!c) return;
+    var m = recMatter(), R = RECOVERY_RULES[(m && m.jurisdiction) || 'QLD'];
+    var cl = recClaim(c, m);
+    if(act === 'start'){
+      var ins = await sb.from('recovery_matters').insert({ org_id: currentOrg.id, case_id: c.id, debtor_id: c.debtor.id, jurisdiction: 'QLD', forum: R.forum, status: 'preparing',
+        principal: cl.principal, interest: cl.interest, fees: cl.fees, total_claimed: cl.total, filing_fee: cl.filingFee,
+        claim_snapshot: snapshotFor(c, cl, recDefaultDetails(c, cl)), checklist: { options: cl.opt, items: {} } }).select().maybeSingle();
+      if(ins.error){ toast('Could not start the file: ' + ins.error.message); return; }
+      recMatters.unshift(ins.data);
+      if(c.status !== 'tribunal' && c.status !== 'debt_recovery'){ await sb.from('cases').update({ status: 'debt_recovery' }).eq('id', c.id); c.status = 'debt_recovery'; }
+      await caseEvent(c, 'recovery_file_started', 'Recovery file started (' + R.short + ')', 'Claim of ' + money(cl.total) + ' being prepared.');
+      if(recState.disputes.length) await sb.from('recovery_disputes').update({ matter_id: ins.data.id }).eq('case_id', c.id).is('matter_id', null);
+      toast('Recovery file started.'); renderRecoveryCaseOptions(); renderRecovery(); return;
+    }
+    if(!m) return;
+    var f = readRecFields();
+    if(act === 'save-app' || act === 'regen'){
+      if(act === 'regen'){ var t = document.querySelector('#recRoot [data-rf="details"]'); if(t){ t.value = recDefaultDetails(c, cl); } toast('Details rebuilt from your records. Save to keep them.'); return; }
+      var A = {}, P = {}; Object.keys(f).forEach(function(k){ if(k.indexOf('a.') === 0) A[k.slice(2)] = f[k].slice(0, 500); if(k.indexOf('p.') === 0) P[k.slice(2)] = f[k].slice(0, 500); });
+      var ck = Object.assign({}, m.checklist || {}, { options: cl.opt, application_saved: true });
+      var patch = { applicant: A, respondent: P, checklist: ck, claim_snapshot: Object.assign({}, m.claim_snapshot || {}, { details: String(f.details || '').slice(0, 8000) }) };
+      if(m.status === 'preparing') Object.assign(patch, { principal: cl.principal, interest: cl.interest, fees: cl.fees, total_claimed: cl.total, filing_fee: cl.filingFee, claim_snapshot: snapshotFor(c, cl, String(f.details || '').slice(0, 8000)) });
+      await saveMatter(patch, 'Application details saved.'); return;
+    }
+    if(act === 'copy-app'){
+      var txt = recApplicationText(c, m, cl, f);
+      try { await navigator.clipboard.writeText(txt); toast('Copied. Paste it wherever you need it.'); } catch(e){ toast('Copy failed. Use Print / PDF instead.'); }
+      return;
+    }
+    if(act === 'print-app'){ recPrint(recApplicationHtml(c, m, cl, f)); return; }
+    if(act === 'print-pack'){ recPrint(recPackHtml(c, m, cl)); return; }
+    if(act === 'save-lodge'){
+      if(!f.lodged_on){ toast('Enter the date you lodged.'); return; }
+      var lp = { lodged_on: f.lodged_on, file_number: (f.file_number || '').trim() || null, filing_fee: f.filing_fee ? Number(f.filing_fee) : null };
+      var first = !m.lodged_on;
+      if(m.status === 'preparing') Object.assign(lp, { status: 'lodged', principal: cl.principal, interest: cl.interest, fees: cl.fees, total_claimed: cl.total, claim_snapshot: snapshotFor(c, cl, (m.claim_snapshot && m.claim_snapshot.details) || recDefaultDetails(c, cl)) });
+      if(await saveMatter(lp, first ? 'Recorded as lodged.' : 'Updated.') && first){
+        await sb.from('cases').update({ status: 'tribunal', tribunal_body: 'QCAT' }).eq('id', c.id); c.status = 'tribunal';
+        await caseEvent(c, 'tribunal_lodged', 'Application lodged with QCAT' + (lp.file_number ? ' (' + lp.file_number + ')' : ''), 'Minor debt claim of ' + money(m.total_claimed) + '.');
+        renderRecoveryCaseOptions();
+      }
+      return;
+    }
+    if(act === 'save-serve'){
+      if(!f.served_on){ toast('Enter the date the respondent was served.'); return; }
+      var sp = { served_on: f.served_on, service_method: f.service_method || null, response_due: addDaysIso(f.served_on, R.responseDays) };
+      if(m.status === 'lodged') sp.status = 'served';
+      var firstServe = !m.served_on;
+      if(await saveMatter(sp, 'Service recorded. Response due ' + fmt(sp.response_due) + '.') && firstServe) await caseEvent(c, 'tribunal_served', 'Application served on the respondent', 'Served ' + fmt(f.served_on) + (f.service_method ? ' by ' + f.service_method.replace('_', ' ') : '') + '. Response due ' + fmt(sp.response_due) + '.');
+      return;
+    }
+    if(act === 'save-status'){
+      var prev = m.status;
+      var stp = { status: f.status, hearing_at: f.hearing_at ? new Date(f.hearing_at).toISOString() : null, outcome: (f.outcome || '').trim() || null };
+      if(await saveMatter(stp, 'Saved.') && prev !== f.status){
+        await caseEvent(c, 'recovery_status', 'Recovery file: ' + (REC_STATUS[f.status] || f.status), stp.outcome || '');
+        if(f.status === 'paid' || f.status === 'closed'){ /* leave the case for the user to resolve from Debtors & Cases */ }
+        renderRecoveryFiles();
+      }
+      return;
+    }
+    if(act === 'delete-file'){
+      if(!confirm('Delete this recovery file? Disputed points stay on the case.')) return;
+      var dl = await sb.from('recovery_matters').delete().eq('id', m.id);
+      if(dl.error){ toast('Could not delete: ' + dl.error.message); return; }
+      recMatters = recMatters.filter(function(x){ return x.id !== m.id; });
+      toast('Recovery file deleted.'); renderRecoveryCaseOptions(); renderRecovery();
+    }
+  }
+
+  /* ---------- Printing ---------- */
+  function recApplicationText(c, m, cl, f){
+    var g = function(k){ return (f[k] || '').trim(); };
+    return [
+      'QCAT ' + RECOVERY_RULES.QLD.form, '',
+      'APPLICANT', g('a.name'), g('a.abn') ? 'ABN ' + g('a.abn') : '', g('a.address'), g('a.phone'), g('a.email'), '',
+      'RESPONDENT', g('p.name') + (g('p.trading') ? ' (trading as ' + g('p.trading') + ')' : ''), g('p.abn') ? 'ABN ' + g('p.abn') : '', g('p.acn') ? 'ACN ' + g('p.acn') : '', g('p.address'), g('p.contact') ? 'Contact: ' + g('p.contact') : '', g('p.email'), g('p.phone'), '',
+      'AMOUNT CLAIMED', 'Unpaid invoices: ' + money(cl.principal), 'Interest: ' + money(cl.interest), 'Fees: ' + money(cl.fees), 'Total: ' + money(cl.total), '',
+      'DETAILS OF THE CLAIM', g('details')
+    ].filter(function(x, i, a){ return x !== '' || (a[i - 1] !== ''); }).join('\n');
+  }
+  var REC_PRINT_CSS = '<style>.rp{font-family:Inter,system-ui,sans-serif;color:#1b2433;font-size:12px;line-height:1.55;}.rp h1{font-size:20px;margin:0 0 4px;}.rp h2{font-size:14px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid #1f3a8a;}.rp .muted{color:#5b6474;}.rp table{width:100%;border-collapse:collapse;margin:6px 0;}.rp th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;background:#eef2f8;color:#14213d;padding:6px 7px;border-radius:0;}.rp td{padding:6px 7px;border-bottom:1px solid #e3e8ef;vertical-align:top;}.rp .num{text-align:right;white-space:nowrap;}.rp .box{border:1px solid #d9e0ea;border-radius:8px;padding:10px 12px;margin:8px 0;white-space:pre-line;}.rp .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.rp .pb{page-break-before:always;}.rp .cover{padding:30px 0 10px;}.rp .tot td{font-weight:700;border-top:2px solid #1f3a8a;}.rp .warn{background:#fff6e5;border:1px solid #f0d49b;border-radius:8px;padding:8px 10px;margin:8px 0;}</style>';
+  function recApplicationHtml(c, m, cl, f){
+    var g = function(k){ return escapeHtml((f[k] || '').trim()); };
+    return REC_PRINT_CSS + '<div class="rp"><h1>Information for QCAT '+escapeHtml(RECOVERY_RULES.QLD.form)+'</h1><div class="muted">Prepared '+fmt(new Date())+' from '+escapeHtml(currentOrg.name)+'’s records. Copy into QCase or Form 3, check, sign and lodge.</div>'
+      + '<div class="two"><div><h2>Applicant</h2><div class="box">'+[g('a.name'), g('a.abn') ? 'ABN ' + g('a.abn') : '', g('a.address'), g('a.phone'), g('a.email')].filter(Boolean).join('\n')+'</div></div>'
+      + '<div><h2>Respondent</h2><div class="box">'+[g('p.name') + (g('p.trading') ? ' (trading as ' + g('p.trading') + ')' : ''), g('p.abn') ? 'ABN ' + g('p.abn') : '', g('p.acn') ? 'ACN ' + g('p.acn') : '', g('p.address'), g('p.contact') ? 'Contact: ' + g('p.contact') : '', g('p.email'), g('p.phone')].filter(Boolean).join('\n')+'</div></div></div>'
+      + '<h2>Amount claimed</h2>' + recAmountTable(cl)
+      + '<h2>Details of the claim</h2><div class="box">'+g('details')+'</div>'
+      + '<h2>Before you lodge</h2><ul><li>Check every detail above against your records.</li><li>Attach or bring your evidence (see the evidence pack).</li><li>Pay the filing fee when you lodge (estimated '+(cl.filingFee != null ? money(cl.filingFee) : '—')+'; check QCAT’s current fees).</li><li>After lodging, serve a copy on the respondent and record the date in DebtJet. Their response is due 28 days after service.</li></ul></div>';
+  }
+  function recAmountTable(cl){
+    return '<table><thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="num">Unpaid</th><th class="num">Interest</th><th class="num">Fees</th></tr></thead><tbody>'
+      + cl.items.map(function(i){ return '<tr><td>'+escapeHtml(i.invoice_number)+'</td><td>'+fmt(i.issued_date)+'</td><td>'+fmt(i.due_date)+'</td><td class="num">'+money(i.balance)+'</td><td class="num">'+money(cl.opt.include_interest ? i.interest : 0)+'</td><td class="num">'+money(cl.opt.include_fees ? i.fees : 0)+'</td></tr>'; }).join('')
+      + (cl.opt.include_fees && cl.fees > r2(cl.items.reduce(function(s, i){ return s + (Number(i.fees) || 0); }, 0)) ? '<tr><td colspan="5">Account fees</td><td class="num">'+money(r2(cl.fees - cl.items.reduce(function(s, i){ return s + (Number(i.fees) || 0); }, 0)))+'</td></tr>' : '')
+      + '<tr class="tot"><td colspan="3">Subtotals</td><td class="num">'+money(cl.principal)+'</td><td class="num">'+money(cl.interest)+'</td><td class="num">'+money(cl.fees)+'</td></tr>'
+      + '<tr class="tot"><td colspan="5">Total claimed</td><td class="num">'+money(cl.total)+'</td></tr></tbody></table>';
+  }
+  function recPackHtml(c, m, cl){
+    var A = m.applicant || {}, P = m.respondent || {}, r = recState.records || { letters: [] };
+    var who = escapeHtml(A.name || currentOrg.name) + ' v ' + escapeHtml(P.name || letterAddresseeName(c.debtor));
+    var chron = recEvidenceList(c);
+    var approved = recState.disputes.filter(function(x){ return x.approved_at && x.our_response; });
+    var pending = recState.disputes.length - approved.length;
+    var invNo = {}; (r.invoices || []).forEach(function(i){ invNo[i.id] = i.invoice_number; });
+    var html = REC_PRINT_CSS + '<div class="rp"><div class="cover"><div class="muted">Queensland Civil and Administrative Tribunal · Minor civil dispute (minor debt)</div><h1>Evidence pack: '+who+'</h1>'
+      + '<div class="muted">'+(m.file_number ? 'File ' + escapeHtml(m.file_number) + ' · ' : '')+'Prepared '+fmt(new Date())+' by the applicant from its own records · Amount claimed '+money(m.status === 'preparing' ? cl.total : m.total_claimed)+'</div>'
+      + '<h2>Contents</h2><ol><li>Details of the claim</li><li>Amount claimed</li><li>Chronology</li><li>Disputed points and our response</li><li>Annexures: copies of letters sent ('+r.letters.length+')</li></ol></div>'
+      + '<h2>1. Details of the claim</h2><div class="box">'+escapeHtml((m.claim_snapshot && m.claim_snapshot.details) || recDefaultDetails(c, cl))+'</div>'
+      + '<h2>2. Amount claimed</h2>' + recAmountTable(cl)
+      + '<h2>3. Chronology</h2><table><thead><tr><th style="width:90px;">Date</th><th style="width:170px;">What</th><th>Details</th></tr></thead><tbody>'
+      + chron.map(function(e){ return '<tr><td>'+fmt(e.at)+'</td><td>'+escapeHtml(e.kind)+'</td><td>'+escapeHtml(e.text)+'</td></tr>'; }).join('') + '</tbody></table>'
+      + '<h2>4. Disputed points and our response</h2>'
+      + (approved.length ? approved.map(function(x, n){ return '<div class="box"><b>Point '+(n + 1)+(x.invoice_id ? ' (' + escapeHtml(invNo[x.invoice_id] || 'invoice') + ')' : '')+'.</b> The respondent says: '+escapeHtml(x.debtor_says)+'\n\n<b>Our response:</b> '+escapeHtml(x.our_response)+'</div>'; }).join('') : '<p class="muted">No disputed points recorded.</p>')
+      + (pending ? '<div class="warn">'+pending+' disputed point'+(pending > 1 ? 's are' : ' is')+' not yet approved and '+(pending > 1 ? 'are' : 'is')+' left out of this pack.</div>' : '')
+      + r.letters.map(function(l, n){ return '<div class="pb"><h2>Annexure A'+(n + 1)+': '+escapeHtml(TPL_LABEL[l.type] || 'Letter')+' sent '+fmt(l.sent_at)+'</h2>'+(l.snapshot && l.snapshot.html ? '<div>'+l.snapshot.html+'</div>' : '<p class="muted">No copy was kept of this letter.</p>')+'</div>'; }).join('')
+      + '</div>';
+    return html;
+  }
+  function recPrint(html){
+    var box = document.getElementById('recPrint'); box.innerHTML = html;
+    window.print();
+  }
+
+  /* ---------- Wiring ---------- */
+  document.getElementById('recCaseSelect').addEventListener('change', function(){ selectRecoveryCase(this.value); });
+  document.getElementById('recJurSelect').addEventListener('change', function(){ recState.jur = this.value; var m = recMatter(); if(m && m.jurisdiction !== this.value){ this.value = m.jurisdiction; toast('This file is for ' + m.jurisdiction + '. Delete it to start in another state.'); return; } renderRecovery(); });
+  document.getElementById('recFiles').addEventListener('click', function(e){ var tr = e.target.closest('[data-rcase]'); if(tr){ document.getElementById('recCaseSelect').value = tr.getAttribute('data-rcase'); selectRecoveryCase(tr.getAttribute('data-rcase')); } });
+  document.getElementById('recRoot').addEventListener('click', function(e){
+    var b = e.target.closest('[data-ract]'); if(b){ recoveryAction(b.getAttribute('data-ract'), b); return; }
+    if(e.target.id === 'recStartBtn'){ recoveryAction('start', e.target); return; }
+    var d = e.target.closest('[data-dact]'); if(d && d.getAttribute('data-dact') !== 'approve'){ disputeAction(d.getAttribute('data-dact'), d); }
+  });
+  document.getElementById('recRoot').addEventListener('change', function(e){
+    var o = e.target.getAttribute('data-ropt');
+    if(o){
+      var m = recMatter(), c = recCase();
+      var opts = Object.assign({}, recClaim(c, m).opt); opts[o] = e.target.checked;
+      if(m){ m.checklist = Object.assign({}, m.checklist || {}, { options: opts }); saveMatter({ checklist: m.checklist }); }
+      else { recState.options = opts; renderRecovery(); }
+      return;
+    }
+    var k = e.target.getAttribute('data-rck');
+    if(k){ var mm = recMatter(); var items = Object.assign({}, (mm.checklist && mm.checklist.items) || {}); items[k] = e.target.checked; saveMatter({ checklist: Object.assign({}, mm.checklist || {}, { items: items }) }); return; }
+    var ev = e.target.getAttribute('data-evk');
+    if(ev){
+      var did = e.target.closest('.rec-dispute').getAttribute('data-did');
+      var dr = recState.drafts[did] = recState.drafts[did] || {};
+      var keys = dr.keys || recState.evidence.map(function(x){ return x.key; });
+      keys = e.target.checked ? keys.concat([ev]).filter(function(v, i, a){ return a.indexOf(v) === i; }) : keys.filter(function(x){ return x !== ev; });
+      dr.keys = keys; var btn = e.target.closest('.rec-dispute').querySelector('[data-dact="pick"]'); if(btn) btn.textContent = 'Choose records (' + keys.length + ')';
+      return;
+    }
+    if(e.target.getAttribute('data-dact') === 'approve') disputeAction('approve', e.target);
+  });
+  initHistoryPanel('recovery');
+
 
   document.getElementById('checkAllAbnsBtn').addEventListener('click', function(){ checkAllAbns(this); });
   /* -- import -- */
