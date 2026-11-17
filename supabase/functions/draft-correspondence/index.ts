@@ -87,8 +87,8 @@ Deno.serve(async (req: Request) => {
       (notes || []).forEach((n: any) => { if (!n.invoice_id || seen.has(n.invoice_id)) return; seen.add(n.invoice_id); if (n.category === "dispute") disputedIds.add(n.invoice_id); }); }
     const demand: { first?: string; final?: string } = {};
     [...(letters || [])].reverse().forEach((l: any) => {
-      if ((l.type === "first_demand" || l.type === "final_demand") && !demand.first) demand.first = String(l.sent_at).slice(0, 10);
-      if (l.type === "final_demand" && !demand.final) demand.final = String(l.sent_at).slice(0, 10);
+      if ((l.type === "first_demand" || l.type === "final_demand" || l.type === "pre_legal") && !demand.first) demand.first = String(l.sent_at).slice(0, 10);
+      if ((l.type === "final_demand" || l.type === "pre_legal") && !demand.final) demand.final = String(l.sent_at).slice(0, 10);
     });
     const now = Date.now();
     const rate = kind !== "letter" ? 0
@@ -200,10 +200,14 @@ Deno.serve(async (req: Request) => {
 
     let schema: any, task: string;
     if (kind === "letter") {
-      const tplType = ["reminder", "first_demand", "final_demand"].includes(p.template_type) ? p.template_type : "reminder";
-      const { data: tpl } = await sb.from("letter_templates").select("name, subject_template, body_template").eq("org_id", orgId).eq("type", tplType).maybeSingle();
-      task = "Write a " + tplType.replace("_", " ") + " letter body (greeting to sign-off text excluded; the app adds the letterhead, amounts table and signature). " +
-        "Keep it under 220 words. Mention the specific invoices being demanded. The business's usual template, for tone: " +
+      const STAGES = ["reminder", "second_reminder", "first_demand", "final_demand", "pre_legal", "plan", "dispute", "other"];
+      const tplType = STAGES.includes(p.template_type) ? p.template_type : "reminder";
+      // The app sends the template's own wording (for tone and structure); fall back to a saved template.
+      const tpl = typeof p.template_text === "string" && p.template_text.trim()
+        ? { name: String(p.template_name || "").slice(0, 80), body_template: p.template_text.slice(0, 4000) }
+        : (await sb.from("letter_templates").select("name, subject_template, body_template").eq("org_id", orgId).eq("type", tplType).maybeSingle()).data;
+      task = "Write a " + tplType.replace(/_/g, " ") + " letter body (greeting to sign-off text excluded; the app adds the letterhead, amounts table and signature). " +
+        "Keep it under 220 words, in 3-6 short paragraphs separated by blank lines. Mention the specific invoices being demanded. The app adds its own amounts table and payment details, so do not list bank details. Follow the structure and tone of the business's template (placeholders like {{total_owing}} may be kept as they are): " +
         JSON.stringify(tpl || null);
       task += " Return JSON: subject; body (plain-text paragraphs separated by blank lines); demanded_invoice_numbers; " +
         "recommendation (one sentence: send now, wait, or use a different letter, and why).";
