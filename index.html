@@ -887,7 +887,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NSW">NSW · coming soon</option><option value="VIC">Victoria · coming soon</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option><option value="NT">NT · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · coming soon</option><option value="VIC">Victoria · coming soon</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
         </select></label>
         <div></div>
       </div>
@@ -4020,7 +4020,38 @@
     WA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of WA, minor case claim', limit: 10000 },
     SA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of SA, Civil (Minor Claims) Division', limit: 12000 },
     TAS: { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of Tasmania, minor civil claim', limit: 5000 },
-    NT:  { live: false, short: 'NTCAT', forumName: 'NT Civil and Administrative Tribunal, small claim', limit: 25000 }
+    NT: { live: true, short: 'NTCAT', forum: 'NTCAT_SMALL_CLAIM', tribunalOption: 'NTCAT (Northern Territory)',
+      bodyFull: 'Northern Territory Civil and Administrative Tribunal', kind: 'small claim', claimLabel: 'Small claim',
+      forumName: 'Northern Territory Civil and Administrative Tribunal (NTCAT): small claim (Small Claims Act 2016)',
+      limit: 25000, limitNote: 'the amount claimed', limitOver: 'stop',
+      overText: 'Claims between $25,001 and $250,000 go to the Local Court.',
+      form: 'Form 1 Initiating Application (small claim)', copyTarget: 'NTCAT’s Form 1 Initiating Application',
+      lodge: 'File the Form 1 Initiating Application with NTCAT and pay the fee. NTCAT won’t process the application until the fee is paid. NTCAT seals the Form 1 and returns it to you, usually with standard orders.',
+      fileLabel: 'NTCAT file number', filePh: 'As shown on the sealed Form 1',
+      tribunalServes: false, responseDays: null, responseNote: 'The response is due by the date in NTCAT’s standard orders.',
+      serveIntro: 'You must serve both the sealed Form 1 Initiating Application and NTCAT’s standard orders on the respondent, following NTCAT’s Service Guidelines. The proceeding won’t continue until the respondent has been served, and you may need to prove how you served them. Enter the response date from NTCAT’s orders.',
+      hearingLabel: 'Conference or hearing', limitationYears: 3,
+      resolveFirst: 'NT Government guidance suggests contacting the debtor and sending a letter of demand that gives a reasonable time to pay (it suggests within 28 days) before making a claim.',
+      noResponse: 'No response by the due date. NTCAT can list a debt claim for a default decision: you file a Form 7 Unattested Declaration (Default Decision) 7 days before the hearing, with proof of service.',
+      decided: 'Record whether the order is paid. If it isn’t, check NTCAT’s guidance on enforcing a decision.',
+      entityFees: true,
+      fees: { corporation: [{ upTo: 1999.99, fee: 160 }, { upTo: 10000, fee: 324 }, { upTo: Infinity, fee: 648 }],
+              person: [{ upTo: 1999.99, fee: 129 }, { upTo: 10000, fee: 259 }, { upTo: Infinity, fee: 518 }] }, feesFrom: '1 July 2026',
+      feeNote: 'The first hearing day has no fee; extra hearing days are charged.',
+      recoverable: null, checked: '2026-11-18',
+      links: {
+        guide: 'https://nt.gov.au/law/courts-and-tribunals/small-claims',
+        form: 'https://ntcat.nt.gov.au/getting-started/forms',
+        fees: 'https://ntcat.nt.gov.au/fees.shtml',
+        help: 'https://ntcat.nt.gov.au/our-services/serving-documents'
+      }, applyLabel: 'NT Government: small claims', formLabel: 'NTCAT forms (Form 1)', helpLabel: 'NTCAT: serving documents',
+      checks: function(c, cl, add, d){
+        var st = String(d.state || '').toUpperCase();
+        if(st && st !== 'NT') add('caution', 'Respondent is in ' + st, 'Check with NTCAT that it can hear your claim against a respondent outside the NT before you apply.');
+        add('info', 'The NT time limit is 3 years', 'Small claims must be made within three years of when the money was owed. If the debtor confirms the debt in writing within that time, the three years start again.');
+        add('info', 'You present your own case', 'In small claims, a party can be represented by a lawyer only with NTCAT’s permission.');
+      },
+      extraEvidence: function(){ return [['service_proof', 'Documents showing how you served the sealed Form 1 and standard orders (NTCAT Service Guidelines)']]; } }
   };
   function recJur(c, m){
     if(m && m.jurisdiction) return m.jurisdiction;
@@ -4081,7 +4112,7 @@
     var d = c.debtor, R = cl.rules, out = [];
     var add = function(level, title, text){ out.push({ level: level, title: title, text: text || '' }); };
     if(cl.total <= 0) add('stop', 'Nothing to claim', 'There is no undisputed amount owing on this case.');
-    else if(cl.total > R.limit && R.limitOver === 'stop') add('stop', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' ' + R.kind + ' limit (' + R.limitNote + '). ' + R.short + ' can’t hear this as a ' + R.kind + '.');
+    else if(cl.total > R.limit && R.limitOver === 'stop') add('stop', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' ' + R.kind + ' limit (' + R.limitNote + '). ' + R.short + ' can’t hear this as a ' + R.kind + '.' + (R.overText ? ' ' + R.overText : ''));
     else if(cl.total > R.limit) add('caution', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' limit. ' + R.short + ' says you can abandon the amount over ' + money(R.limit) + ' (tick “Abandon the excess” under Claim amount), or get the respondent’s written agreement to a higher claim.');
     else if(cl.abandoned) add('ok', 'Excess abandoned', money(cl.abandoned) + ' over the limit is abandoned, so you claim ' + money(cl.total) + '. An abandoned amount can’t be claimed later.');
     else add('ok', 'Within the ' + money(R.limit) + ' limit', money(cl.total) + ' claimed' + (R.limitNote === 'including interest' ? ', including interest' : '') + '.');
@@ -4234,10 +4265,10 @@
       + (R.entityFees ? '<label class="rec-tog">You are <select data-rentity'+(locked ? ' disabled' : '')+'><option value="corporation"'+(cl.entity !== 'person' ? ' selected' : '')+'>a company</option><option value="person"'+(cl.entity === 'person' ? ' selected' : '')+'>an individual or sole trader</option></select></label>' : '')
       + '</div>'
       + '<div class="rec-total"><div><span>Unpaid invoices</span><b>'+money(cl.principal)+'</b></div><div><span>Interest</span><b>'+money(cl.interest)+'</b></div><div><span>Fees</span><b>'+money(cl.fees)+'</b></div><div class="t"><span>Amount claimed</span><b>'+money(cl.total)+'</b>'+(cl.abandoned ? '<em class="small">'+money(cl.abandoned)+' abandoned</em>' : '')+'</div><div><span>Estimated filing fee</span><b>'+(cl.filingFee != null ? money(cl.filingFee) : '—')+'</b></div></div>'
-      + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check '+escapeHtml(R.short)+'’s current fees</a> before lodging.'+(R.entityFees ? ' Companies pay a higher fee than individuals.' : '')+(R.recoverable ? ' You can ask '+escapeHtml(R.short)+' to award '+escapeHtml(R.recoverable)+'.' : '')+'</p>'
+      + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check '+escapeHtml(R.short)+'’s current fees</a> before lodging.'+(R.entityFees ? ' Companies pay a higher fee than individuals.' : '')+(R.feeNote ? ' ' + escapeHtml(R.feeNote) : '')+(R.recoverable ? ' You can ask '+escapeHtml(R.short)+' to award '+escapeHtml(R.recoverable)+'.' : '')+'</p>'
       + '<div class="rec-tablewrap"><table class="rec-table"><thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="num">Unpaid</th><th class="num">Interest</th><th class="num">Fees</th></tr></thead><tbody>'+(rows || '<tr><td colspan="6" class="empty-note">No invoices in the claim.</td></tr>')+'</tbody></table></div>');
     if(!m){
-      html += '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare '+(/^[AEIOU]/.test(R.short) ? 'an ' : 'a ')+escapeHtml(R.short)+' application?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
+      html += '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare '+(/^(A|E|I|O|U|N)/.test(R.short) ? 'an ' : 'a ')+escapeHtml(R.short)+' application?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
         + '<button class="btn primary" type="button" id="recStartBtn"'+(stop ? ' disabled title="Fix the items marked in red first"' : '')+'>Start recovery file</button></div></div>';
     } else {
       // 3. Application details
@@ -4274,7 +4305,7 @@
       html += step(6, 'Serve the respondent',
         '<p class="muted small">'+escapeHtml(R.serveIntro)+'</p><div class="rec-row">'
         + recField('Date served', 'served_on', m.served_on, { type: 'date' }) + recField('How', 'service_method', m.service_method, { select: [['', 'Choose…']].concat(R.tribunalServes ? [['tribunal', 'Served by ' + R.short + ' (post)']] : []).concat([['post', 'Post'], ['email', 'Email'], ['hand', 'By hand'], ['process_server', 'Process server / bailiff'], ['other', 'Other']]) })
-        + recField('Response due', 'response_due', m.response_due || (m.served_on ? addDaysIso(m.served_on, R.responseDays) : ''), { type: 'date', hint: R.tribunalServes ? 'Use the date in ' + R.short + '’s letter.' : 'Worked out from the service date. Change it if ' + R.short + ' gives a different date.' })
+        + recField('Response due', 'response_due', m.response_due || (m.served_on && R.responseDays ? addDaysIso(m.served_on, R.responseDays) : ''), { type: 'date', hint: !R.responseDays ? 'Enter the date in ' + R.short + '’s orders.' : R.tribunalServes ? 'Use the date in ' + R.short + '’s letter.' : 'Worked out from the service date. Change it if ' + R.short + ' gives a different date.' })
         + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-serve"'+(m.lodged_on ? '' : ' disabled title="Record the lodgement first"')+'>'+(m.served_on ? 'Update' : 'Record service')+'</button></div>');
       // 7. Response and outcome
       html += step(7, 'Response, hearing and outcome',
@@ -4489,10 +4520,10 @@
     }
     if(act === 'save-serve'){
       if(!f.served_on){ toast('Enter the date the respondent was served.'); return; }
-      var sp = { served_on: f.served_on, service_method: f.service_method || null, response_due: f.response_due || addDaysIso(f.served_on, R.responseDays) };
+      var sp = { served_on: f.served_on, service_method: f.service_method || null, response_due: f.response_due || (R.responseDays ? addDaysIso(f.served_on, R.responseDays) : null) };
       if(m.status === 'lodged') sp.status = 'served';
       var firstServe = !m.served_on;
-      if(await saveMatter(sp, 'Service recorded. Response due ' + fmt(sp.response_due) + '.') && firstServe) await caseEvent(c, 'tribunal_served', 'Application served on the respondent', 'Served ' + fmt(f.served_on) + (f.service_method ? (f.service_method === 'tribunal' ? ' by ' + R.short : ' by ' + f.service_method.replace('_', ' ')) : '') + '. Response due ' + fmt(sp.response_due) + '.');
+      if(await saveMatter(sp, sp.response_due ? 'Service recorded. Response due ' + fmt(sp.response_due) + '.' : 'Service recorded. Add the response date from ' + R.short + '’s orders.') && firstServe) await caseEvent(c, 'tribunal_served', 'Application served on the respondent', 'Served ' + fmt(f.served_on) + (f.service_method ? (f.service_method === 'tribunal' ? ' by ' + R.short : ' by ' + f.service_method.replace('_', ' ')) : '') + (sp.response_due ? '. Response due ' + fmt(sp.response_due) + '.' : '.'));
       return;
     }
     if(act === 'save-status'){
