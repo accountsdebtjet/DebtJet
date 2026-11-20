@@ -888,7 +888,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="SA">SA · Magistrates Court</option><option value="WA">WA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="SA">SA · Magistrates Court</option><option value="WA">WA · Magistrates Court</option><option value="TAS">Tasmania · coming soon</option>
         </select></label>
         <div></div>
       </div>
@@ -4115,7 +4115,40 @@
         if(cl.total < 10000) add('info', 'Claims under $10,000 usually go to arbitration', 'If the defendant files a defence, a claim under $10,000 is usually decided at arbitration, a less formal hearing.');
       },
       extraEvidence: function(){ return [['form4a', 'Form 4A overarching obligations certification (filed with the complaint)'], ['affidavit_service', 'Affidavit of service (Form 6A) from whoever served the complaint']]; } },
-    WA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of WA, minor case claim', limit: 10000 },
+    WA: { live: true, short: 'Magistrates Court', theShort: 'the Magistrates Court', forum: 'WA_MC_MINOR_CASE', tribunalOption: 'Magistrates Court of WA (Minor Case)',
+      bodyFull: 'Magistrates Court of Western Australia', kind: 'minor case claim', claimLabel: 'Minor case claim', docNoun: 'minor case claim',
+      forumName: 'Magistrates Court of Western Australia: minor case claim (Form 4)',
+      terms: ['claimant', 'defendant'], verb: 'lodge',
+      limit: 10000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'minor case claims in the WA Magistrates Court',
+      overText: 'Claims over $10,000 and up to $75,000 can be made as a general procedure claim in the Magistrates Court.',
+      form: 'Form 4 – Minor Case Claim', copyTarget: 'the eCourts Portal (Form 4)',
+      lodge: 'Lodge Form 4 – Minor Case Claim electronically through the eCourts Portal, choose the court registry and pay the fee. The defendant’s address must be a residential address, or the registered office for a company. A small business or non-profit association can lodge a declaration to pay the lower fee.',
+      fileLabel: 'Case number', filePh: 'As shown in eCourts',
+      tribunalServes: false, courtPost: 'Served by a court bailiff',
+      responseDays: 14, responseDaysFor: function(d){ var st = String(d.state || '').toUpperCase(); return st && st !== 'WA' ? 21 : 14; },
+      responseNote: 'The defendant has 14 days after being served in WA (21 days if served in another state or territory) to respond.',
+      serveIntro: 'In most cases the claim must be served personally on the defendant. You can pre-pay the court to have a bailiff serve it, or serve it yourself following the court’s guidance on serving court documents. You can’t take further steps until the defendant’s time to respond has passed.',
+      hearingLabel: 'Pre-trial conference, status conference or trial', limitationYears: 6,
+      resolveFirst: 'Try to resolve the debt before making a claim, for example with a letter of demand.',
+      noResponse: 'No response by the deadline. Lodge proof of service and an application for default judgment through the eCourts Portal.',
+      decided: 'Record whether the judgment is paid. If it isn’t, check the Magistrates Court’s guidance on enforcing a judgment.',
+      entityFees: true,
+      fees: { corporation: [{ upTo: Infinity, fee: 381.00 }], person: [{ upTo: Infinity, fee: 196.50 }] }, feesFrom: '3 September 2026',
+      feeNote: 'Small businesses and non-profit associations pay the lower fee by lodging a declaration (Form 1). Bailiff service is $117.50 plus travel. Lawyers’ costs generally aren’t recoverable in claims of $10,000 or less.',
+      recoverable: null, checked: '2026-11-20',
+      links: {
+        guide: 'https://www.smallbusiness.wa.gov.au/templates-tools-guides/guides/recovering-debt-through-magistrates-court',
+        form: 'https://magistratescourt.wa.gov.au/_files/Civil_factsheet_3.pdf',
+        fees: 'https://www.magistratescourt.wa.gov.au/_files/magistrates_court_fees.pdf',
+        help: 'https://ecourts.justice.wa.gov.au/eCourtsPortal/'
+      }, applyLabel: 'Small Business Development Corporation: recovering debt', formLabel: 'Fact Sheet 3: minor case claim (PDF)', helpLabel: 'eCourts Portal',
+      checks: function(c, cl, add, d){
+        var st = String(d.state || '').toUpperCase();
+        if(st && st !== 'WA') add('info', 'Defendant is in ' + st, 'If served in another state or territory, the defendant has 21 days (not 14) to respond.');
+        add('info', 'Minor case or general procedure', 'For $10,000 or less you can choose a minor case claim or a general procedure claim. In a minor case, parties can’t be represented by a lawyer unless everyone agrees or the court allows it.');
+        add('info', 'Proceedings are private', 'Minor case proceedings are private unless the court orders otherwise.');
+      },
+      extraEvidence: function(cl, entity){ var out = [['proof_service', 'Proof of service (needed to apply for default judgment)']]; if(entity !== 'person') out.push(['sb_declaration', 'Small business or non-profit declaration (Form 1), if you’re paying the lower fee']); return out; } },
     SA: { live: true, short: 'Magistrates Court', theShort: 'the Magistrates Court', forum: 'SA_MC_MINOR_CIVIL', tribunalOption: 'Magistrates Court of SA (Minor Civil)',
       bodyFull: 'Magistrates Court of South Australia', kind: 'minor civil claim', claimLabel: 'Claim',
       forumName: 'Magistrates Court of South Australia: minor civil claim (Claim, Form 1)',
@@ -4199,6 +4232,8 @@
     return f && base && base.alts && base.alts[f] ? base.alts[f] : base;
   }
   function recBase(c, m){ return RECOVERY_RULES[m && m.jurisdiction ? m.jurisdiction : recJur(c, m)]; }
+  function recRespDays(R, c){ return R.responseDaysFor && c ? R.responseDaysFor(c.debtor) : R.responseDays; }
+  function recFiles(R){ return !!(R && R.terms && R.verb !== 'lodge'); }
   function recTerms(R){ return (R && R.terms) || ['applicant', 'respondent']; }
   function cap1(t){ return t.charAt(0).toUpperCase() + t.slice(1); }
   function recEntity(m){ return (m && m.applicant && m.applicant.entity) || recState.entity || 'corporation'; }
@@ -4334,7 +4369,7 @@
     if(!m) return { text: 'Check eligibility and the claim amount, then start a recovery file.', due: null };
     var R = recRules(c, m) || RECOVERY_RULES.QLD;
     switch(m.status){
-      case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then ' + (R.terms ? 'file the ' + R.docNoun + ' with the ' : 'lodge ' + R.form.split(':')[0] + ' with ') + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
+      case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then ' + (R.terms ? (recFiles(R) ? 'file' : 'lodge') + ' the ' + R.docNoun + ' with the ' : 'lodge ' + R.form.split(':')[0] + ' with ') + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
       case 'lodged': if(R.serveWithinMonths && m.lodged_on){ var sd = new Date(m.lodged_on + 'T00:00:00'); sd.setMonth(sd.getMonth() + R.serveWithinMonths); return { text: 'Serve the ' + R.claimLabel.toLowerCase() + ' on the ' + recTerms(R)[1] + ' (it must be served within ' + R.serveWithinMonths + ' months of filing), then record the date and method.', due: isoLocal(sd) }; }
         return { text: R.tribunalServes ? R.short + ' serves the application by post unless you chose to serve it. Record the service date and response date from ' + R.short + '’s letter.' : 'Serve the application on the respondent, then record the date and method.', due: null };
       case 'served': return { text: 'Wait for the ' + recTerms(R)[1] + '’s response. ' + R.responseNote, due: m.response_due };
@@ -4446,15 +4481,15 @@
         + manual.map(function(x){ return '<li class="man"><label><input type="checkbox" data-rck="'+x[0]+'"'+(ck[x[0]] ? ' checked' : '')+'> '+escapeHtml(x[1])+'</label></li>'; }).join('') + '</ul>'
         + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="print-pack">Print evidence pack</button></div>');
       // 5. Lodge
-      html += step(5, R.terms ? 'File with ' + (R.theShort || 'the ' + R.short) : 'Lodge with ' + (R.theShort || R.short),
+      html += step(5, recFiles(R) ? 'File with ' + (R.theShort || 'the ' + R.short) : 'Lodge with ' + (R.theShort || R.short),
         '<p class="muted small">'+escapeHtml(R.lodge)+'</p><div class="rec-row">'
-        + recField(R.terms ? 'Date filed' : 'Date lodged', 'lodged_on', m.lodged_on, { type: 'date' }) + recField(R.fileLabel, 'file_number', m.file_number, { ph: R.filePh }) + recField('Filing fee paid', 'filing_fee', m.filing_fee != null ? m.filing_fee : (cl.filingFee || ''), { type: 'number' })
-        + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-lodge">'+(m.lodged_on ? 'Update' : (R.terms ? 'Record as filed' : 'Record as lodged'))+'</button></div>');
+        + recField(recFiles(R) ? 'Date filed' : 'Date lodged', 'lodged_on', m.lodged_on, { type: 'date' }) + recField(R.fileLabel, 'file_number', m.file_number, { ph: R.filePh }) + recField('Filing fee paid', 'filing_fee', m.filing_fee != null ? m.filing_fee : (cl.filingFee || ''), { type: 'number' })
+        + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-lodge">'+(m.lodged_on ? 'Update' : (recFiles(R) ? 'Record as filed' : 'Record as lodged'))+'</button></div>');
       // 6. Serve
       html += step(6, 'Serve the ' + recTerms(R)[1],
         '<p class="muted small">'+escapeHtml(R.serveIntro)+'</p><div class="rec-row">'
         + recField('Date served', 'served_on', m.served_on, { type: 'date' }) + recField('How', 'service_method', m.service_method, { select: [['', 'Choose…']].concat(R.tribunalServes || R.courtPost ? [['tribunal', R.courtPost || 'Served by ' + R.short + ' (post)']] : []).concat([['post', 'Post'], ['email', 'Email'], ['hand', 'By hand'], ['process_server', 'Process server / bailiff'], ['other', 'Other']]) })
-        + recField('Response due', 'response_due', m.response_due || (m.served_on && R.responseDays ? addDaysIso(m.served_on, R.responseDays) : ''), { type: 'date', hint: !R.responseDays ? 'Enter the date in ' + R.short + '’s orders.' : R.tribunalServes ? 'Use the date in ' + R.short + '’s letter.' : 'Worked out from the service date. Change it if ' + (R.theShort || R.short) + ' gives a different date.' })
+        + recField('Response due', 'response_due', m.response_due || (m.served_on && recRespDays(R, c) ? addDaysIso(m.served_on, recRespDays(R, c)) : ''), { type: 'date', hint: !R.responseDays ? 'Enter the date in ' + R.short + '’s orders.' : R.tribunalServes ? 'Use the date in ' + R.short + '’s letter.' : 'Worked out from the service date. Change it if ' + (R.theShort || R.short) + ' gives a different date.' })
         + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-serve"'+(m.lodged_on ? '' : ' disabled title="Record the lodgement first"')+'>'+(m.served_on ? 'Update' : 'Record service')+'</button></div>');
       // 7. Response and outcome
       html += step(7, 'Response, hearing and outcome',
@@ -4468,7 +4503,7 @@
     var side = '<div class="card rec-sum"><div class="card-body">'
       + '<div class="rec-sum-top"><span class="pill '+(m ? REC_STATUS_TONE[m.status] : 'not_connected')+'">'+(m ? escapeHtml(REC_STATUS[m.status]) : 'No file yet')+'</span><span class="muted small">'+escapeHtml(R.short)+' · '+escapeHtml(R.kind)+'</span></div>'
       + '<div class="rec-sum-amt">'+money(m && m.status !== 'preparing' && m.total_claimed ? m.total_claimed : cl.total)+'</div><div class="muted small">'+(m && m.status !== 'preparing' ? 'claimed' : 'to claim')+' from '+escapeHtml(letterAddresseeName(c.debtor))+'</div>'
-      + '<dl class="rec-dl">' + (m && m.file_number ? '<dt>File</dt><dd>'+escapeHtml(m.file_number)+'</dd>' : '') + (m && m.lodged_on ? '<dt>'+(R.terms ? 'Filed' : 'Lodged')+'</dt><dd>'+fmt(m.lodged_on)+'</dd>' : '') + (m && m.served_on ? '<dt>Served</dt><dd>'+fmt(m.served_on)+'</dd>' : '') + (m && m.response_due ? '<dt>Response due</dt><dd>'+fmt(m.response_due)+'</dd>' : '') + (m && m.hearing_at ? '<dt>Hearing</dt><dd>'+fmtDateTime(m.hearing_at)+'</dd>' : '') + '</dl>'
+      + '<dl class="rec-dl">' + (m && m.file_number ? '<dt>File</dt><dd>'+escapeHtml(m.file_number)+'</dd>' : '') + (m && m.lodged_on ? '<dt>'+(recFiles(R) ? 'Filed' : 'Lodged')+'</dt><dd>'+fmt(m.lodged_on)+'</dd>' : '') + (m && m.served_on ? '<dt>Served</dt><dd>'+fmt(m.served_on)+'</dd>' : '') + (m && m.response_due ? '<dt>Response due</dt><dd>'+fmt(m.response_due)+'</dd>' : '') + (m && m.hearing_at ? '<dt>Hearing</dt><dd>'+fmtDateTime(m.hearing_at)+'</dd>' : '') + '</dl>'
       + '<div class="rec-next"><b>Next</b><span>'+escapeHtml(na.text)+'</span>'+(na.due ? '<em class="'+(daysUntil(na.due) < 0 ? 'late' : '')+'">'+fmt(na.due)+' · '+dueTxt+'</em>' : '')+'</div>'
       + (m ? '<button class="btn ghost sm" type="button" data-ract="delete-file">Delete file</button>' : '')
       + '</div></div>'
@@ -4669,7 +4704,7 @@
     }
     if(act === 'save-serve'){
       if(!f.served_on){ toast('Enter the date the respondent was served.'); return; }
-      var sp = { served_on: f.served_on, service_method: f.service_method || null, response_due: f.response_due || (R.responseDays ? addDaysIso(f.served_on, R.responseDays) : null) };
+      var sp = { served_on: f.served_on, service_method: f.service_method || null, response_due: f.response_due || (recRespDays(R, c) ? addDaysIso(f.served_on, recRespDays(R, c)) : null) };
       if(m.status === 'lodged') sp.status = 'served';
       var firstServe = !m.served_on;
       if(await saveMatter(sp, sp.response_due ? 'Service recorded. Response due ' + fmt(sp.response_due) + '.' : 'Service recorded. Add the response date from ' + R.short + '’s orders.') && firstServe) await caseEvent(c, 'tribunal_served', 'Application served on the respondent', 'Served ' + fmt(f.served_on) + (f.service_method ? (f.service_method === 'tribunal' ? ' by ' + R.short : ' by ' + f.service_method.replace('_', ' ')) : '') + (sp.response_due ? '. Response due ' + fmt(sp.response_due) + '.' : '.'));
