@@ -888,7 +888,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="SA">SA · Magistrates Court</option><option value="WA">WA · Magistrates Court</option><option value="TAS">Tasmania · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="SA">SA · Magistrates Court</option><option value="WA">WA · Magistrates Court</option><option value="TAS">Tasmania · Magistrates Court</option>
         </select></label>
         <div></div>
       </div>
@@ -4186,7 +4186,38 @@
         add('info', 'Directions hearing', 'If the respondent files a defence, a directions hearing is usually listed about six weeks later. Both parties must attend.');
       },
       extraEvidence: function(){ return [['final_notice', 'Final Notice (Form P1) or compliant letter of demand, and proof it was given at least 21 days before filing'], ['proof_service', 'Affidavit of proof of service (if you served the claim yourself)']]; } },
-    TAS: { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of Tasmania, minor civil claim', limit: 5000 },
+    TAS: { live: true, short: 'Magistrates Court', theShort: 'the Magistrates Court', forum: 'TAS_MC_MINOR_CIVIL', tribunalOption: 'Magistrates Court of Tasmania (Minor Civil)',
+      bodyFull: 'Magistrates Court of Tasmania (Civil Division)', kind: 'minor civil claim', claimLabel: 'Claim', docNoun: 'claim',
+      forumName: 'Magistrates Court of Tasmania: minor civil claim (Form 1 – Claim)',
+      terms: ['claimant', 'defendant'],
+      limit: 15000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'minor civil claims in the Tasmanian Magistrates Court',
+      overText: 'Claims over $15,000 and up to $50,000 can be made as a civil claim in the Magistrates Court. Claims over $50,000 go to the Supreme Court.',
+      form: 'Form 1 – Claim and Notice to Defendant', copyTarget: 'Form 1 – Claim',
+      lodge: 'Complete Form 1 – Claim and Notice to Defendant and lodge it at a Magistrates Court registry with the filing fee. Bring enough copies: one for the court, one for you, and one for each defendant. The registry seals the claim and gives it an action number.',
+      fileLabel: 'Action number', filePh: 'As shown on the sealed claim',
+      tribunalServes: false, courtPost: 'Served by the court',
+      serveWithinMonths: 12,
+      responseDays: 21, responseNote: 'The defendant has 21 days after receiving the claim to pay, admit it or file a defence.',
+      serveIntro: 'Serve the sealed Claim and Notice to Defendant on each defendant within one year of lodging, either in person (by you or anyone over 18) or by registered post. The court can also arrange service. If it’s served in person, complete the affidavit of service on the claim form.',
+      hearingLabel: 'Conciliation conference or hearing', limitationYears: 6,
+      resolveFirst: 'Try to resolve the debt before making a claim, for example with a letter of demand.',
+      noResponse: 'No defence after 21 days. File a default judgment form at the registry, attaching your original claim and the affidavit of service.',
+      decided: 'Record whether the judgment is paid. If it isn’t, check the Magistrates Court’s guidance on enforcement, such as a warrant or garnishee order.',
+      entityFees: false,
+      fees: [{ upTo: 5000, fee: 147.00 }, { upTo: Infinity, fee: 284.20 }], feesFrom: '1 July 2026',
+      feeNote: 'Fees include the $9.80 Appeal Costs Fund levy. If you win, the court’s scale lets you claim filing and service costs on judgment.',
+      recoverable: null, checked: '2026-11-20',
+      links: {
+        guide: 'https://www.magistratescourt.tas.gov.au/going_to_court/civil_disputes',
+        form: 'https://www.magistratescourt.tas.gov.au/about_us/civil/minor_civil_claims/minor_civil_claim_flowchart',
+        fees: 'https://www.magistratescourt.tas.gov.au/__data/assets/pdf_file/0009/899064/2026-No-1-Fees-Annual-Increase-and-Civil-Division-Ready-Reckoner-effective-1-July-2026.pdf',
+        help: 'https://www.legalaid.tas.gov.au/civil-claims'
+      }, applyLabel: 'Magistrates Court of Tasmania: civil disputes', formLabel: 'Minor civil claim flowchart', helpLabel: 'Legal Aid Tasmania: civil claims and forms',
+      checks: function(c, cl, add, d){
+        if(cl.total > 5000) add('caution', 'Confirm the claim stream with the registry', 'The Minor Civil Claims Regulations 2023 set the minor civil claim limit at $15,000, but parts of the court’s website still say $5,000. Confirm with the registry that your claim will be treated as a minor civil claim (conciliation conference) rather than a civil claim (directions hearing).');
+        add('info', 'If the defendant files a defence', 'A minor civil claim usually goes to a conciliation conference first. If it doesn’t settle, it goes to a hearing before a magistrate.');
+      },
+      extraEvidence: function(){ return [['proof_service', 'Affidavit of service (needed for default judgment if served in person)'], ['registered_post', 'Registered post receipt and tracking (if served by post)']]; } },
     NT: { live: true, short: 'NTCAT', forum: 'NTCAT_SMALL_CLAIM', tribunalOption: 'NTCAT (Northern Territory)',
       bodyFull: 'Northern Territory Civil and Administrative Tribunal', kind: 'small claim', claimLabel: 'Small claim',
       forumName: 'Northern Territory Civil and Administrative Tribunal (NTCAT): small claim (Small Claims Act 2016)',
@@ -4369,7 +4400,7 @@
     if(!m) return { text: 'Check eligibility and the claim amount, then start a recovery file.', due: null };
     var R = recRules(c, m) || RECOVERY_RULES.QLD;
     switch(m.status){
-      case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then ' + (R.terms ? (recFiles(R) ? 'file' : 'lodge') + ' the ' + R.docNoun + ' with the ' : 'lodge ' + R.form.split(':')[0] + ' with ') + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
+      case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then ' + (R.terms ? (recFiles(R) ? 'file' : 'lodge') + ' the ' + (R.docNoun || 'claim') + ' with the ' : 'lodge ' + R.form.split(':')[0] + ' with ') + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
       case 'lodged': if(R.serveWithinMonths && m.lodged_on){ var sd = new Date(m.lodged_on + 'T00:00:00'); sd.setMonth(sd.getMonth() + R.serveWithinMonths); return { text: 'Serve the ' + R.claimLabel.toLowerCase() + ' on the ' + recTerms(R)[1] + ' (it must be served within ' + R.serveWithinMonths + ' months of filing), then record the date and method.', due: isoLocal(sd) }; }
         return { text: R.tribunalServes ? R.short + ' serves the application by post unless you chose to serve it. Record the service date and response date from ' + R.short + '’s letter.' : 'Serve the application on the respondent, then record the date and method.', due: null };
       case 'served': return { text: 'Wait for the ' + recTerms(R)[1] + '’s response. ' + R.responseNote, due: m.response_due };
@@ -4452,7 +4483,7 @@
       + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check '+escapeHtml(R.theShort || R.short)+'’s current fees</a> before lodging.'+(R.entityFees ? ' Companies pay a higher fee than individuals.' : '')+(R.feeNote ? ' ' + escapeHtml(R.feeNote) : '')+(R.recoverable ? ' You can ask '+escapeHtml(R.short)+' to award '+escapeHtml(R.recoverable)+'.' : '')+'</p>'
       + '<div class="rec-tablewrap"><table class="rec-table"><thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="num">Unpaid</th><th class="num">Interest</th><th class="num">Fees</th></tr></thead><tbody>'+(rows || '<tr><td colspan="6" class="empty-note">No invoices in the claim.</td></tr>')+'</tbody></table></div>');
     if(!m){
-      html += '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare '+(R.terms ? 'your ' + escapeHtml(R.short) + ' ' + escapeHtml(R.docNoun) : (/^(A|E|I|O|U|N)/.test(R.short) ? 'an ' : 'a ') + escapeHtml(R.short) + ' application')+'?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
+      html += '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare '+(R.terms ? 'your ' + escapeHtml(R.short) + ' ' + escapeHtml(R.docNoun || 'claim') : (/^(A|E|I|O|U|N)/.test(R.short) ? 'an ' : 'a ') + escapeHtml(R.short) + ' application')+'?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
         + '<button class="btn primary" type="button" id="recStartBtn"'+(stop ? ' disabled title="Fix the items marked in red first"' : '')+'>Start recovery file</button></div></div>';
     } else {
       // 3. Application details
