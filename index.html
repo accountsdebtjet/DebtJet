@@ -888,7 +888,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="SA">SA · Magistrates Court</option><option value="WA">WA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
         </select></label>
         <div></div>
       </div>
@@ -4116,7 +4116,43 @@
       },
       extraEvidence: function(){ return [['form4a', 'Form 4A overarching obligations certification (filed with the complaint)'], ['affidavit_service', 'Affidavit of service (Form 6A) from whoever served the complaint']]; } },
     WA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of WA, minor case claim', limit: 10000 },
-    SA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of SA, Civil (Minor Claims) Division', limit: 12000 },
+    SA: { live: true, short: 'Magistrates Court', theShort: 'the Magistrates Court', forum: 'SA_MC_MINOR_CIVIL', tribunalOption: 'Magistrates Court of SA (Minor Civil)',
+      bodyFull: 'Magistrates Court of South Australia', kind: 'minor civil claim', claimLabel: 'Claim',
+      forumName: 'Magistrates Court of South Australia: minor civil claim (Claim, Form 1)',
+      limit: 12000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'minor civil claims in the SA Magistrates Court',
+      overText: 'Larger claims go to the Magistrates Court’s general civil division, which is more formal.',
+      form: 'Claim (Form 1), lodged through the CourtSA portal', copyTarget: 'the CourtSA portal',
+      lodge: 'Lodge the Claim (Form 1) electronically through the CourtSA portal and pay by card (cash and cheques aren’t accepted). Choose the first hearing location, ideally the court closest to where the claim arose or where the respondent lives, and include a short summary of the claim (under 100 words for claims up to $12,000). CourtSA gives the case a CIV number.',
+      fileLabel: 'CIV number', filePh: 'As shown in CourtSA',
+      tribunalServes: false, courtPost: 'Served by a sheriff’s officer',
+      responseDays: 28, responseNote: 'The respondent has 28 days after being served (within Australia) to respond.',
+      serveIntro: 'You choose how to serve when you lodge in CourtSA: serve it yourself by post, email or in person (no fee), have a lawyer serve it, or pay for a sheriff’s officer. If you serve it yourself, you’ll need an affidavit of proof of service to ask for default judgment.',
+      hearingLabel: 'Directions hearing, settlement conference or trial', limitationYears: 6,
+      resolveFirst: 'Before you file, give the respondent a Final Notice (Form P1) or a letter of demand that meets the court rules, and wait 21 days.',
+      noResponse: 'No response after 28 days. Request default judgment in CourtSA. If you served the claim yourself, provide an affidavit of proof of service. Judgment isn’t entered automatically.',
+      decided: 'Record whether the judgment is paid. If it isn’t, check the Magistrates Court’s guidance on enforcing a judgment.',
+      entityFees: false,
+      fees: [{ upTo: Infinity, fee: 186 }], feesFrom: '1 July 2026',
+      feeNote: 'A Final Notice through CourtSA costs $27.75 ($66.50 through a registry). Your own compliant letter of demand has no court fee. Sheriff’s service is extra.',
+      recoverable: 'the filing fee and the final notice fee, provided you gave a pre-action notice and waited 21 days', checked: '2026-11-20',
+      links: {
+        guide: 'https://www.courts.sa.gov.au/civil-cases/before-making-a-claim/',
+        form: 'https://www.courts.sa.gov.au/?p=9209',
+        fees: 'https://www.courts.sa.gov.au/rules-forms-fees/fees/magcourt-civil-genminor-fees/',
+        help: 'https://lawhandbook.sa.gov.au/ch14s02s05.php'
+      }, applyLabel: 'Courts SA: before making a claim', formLabel: 'Courts SA: lodging and serving a claim', helpLabel: 'Law Handbook SA: starting a minor civil claim',
+      checks: function(c, cl, add, d){
+        var dd = demandDates[c.id] || {}, last = dd.final || dd.first;
+        if(!last) add('caution', 'Pre-action notice needed', 'Give a Final Notice (Form P1, generated in CourtSA) or a letter of demand that meets Uniform Civil Rules r 332.3, then wait 21 days. Without it, you can’t recover the cost of filing the claim.');
+        else {
+          var ready = addDaysIso(String(last).slice(0, 10), 21);
+          if(daysUntil(ready) > 0) add('caution', 'Wait 21 days after your notice', 'Your last demand was sent ' + fmt(last) + '. You can file from ' + fmt(ready) + '. Filing earlier may stop you recovering your costs.');
+          else add('ok', '21 days have passed since your notice', 'A letter of demand only counts as a pre-action notice if it includes what Uniform Civil Rules r 332.3 requires. A CourtSA Final Notice always does.');
+        }
+        add('info', 'You present your own case', 'Parties in minor civil claims aren’t entitled to a lawyer except in special circumstances.');
+        add('info', 'Directions hearing', 'If the respondent files a defence, a directions hearing is usually listed about six weeks later. Both parties must attend.');
+      },
+      extraEvidence: function(){ return [['final_notice', 'Final Notice (Form P1) or compliant letter of demand, and proof it was given at least 21 days before filing'], ['proof_service', 'Affidavit of proof of service (if you served the claim yourself)']]; } },
     TAS: { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of Tasmania, minor civil claim', limit: 5000 },
     NT: { live: true, short: 'NTCAT', forum: 'NTCAT_SMALL_CLAIM', tribunalOption: 'NTCAT (Northern Territory)',
       bodyFull: 'Northern Territory Civil and Administrative Tribunal', kind: 'small claim', claimLabel: 'Small claim',
@@ -4410,7 +4446,7 @@
         + manual.map(function(x){ return '<li class="man"><label><input type="checkbox" data-rck="'+x[0]+'"'+(ck[x[0]] ? ' checked' : '')+'> '+escapeHtml(x[1])+'</label></li>'; }).join('') + '</ul>'
         + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="print-pack">Print evidence pack</button></div>');
       // 5. Lodge
-      html += step(5, (R.terms ? 'File with the ' : 'Lodge with ') + R.short,
+      html += step(5, R.terms ? 'File with ' + (R.theShort || 'the ' + R.short) : 'Lodge with ' + (R.theShort || R.short),
         '<p class="muted small">'+escapeHtml(R.lodge)+'</p><div class="rec-row">'
         + recField(R.terms ? 'Date filed' : 'Date lodged', 'lodged_on', m.lodged_on, { type: 'date' }) + recField(R.fileLabel, 'file_number', m.file_number, { ph: R.filePh }) + recField('Filing fee paid', 'filing_fee', m.filing_fee != null ? m.filing_fee : (cl.filingFee || ''), { type: 'number' })
         + '</div><div class="rec-acts"><button class="btn primary" type="button" data-ract="save-lodge">'+(m.lodged_on ? 'Update' : (R.terms ? 'Record as filed' : 'Record as lodged'))+'</button></div>');
