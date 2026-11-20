@@ -887,7 +887,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · coming soon</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Magistrates’ Court</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
         </select></label>
         <div></div>
       </div>
@@ -4048,7 +4048,40 @@
         add('info', 'Costs are limited', 'The Small Claims Division limits the costs the winning party can claim. Lawyers’ costs are capped.');
       },
       extraEvidence: function(){ return [['affidavit_service', 'Affidavit of service (not needed if the Local Court posted the statement of claim)']]; } },
-    VIC: { live: false, short: 'Magistrates’ Court', forumName: 'Magistrates’ Court of Victoria (VCAT for some goods and services disputes)', limit: 100000 },
+    VIC: { live: true, short: 'Magistrates’ Court', theShort: 'the Magistrates’ Court', forum: 'VIC_MC_COMPLAINT', tribunalOption: 'Magistrates’ Court of Victoria',
+      bodyFull: 'Magistrates’ Court of Victoria', kind: 'civil complaint', claimLabel: 'Complaint', docNoun: 'complaint',
+      forumName: 'Magistrates’ Court of Victoria: civil complaint for a debt (Form 5A)',
+      terms: ['plaintiff', 'defendant'],
+      limit: 100000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'the Magistrates’ Court',
+      overText: 'Larger claims go to the County Court.',
+      form: 'Complaint (Form 5A) with a statement of claim', copyTarget: 'the courts’ online filing portal or Form 5A',
+      lodge: 'File the complaint online through the courts’ portal, or file the original and two copies at the Magistrates’ Court closest to where the matter arose or to the defendant’s address. You also file the Form 4A overarching obligations certification, and pay the filing fee.',
+      fileLabel: 'Case number', filePh: 'e.g. M12345678',
+      tribunalServes: false, serveWithinMonths: 12,
+      responseDays: 21, responseNote: 'The defendant has 21 days after being served to pay or file a notice of defence (Form 8A).',
+      serveIntro: 'Serve a copy of the complaint and two blank copies of the notice of defence (Form 8A) on the defendant. The complaint is valid for service for 12 months from filing. A company is served at its registered office (check ASIC). The person who serves it completes an affidavit of service (Form 6A). A defendant outside Victoria needs the interstate notice to defendant attached.',
+      hearingLabel: 'Arbitration, conference or hearing', limitationYears: 6,
+      resolveFirst: 'Before you file, take reasonable steps to resolve the dispute, such as sending a letter of demand. Victoria’s Civil Procedure Act expects parties to try to resolve a dispute first.',
+      noResponse: 'No notice of defence within 21 days of service. You can apply for an order in default of defence (Form 21A), with the affidavit of service.',
+      decided: 'Record whether the order is paid. If it isn’t, check the Magistrates’ Court’s guidance on enforcing a civil order.',
+      entityFees: true,
+      fees: { corporation: [{ upTo: 1000, fee: 352.30 }, { upTo: 10000, fee: 735.70 }, { upTo: 40000, fee: 1119.10 }, { upTo: Infinity, fee: 1678.60 }],
+              person: [{ upTo: 1000, fee: 176.20 }, { upTo: 10000, fee: 367.90 }, { upTo: 40000, fee: 559.50 }, { upTo: Infinity, fee: 839.30 }] }, feesFrom: '1 July 2026',
+      feeNote: 'Calculated from the fee units in the Magistrates’ Court (Fees) Regulations 2022 at $17.27 a fee unit. The standard (lower) fee also applies to some small businesses: check the court’s fee payer categories.',
+      recoverable: 'the filing fee and the scale costs you can claim on the complaint', checked: '2026-11-20',
+      links: {
+        guide: 'https://www.mcv.vic.gov.au/civil-matters/starting-civil-matter',
+        form: 'https://www.mcv.vic.gov.au/sites/default/files/2023-04/Form%205A%20-%20Complaint.pdf',
+        fees: 'https://www.mcv.vic.gov.au/sites/default/files/2026-06/Court%20Fees%20and%20Costs%20Ready%20Reckoner%20-%201%20July%202026.pdf',
+        help: 'https://courts.vic.gov.au/node/18071'
+      }, applyLabel: 'Magistrates’ Court: starting a civil matter', formLabel: 'Form 5A Complaint (PDF)', helpLabel: 'Courts portal: filing a complaint online',
+      checks: function(c, cl, add, d){
+        var st = String(d.state || '').toUpperCase();
+        if(st && st !== 'VIC') add('info', 'Defendant is in ' + st, 'Serving outside Victoria needs the interstate notice to defendant (under the Service and Execution of Process Act 1992) attached to the complaint.');
+        add('info', 'Your address for service', 'If you sue without a lawyer, the address for service you put on the complaint must be in Victoria.');
+        if(cl.total < 10000) add('info', 'Claims under $10,000 usually go to arbitration', 'If the defendant files a defence, a claim under $10,000 is usually decided at arbitration, a less formal hearing.');
+      },
+      extraEvidence: function(){ return [['form4a', 'Form 4A overarching obligations certification (filed with the complaint)'], ['affidavit_service', 'Affidavit of service (Form 6A) from whoever served the complaint']]; } },
     WA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of WA, minor case claim', limit: 10000 },
     SA:  { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of SA, Civil (Minor Claims) Division', limit: 12000 },
     TAS: { live: false, short: 'Magistrates Court', forumName: 'Magistrates Court of Tasmania, minor civil claim', limit: 5000 },
