@@ -619,6 +619,7 @@
   .rec-add{margin-top:8px;} .rec-add summary{list-style:none;display:inline-flex;} .rec-add summary::-webkit-details-marker{display:none;}
   .rec-add[open] summary{margin-bottom:10px;}
   #recFiles tr.sel td{background:var(--accent-soft);}
+  .rec-forum{margin-bottom:14px;} .rec-forum-opts{display:flex;gap:18px;margin:8px 0 4px;flex-wrap:wrap;}
 
   @media (max-width:900px){
     .kpi-row{grid-template-columns:repeat(2,1fr);}
@@ -887,7 +888,7 @@
       <div class="ld-top-bar card rec-top">
         <label>Case<select id="recCaseSelect"></select></label>
         <label>State or territory<select id="recJurSelect">
-          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Magistrates’ Court</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
+          <option value="QLD">Queensland · QCAT</option><option value="ACT">ACT · ACAT</option><option value="NT">NT · NTCAT</option><option value="NSW">NSW · Local Court</option><option value="VIC">Victoria · Court or VCAT</option><option value="WA">WA · coming soon</option><option value="SA">SA · coming soon</option><option value="TAS">Tasmania · coming soon</option>
         </select></label>
         <div></div>
       </div>
@@ -4075,6 +4076,38 @@
         fees: 'https://www.mcv.vic.gov.au/sites/default/files/2026-06/Court%20Fees%20and%20Costs%20Ready%20Reckoner%20-%201%20July%202026.pdf',
         help: 'https://courts.vic.gov.au/node/18071'
       }, applyLabel: 'Magistrates’ Court: starting a civil matter', formLabel: 'Form 5A Complaint (PDF)', helpLabel: 'Courts portal: filing a complaint online',
+      forumChoices: [['VIC_MC_COMPLAINT', 'Magistrates’ Court'], ['VCAT_CIVIL_CLAIMS', 'VCAT (goods and services)']],
+      alts: { VCAT_CIVIL_CLAIMS: { live: true, short: 'VCAT', forum: 'VCAT_CIVIL_CLAIMS', tribunalOption: 'VCAT (Victoria)',
+        bodyFull: 'Victorian Civil and Administrative Tribunal', kind: 'Civil Claims List', claimLabel: 'Application',
+        forumName: 'Victorian Civil and Administrative Tribunal (VCAT): Civil Claims List, goods and services dispute',
+        limit: Infinity, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'VCAT',
+        form: 'Goods and services application (Civil Claims List) with points of claim', copyTarget: 'myVCAT or VCAT’s print-friendly application form',
+        lodge: 'Apply online through myVCAT (or use VCAT’s print-friendly form) and pay the application fee when you submit it. Set out how the purchase happened, what was supplied, what is unpaid and the order you want (payment of the amount owed).',
+        fileLabel: 'VCAT reference number', filePh: 'e.g. C1234/2026',
+        tribunalServes: false, responseDays: null, responseNote: 'VCAT’s notice sets the dates for any response, mediation or hearing.',
+        serveIntro: 'After you apply, send a copy of the application to the respondent. VCAT says your case will not progress until you do. Then complete a declaration of service (you can upload it in myVCAT). A respondent outside Victoria also needs Form 4 under the Service and Execution of Process Regulations. Enter any response date from VCAT’s notice.',
+        hearingLabel: 'Mediation or hearing', limitationYears: 6,
+        resolveFirst: 'Try to resolve the dispute first, for example with a letter of demand that gives a set time to pay.',
+        noResponse: 'No response from the respondent. Attend the mediation or hearing listed in VCAT’s notice: VCAT can still decide the claim.',
+        decided: 'Record whether the order is paid. If it isn’t, a VCAT order for payment of money can be enforced through the Magistrates’ Court.',
+        entityFees: true,
+        fees: { corporation: [{ upTo: 15000, fee: 202.10 }, { upTo: Infinity, fee: 673.50 }], person: [{ upTo: 15000, fee: 67.40 }, { upTo: Infinity, fee: 222.80 }] }, feesFrom: '1 July 2026',
+        feeNote: 'Businesses with a turnover under $300,000 in the last financial year can pay the standard fee by giving VCAT a statutory declaration. Hearing fees apply only to claims over $15,000.',
+        recoverable: null, checked: '2026-11-20',
+        links: {
+          guide: 'https://www.vcat.vic.gov.au/case-types/goods-and-services/apply-goods-and-services',
+          form: 'https://www.vcat.vic.gov.au/case-types/goods-and-services/apply-goods-and-services/application-checklist',
+          fees: 'https://www.vcat.vic.gov.au/fees',
+          help: 'https://www.vcat.vic.gov.au/case-types/goods-and-services/after-you-apply-goods-and-services-disputes'
+        }, applyLabel: 'VCAT: before you apply', formLabel: 'VCAT: application checklist (myVCAT)', helpLabel: 'VCAT: after you apply',
+        checks: function(c, cl, add, d){
+          var st = String(d.state || '').toUpperCase();
+          add('caution', 'Only for goods or services you supplied', 'VCAT’s Civil Claims List hears disputes between a supplier and a purchaser about goods or services. For loans or other kinds of debt, use the Magistrates’ Court.');
+          add('info', 'Expect a wait', 'VCAT says to expect around 52 weeks from applying to a mediation or hearing. Claims up to $10,000 may be offered fast-track mediation.');
+          add('info', 'You present your own case', 'For goods and services claims under $15,000, VCAT generally doesn’t allow a lawyer or other professional representative to speak for you.');
+          if(st && st !== 'VIC') add('info', 'Respondent is in ' + st, 'Serving outside Victoria needs Form 4 under the Service and Execution of Process Regulations 2018 with the application.');
+        },
+        extraEvidence: function(){ return [['points_claim', 'Points of claim: the facts in numbered paragraphs, in date order'], ['declaration_service', 'Declaration of service (upload in myVCAT)']]; } } },
       checks: function(c, cl, add, d){
         var st = String(d.state || '').toUpperCase();
         if(st && st !== 'VIC') add('info', 'Defendant is in ' + st, 'Serving outside Victoria needs the interstate notice to defendant (under the Service and Execution of Process Act 1992) attached to the complaint.');
@@ -4124,6 +4157,12 @@
     var st = c && c.debtor && String(c.debtor.state || '').toUpperCase();
     return st && RECOVERY_RULES[st] && RECOVERY_RULES[st].live ? st : 'QLD';
   }
+  function recRules(c, m){
+    var base = RECOVERY_RULES[m && m.jurisdiction ? m.jurisdiction : recJur(c, m)];
+    var f = (m && m.forum) || recState.forum;
+    return f && base && base.alts && base.alts[f] ? base.alts[f] : base;
+  }
+  function recBase(c, m){ return RECOVERY_RULES[m && m.jurisdiction ? m.jurisdiction : recJur(c, m)]; }
   function recTerms(R){ return (R && R.terms) || ['applicant', 'respondent']; }
   function cap1(t){ return t.charAt(0).toUpperCase() + t.slice(1); }
   function recEntity(m){ return (m && m.applicant && m.applicant.entity) || recState.entity || 'corporation'; }
@@ -4165,7 +4204,7 @@
     var interest = opt.include_interest ? sum('interest') : 0;
     var fees = opt.include_fees ? r2(sum('fees') + (lm.totals.statement_fees || []).reduce(function(s, f){ return s + f.amount; }, 0)) : 0;
     var total = r2(principal + interest + fees);
-    var rules = RECOVERY_RULES[recJur(c, m)], entity = recEntity(m);
+    var rules = recRules(c, m), entity = recEntity(m);
     var gross = total, abandoned = 0;
     if(rules.limitOver === 'abandon' && opt.abandon_excess && total > rules.limit){ abandoned = r2(total - rules.limit); total = rules.limit; }
     var bands = Array.isArray(rules.fees) ? rules.fees : (rules.fees ? rules.fees[entity] : []);
@@ -4179,6 +4218,7 @@
     var d = c.debtor, R = cl.rules, out = [], T = recTerms(R);
     var add = function(level, title, text){ out.push({ level: level, title: title, text: text || '' }); };
     if(cl.total <= 0) add('stop', 'Nothing to claim', 'There is no undisputed amount owing on this case.');
+    else if(!isFinite(R.limit)) add('ok', 'No upper limit', R.short + ' has no maximum claim amount for these disputes.');
     else if(cl.total > R.limit && R.limitOver === 'stop') add('stop', 'Over the ' + money(R.limit) + ' limit', money(cl.total) + ' is more than the ' + money(R.limit) + ' limit for ' + R.limitScope + (R.limitNote === 'including interest' ? ' (including interest)' : '') + '.' + (R.overText ? ' ' + R.overText : ''));
     else if(cl.total > R.limit) add('caution', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' limit. ' + R.short + ' says you can abandon the amount over ' + money(R.limit) + ' (tick “Abandon the excess” under Claim amount), or get the respondent’s written agreement to a higher claim.');
     else if(cl.abandoned) add('ok', 'Excess abandoned', money(cl.abandoned) + ' over the limit is abandoned, so you claim ' + money(cl.total) + '. An abandoned amount can’t be claimed later.');
@@ -4239,7 +4279,7 @@
   }
 
   async function selectRecoveryCase(id){
-    recState.caseId = id; recState.records = null; recState.disputes = []; recState.evidence = null; recState.evidenceErr = ''; recState.drafts = {}; recState.options = null; recState.jur = null; recState.entity = null;
+    recState.caseId = id; recState.records = null; recState.disputes = []; recState.evidence = null; recState.evidenceErr = ''; recState.drafts = {}; recState.options = null; recState.jur = null; recState.entity = null; recState.forum = null;
     var c = recCase();
     renderRecovery();
     if(!c) return;
@@ -4256,7 +4296,7 @@
 
   function recNextAction(m, c, cl){
     if(!m) return { text: 'Check eligibility and the claim amount, then start a recovery file.', due: null };
-    var R = RECOVERY_RULES[m.jurisdiction] || RECOVERY_RULES.QLD;
+    var R = recRules(c, m) || RECOVERY_RULES.QLD;
     switch(m.status){
       case 'preparing': return { text: m.checklist && m.checklist.application_saved ? 'Print the evidence pack, then ' + (R.terms ? 'file the ' + R.docNoun + ' with the ' : 'lodge ' + R.form.split(':')[0] + ' with ') + R.short + ' and record it here.' : 'Complete the application details and save them.', due: null };
       case 'lodged': if(R.serveWithinMonths && m.lodged_on){ var sd = new Date(m.lodged_on + 'T00:00:00'); sd.setMonth(sd.getMonth() + R.serveWithinMonths); return { text: 'Serve the ' + R.claimLabel.toLowerCase() + ' on the ' + recTerms(R)[1] + ' (it must be served within ' + R.serveWithinMonths + ' months of filing), then record the date and method.', due: isoLocal(sd) }; }
@@ -4301,7 +4341,7 @@
     var m = recMatter();
     var jur = recJur(c, m);
     document.getElementById('recJurSelect').value = jur;
-    var R = RECOVERY_RULES[jur];
+    var R = recRules(c, m), B = recBase(c, m);
     if(!R.live){
       root.innerHTML = '<div class="card"><div class="card-body"><h3 style="margin:0 0 6px;">'+escapeHtml(R.forumName)+'</h3><p class="muted">Small claims limit: '+money(R.limit)+'. Step-by-step support for '+escapeHtml(jur)+' is coming. Available now: '+escapeHtml(Object.keys(RECOVERY_RULES).filter(function(k){ return RECOVERY_RULES[k].live; }).map(function(k){ return k + ' (' + RECOVERY_RULES[k].short + ')'; }).join(', '))+'.</p></div></div>';
       return;
@@ -4320,6 +4360,11 @@
       return '<section class="card rec-step '+s+'" data-step="'+n+'"><div class="rec-step-head"><span class="rec-num">'+(s === 'done' ? '✓' : n)+'</span><h3>'+title+'</h3>'+(extraHead || '')+'</div><div class="rec-step-body">'+body+'</div></section>';
     };
     var html = '';
+    if(B && B.forumChoices){
+      html += '<div class="card rec-forum"><div class="card-body"><b>Court or VCAT?</b><div class="rec-forum-opts">'
+        + B.forumChoices.map(function(fc){ return '<label class="rec-tog"><input type="radio" name="recForum" data-rforum="'+escapeHtml(fc[0])+'"'+(R.forum === fc[0] ? ' checked' : '')+(m ? ' disabled' : '')+'> '+escapeHtml(fc[1])+'</label>'; }).join('')
+        + '</div><p class="muted small">The Magistrates’ Court suits most unpaid invoices and other debts, and can make an order without a hearing if the debtor doesn’t defend. VCAT’s Civil Claims List hears disputes about goods or services you supplied. It is built for people without lawyers, but cases go to a mediation or hearing. '+(m ? 'This file is set up for '+escapeHtml(R.short)+'. Delete it to switch.' : 'The choice is yours.')+'</p></div></div>';
+    }
     // 1. Eligibility
     html += step(1, 'Check eligibility', '<ul class="rec-checks">' + checks.map(function(x){ return '<li class="'+x.level+'"><b>'+escapeHtml(x.title)+'</b>'+(x.text ? '<span>'+escapeHtml(x.text)+'</span>' : '')+'</li>'; }).join('') + '</ul>');
     // 2. Claim amount
@@ -4402,7 +4447,7 @@
     var byCase = {}; cases.forEach(function(c){ byCase[c.id] = c; });
     box.querySelector('tbody').innerHTML = recMatters.map(function(m){
       var c = byCase[m.case_id], na = c ? recNextAction(m, c, null) : { due: null };
-      return '<tr class="clickable'+(m.case_id === recState.caseId ? ' sel' : '')+'" data-rcase="'+escapeHtml(m.case_id)+'"><td><b>'+escapeHtml(c ? c.debtor.name : '—')+'</b></td><td>'+escapeHtml(RECOVERY_RULES[m.jurisdiction] ? RECOVERY_RULES[m.jurisdiction].short : m.jurisdiction)+'</td><td><span class="pill '+REC_STATUS_TONE[m.status]+'">'+escapeHtml(REC_STATUS[m.status] || m.status)+'</span></td><td class="num">'+money(m.total_claimed)+'</td><td>'+escapeHtml(m.file_number || '—')+'</td><td>'+(na.due ? fmt(na.due) + (daysUntil(na.due) < 0 ? ' <span class="pill escalated">passed</span>' : '') : '—')+'</td></tr>';
+      return '<tr class="clickable'+(m.case_id === recState.caseId ? ' sel' : '')+'" data-rcase="'+escapeHtml(m.case_id)+'"><td><b>'+escapeHtml(c ? c.debtor.name : '—')+'</b></td><td>'+escapeHtml(c ? recRules(c, m).short : (RECOVERY_RULES[m.jurisdiction] ? RECOVERY_RULES[m.jurisdiction].short : m.jurisdiction))+'</td><td><span class="pill '+REC_STATUS_TONE[m.status]+'">'+escapeHtml(REC_STATUS[m.status] || m.status)+'</span></td><td class="num">'+money(m.total_claimed)+'</td><td>'+escapeHtml(m.file_number || '—')+'</td><td>'+(na.due ? fmt(na.due) + (daysUntil(na.due) < 0 ? ' <span class="pill escalated">passed</span>' : '') : '—')+'</td></tr>';
     }).join('');
   }
 
@@ -4543,7 +4588,7 @@
 
   async function recoveryAction(act, el){
     var c = recCase(); if(!c) return;
-    var m = recMatter(), jur = recJur(c, m), R = RECOVERY_RULES[jur];
+    var m = recMatter(), jur = recJur(c, m), R = recRules(c, m);
     if(!R.live){ toast(jur + ' isn’t available yet.'); return; }
     var cl = recClaim(c, m);
     if(act === 'start'){
@@ -4670,7 +4715,7 @@
 
   /* ---------- Wiring ---------- */
   document.getElementById('recCaseSelect').addEventListener('change', function(){ selectRecoveryCase(this.value); });
-  document.getElementById('recJurSelect').addEventListener('change', function(){ recState.jur = this.value; var m = recMatter(); if(m && m.jurisdiction !== this.value){ this.value = m.jurisdiction; toast('This file is for ' + m.jurisdiction + '. Delete it to start in another state.'); return; } renderRecovery(); });
+  document.getElementById('recJurSelect').addEventListener('change', function(){ recState.jur = this.value; recState.forum = null; var m = recMatter(); if(m && m.jurisdiction !== this.value){ this.value = m.jurisdiction; toast('This file is for ' + m.jurisdiction + '. Delete it to start in another state.'); return; } renderRecovery(); });
   document.getElementById('recFiles').addEventListener('click', function(e){ var tr = e.target.closest('[data-rcase]'); if(tr){ document.getElementById('recCaseSelect').value = tr.getAttribute('data-rcase'); selectRecoveryCase(tr.getAttribute('data-rcase')); } });
   document.getElementById('recRoot').addEventListener('click', function(e){
     var b = e.target.closest('[data-ract]'); if(b){ recoveryAction(b.getAttribute('data-ract'), b); return; }
@@ -4686,6 +4731,7 @@
       else { recState.options = opts; renderRecovery(); }
       return;
     }
+    if(e.target.hasAttribute('data-rforum')){ recState.forum = e.target.getAttribute('data-rforum'); recState.options = null; renderRecovery(); return; }
     if(e.target.hasAttribute('data-rentity')){
       var me = recMatter();
       if(me){ me.applicant = Object.assign({}, me.applicant || {}, { entity: e.target.value }); saveMatter({ applicant: me.applicant }); }
