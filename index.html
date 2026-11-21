@@ -266,6 +266,41 @@
   .ld-block textarea{width:100%;resize:vertical;line-height:1.45;}
   .ld-intent{font-size:9.5px;font-weight:800;text-transform:uppercase;background:#fff5e6;color:#9a5b00;border-radius:4px;padding:1px 5px;letter-spacing:.03em;}
   .ld-add{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 8px;}
+  .ld-blocks-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0 6px;font-size:12px;color:var(--text-muted);}
+  .ld-block{padding:0 !important;}
+  .ld-block-row{display:flex;align-items:center;gap:8px;padding:7px 8px 7px 9px;}
+  .ld-block-toggle{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:0;background:none;text-align:left;font:inherit;color:var(--text);padding:0;}
+  button.ld-block-toggle{cursor:pointer;}
+  .ld-block-title{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+  .ld-block-snip{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;color:var(--text);}
+  .ld-block.fixed .ld-block-snip{color:var(--text-muted);font-size:12px;}
+  .ld-block.open .ld-block-snip{display:none;}
+  .ld-block-body{padding:0 9px 9px;}
+  .ld-block.off .ld-block-toggle{opacity:.5;}
+  .ld-block.off .ld-block-snip{text-decoration:line-through;}
+  .ld-block-acts{opacity:.4;transition:opacity .1s;}
+  .ld-block:hover .ld-block-acts,.ld-block.open .ld-block-acts,.ld-block:focus-within .ld-block-acts{opacity:1;}
+  .ld-chev{border:0;background:none;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;width:20px;height:22px;transition:transform .12s;padding:0;}
+  .ld-block.open .ld-chev{transform:rotate(90deg);}
+  .ld-chev-sp{width:20px;flex:0 0 auto;}
+  .ld-switch{position:relative;display:inline-block;width:30px;height:17px;flex:0 0 auto;cursor:pointer;}
+  .ld-switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;}
+  .ld-switch span{position:absolute;inset:0;border-radius:999px;background:var(--border-strong);transition:background .12s;}
+  .ld-switch span::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .12s;}
+  .ld-switch input:checked + span{background:var(--accent);}
+  .ld-switch input:checked + span::after{transform:translateX(13px);}
+  .ld-switch input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px;}
+  .ld-more{position:relative;}
+  .ld-more summary{list-style:none;cursor:pointer;}
+  .ld-more summary::-webkit-details-marker{display:none;}
+  .ld-more-menu{position:absolute;z-index:5;top:calc(100% + 4px);left:0;display:flex;flex-direction:column;align-items:stretch;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg, 0 8px 24px rgba(0,0,0,.15));padding:6px;min-width:170px;}
+  .ld-more-menu .btn{justify-content:flex-start;}
+  /* Post to Xero */
+  .xp-settings{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:14px;}
+  .xp-settings summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;}
+  .xp-sum-k{font-weight:700;font-size:13.5px;}
+  #xpBulk[hidden]{display:none;}
+  #xpPostBtn:disabled{opacity:.55;color:#fff;cursor:not-allowed;}
   .ld-varbar{display:flex;flex-direction:column;gap:4px;}
   .ld-varbar select{border:1px solid var(--border-strong);border-radius:8px;padding:6px 8px;font:inherit;font-size:12.5px;background:var(--surface);color:var(--text);}
   .ld-library{margin-top:12px;border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--surface-alt);}
@@ -565,6 +600,7 @@
   [data-chgpane][hidden]{display:none;}
   #chgRules,[data-chgpane="calc"]{max-width:880px;}
   .chg-table td:last-child{white-space:nowrap;}
+  .pill.dim{background:var(--surface-alt);color:var(--text-faint);}
   .hist-panel > summary{cursor:pointer;list-style:none;}
   .hist-panel > summary::-webkit-details-marker{display:none;}
   .hist-panel > summary h3::before{content:'▸';display:inline-block;margin-right:8px;color:var(--text-muted);transition:transform .15s;}
@@ -1098,6 +1134,7 @@
         <button type="button" class="seg-btn active" data-chgtab="invoices">Overdue invoices</button>
         <button type="button" class="seg-btn" data-chgtab="rules">Rules</button>
         <button type="button" class="seg-btn" data-chgtab="calc">Calculator</button>
+        <button type="button" class="seg-btn" data-chgtab="xero">Post to Xero</button>
       </div>
       <div class="stmt-warn" id="chgBanner"></div>
 
@@ -1179,6 +1216,32 @@
           </div>
           <div class="send-row"><button class="btn primary" id="chgSaveBtn" type="button">Save rules</button></div>
           <div class="fine">Rules apply to account statements, letters of demand and the dashboard. Disputed invoices never attract interest or fees. Only owners and admins can change rules; any team member can apply or waive charges on an invoice.</div>
+        </div>
+      </div>
+
+      <div class="card" data-chgpane="xero" hidden id="chgXero">
+        <div class="card-head"><h3>Post interest to Xero</h3><span class="hint-r">One draft invoice for each overdue invoice. Nothing is approved or sent: you review the drafts in Xero.</span></div>
+        <div class="card-body">
+          <div id="xpNotice"></div>
+          <details class="xp-settings" id="xpSettings">
+            <summary><span class="xp-sum-k">Xero account and tax</span> <span id="xpSettingsSummary" class="hint-r"></span></summary>
+            <div class="form-grid" style="margin-top:12px;">
+              <label>Account for interest<select id="xpAccount"><option value="">Loading accounts from Xero…</option></select></label>
+              <label>Tax rate<select id="xpTax"><option value="">Loading tax rates from Xero…</option></select></label>
+              <label>Amounts are<select id="xpLat"><option value="Exclusive">Tax exclusive</option><option value="Inclusive">Tax inclusive</option><option value="NoTax">No tax</option></select></label>
+              <label>Draft due in (days)<input id="xpDueDays" type="number" min="0" max="120" step="1" value="7" /></label>
+              <label>Don’t post interest under ($)<input id="xpMin" type="number" min="0" max="10000" step="0.01" value="1" /></label>
+            </div>
+            <div class="send-row"><button class="btn sm primary" type="button" id="xpSaveSettings">Save</button><span class="hint-r" id="xpSettingsNote"></span></div>
+            <div class="fine">Revenue accounts are listed, with Other Income first (for example “Interest Income” or “Late Payment Interest”). All active tax rates are listed; rates Xero allows on sales are shown first. Ask your accountant which account and tax rate to use.</div>
+          </details>
+          <h4 class="sub-h">Ready to post <span class="hint-r" id="xpReadyCount"></span></h4>
+          <div class="chg-bulk" id="xpBulk"><span id="xpSelInfo">Nothing selected</span><button class="btn sm primary" type="button" id="xpPostBtn" disabled>Create draft invoices in Xero</button></div>
+          <div class="chg-table-wrap"><table class="chg-table" id="xpReady"></table></div>
+          <div class="fine" id="xpSkipped"></div>
+          <h4 class="sub-h">Posted to Xero</h4>
+          <div class="chg-table-wrap"><table class="chg-table" id="xpPosted"></table></div>
+          <div class="fine">Statuses refresh from Xero when you open this tab. Once a draft is approved in Xero and synced, it appears as its own invoice in DebtJet and that interest comes off the original invoice’s charges. Voiding or deleting a draft in Xero lets you post that period again.</div>
         </div>
       </div>
 
@@ -2155,7 +2218,7 @@
       if(P.show_bpay && P.bpay_biller_code) blocks.push('<div><div class="k">BPAY</div><dl><dt>Biller code</dt><dd>'+escapeHtml(P.bpay_biller_code)+'</dd><dt>Ref</dt><dd>'+escapeHtml(V.payment_reference)+'</dd></dl></div>');
       return (blocks.length ? '<div class="ld-bank">'+blocks.join('')+'</div>' : '') + (P.instructions ? '<p class="ld-muted">'+escapeHtml(P.instructions)+'</p>' : '');
     };
-    var body = tpl.blocks.map(function(b){
+    var body = tpl.blocks.filter(function(b){ return !b.off; }).map(function(b){
       if(b.type === 'text') return (b.text || '').trim() ? '<p>'+fillLetterText(b.text, V)+'</p>' : '';
       if(b.type === 'heading') return '<h3>'+fillLetterText(b.text || '', V)+'</h3>';
       if(b.type === 'table') return table();
@@ -2174,9 +2237,9 @@
   // ---- Compliance and content checks shown above the preview.
   function letterChecks(m, tpl, st){
     var w = [];
-    var intent = tpl.blocks.filter(function(b){ return b.type === 'text' && b.clause && CLAUSE_BY_KEY[b.clause] && CLAUSE_BY_KEY[b.clause].intent; });
+    var intent = tpl.blocks.filter(function(b){ return !b.off && b.type === 'text' && b.clause && CLAUSE_BY_KEY[b.clause] && CLAUSE_BY_KEY[b.clause].intent; });
     if(intent.length) w.push({ level: 'caution', message: 'This letter says what you will do next (' + intent.map(function(b){ return CLAUSE_BY_KEY[b.clause].label.toLowerCase(); }).join(', ') + '). Under the ACCC/ASIC Debt collection guideline, only say this if you have genuinely decided to do it.' });
-    var raw = tpl.subject + ' ' + tpl.blocks.map(function(b){ return b.text || ''; }).join(' ');
+    var raw = tpl.subject + ' ' + tpl.blocks.filter(function(b){ return !b.off; }).map(function(b){ return b.text || ''; }).join(' ');
     var unknown = []; raw.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, function(x, k){ if((!Object.prototype.hasOwnProperty.call(m.vars, k) || /^\{\{/.test(m.vars[k])) && unknown.indexOf(k) < 0) unknown.push(k); return x; });
     if(unknown.length) w.push({ level: 'stop', message: 'Fields with no value yet (highlighted): ' + unknown.map(function(k){ return '{{' + k + '}}'; }).join(', ') + (unknown.indexOf('our_contact') >= 0 ? '. Add a phone or email in Settings, or on this template’s Settings tab.' : '') + (unknown.indexOf('interest_rate') >= 0 ? '. Interest is off under Interest & Fees.' : '') });
     if(!postalLines(m.debtor).length) w.push({ level: 'info', message: 'No postal address for this debtor. Add one on their contact card if you will post this letter.' });
@@ -2244,26 +2307,42 @@
 
   // ---- Editor (Content / Design / Settings tabs)
   var BLOCK_LABEL = { text: 'Paragraph', heading: 'Heading', table: 'Amounts table', paybox: 'Pay-by box', payment: 'Payment details', divider: 'Divider' };
+  var ldOpenBlocks = new WeakSet();
   function renderLetterEditor(){
     Array.prototype.forEach.call(document.querySelectorAll('[data-ldtab]'), function(b){ b.classList.toggle('active', b.getAttribute('data-ldtab') === ldTab); });
     var box = document.getElementById('ldEditor'); if(!ldTpl){ box.innerHTML = ''; return; }
     var st = ldSettings();
     if(ldTab === 'content'){
+      var nOn = ldTpl.blocks.filter(function(b){ return !b.off; }).length;
+      var fixedHint = function(b){ return b.type === 'table' ? 'Uses the “Amounts table” choice on Settings: ' + ({ per_invoice: 'one row per invoice', summary: 'totals only', none: 'hidden' }[st.table]) + '.'
+        : b.type === 'payment' ? 'Bank, PayID and BPAY details from the Payment Portal.' : b.type === 'paybox' ? 'Highlighted amount due, pay-by date and reference.' : b.type === 'divider' ? 'A line across the page.' : ''; };
       box.innerHTML = '<label class="ld-field">Subject<input data-ld="subject" value="'+escapeHtml(ldTpl.subject || '')+'" maxlength="200" /></label>'
+        + '<div class="ld-blocks-bar"><span>'+ldTpl.blocks.length+' sections · '+nOn+' in the letter</span><span><button type="button" class="linkbtn" data-ldexpand="all">Show all text</button> · <button type="button" class="linkbtn" data-ldexpand="none">Hide all</button></span></div>'
         + '<div class="ld-blocks">' + ldTpl.blocks.map(function(b, i){
             var clause = b.clause && CLAUSE_BY_KEY[b.clause];
-            var headTxt = BLOCK_LABEL[b.type] + (clause ? ' · ' + clause.label : '') + (clause && clause.intent ? ' <span class="ld-intent" title="States an intended action">intent</span>' : '');
-            var inner = (b.type === 'text' || b.type === 'heading') ? '<textarea data-ldb="'+i+'" rows="'+(b.type === 'heading' ? 1 : Math.min(8, Math.max(2, Math.ceil((b.text || '').length / 62))))+'" maxlength="2000">'+escapeHtml(b.text || '')+'</textarea>'
-              : b.type === 'table' ? '<div class="hint-r">Uses the “Amounts table” choice on Settings: '+({ per_invoice: 'one row per invoice', summary: 'totals only', none: 'hidden' }[st.table])+'.</div>'
-              : b.type === 'payment' ? '<div class="hint-r">Bank, PayID and BPAY details from the Payment Portal.</div>'
-              : b.type === 'paybox' ? '<div class="hint-r">Highlighted amount due, pay-by date and reference.</div>' : '';
-            return '<div class="ld-block'+(b.type === 'text' || b.type === 'heading' ? '' : ' fixed')+'" data-bi="'+i+'"><div class="ld-block-head"><span>'+headTxt+'</span><span class="ld-block-acts">'
-              + '<button type="button" data-ldmove="-1" data-i="'+i+'" title="Move up"'+(i === 0 ? ' disabled' : '')+'>↑</button><button type="button" data-ldmove="1" data-i="'+i+'" title="Move down"'+(i === ldTpl.blocks.length - 1 ? ' disabled' : '')+'>↓</button>'
-              + '<button type="button" data-lddel="'+i+'" title="Remove">✕</button></span></div>' + inner + '</div>';
+            var editable = b.type === 'text' || b.type === 'heading';
+            var open = editable && ldOpenBlocks.has(b);
+            var title = BLOCK_LABEL[b.type] + (clause ? ' · ' + clause.label : '');
+            var headTxt = escapeHtml(title) + (clause && clause.intent ? ' <span class="ld-intent" title="States an intended action">intent</span>' : '');
+            var snip = editable ? (String(b.text || '').replace(/\s+/g, ' ').trim() || 'Empty, click to write') : fixedHint(b);
+            var inner = editable ? '<textarea data-ldb="'+i+'" rows="'+(b.type === 'heading' ? 1 : Math.min(8, Math.max(2, Math.ceil((b.text || '').length / 62))))+'" maxlength="2000">'+escapeHtml(b.text || '')+'</textarea>' : '';
+            return '<div class="ld-block'+(editable ? '' : ' fixed')+(open ? ' open' : '')+(b.off ? ' off' : '')+'" data-bi="'+i+'">'
+              + '<div class="ld-block-row">'
+              + '<label class="ld-switch" title="'+(b.off ? 'Left out of the letter' : 'In the letter')+'"><input type="checkbox" data-ldon="'+i+'"'+(b.off ? '' : ' checked')+' aria-label="Include '+escapeHtml(title)+' in the letter" /><span aria-hidden="true"></span></label>'
+              + (editable ? '<button type="button" class="ld-block-toggle" data-ldopen="'+i+'" aria-expanded="'+open+'">' : '<div class="ld-block-toggle">')
+              + '<span class="ld-block-title">'+headTxt+'</span><span class="ld-block-snip">'+escapeHtml(snip)+'</span>'
+              + (editable ? '</button>' : '</div>')
+              + '<span class="ld-block-acts"><button type="button" data-ldmove="-1" data-i="'+i+'" title="Move up"'+(i === 0 ? ' disabled' : '')+'>↑</button><button type="button" data-ldmove="1" data-i="'+i+'" title="Move down"'+(i === ldTpl.blocks.length - 1 ? ' disabled' : '')+'>↓</button>'
+              + '<button type="button" data-lddel="'+i+'" title="Remove">✕</button></span>'
+              + (editable ? '<button type="button" class="ld-chev" data-ldopen="'+i+'" aria-label="'+(open ? 'Hide' : 'Show')+' text" aria-expanded="'+open+'">›</button>' : '<span class="ld-chev-sp"></span>')
+              + '</div>'
+              + (open ? '<div class="ld-block-body">'+inner+'</div>' : '')
+              + '</div>';
           }).join('') + '</div>'
-        + '<div class="ld-add"><button type="button" class="btn sm" data-ldadd="library">+ Clause library</button><button type="button" class="btn sm" data-ldadd="text">+ Paragraph</button><button type="button" class="btn sm ghost" data-ldadd="heading">+ Heading</button>'
-        + '<button type="button" class="btn sm ghost" data-ldadd="table">+ Amounts table</button><button type="button" class="btn sm ghost" data-ldadd="paybox">+ Pay-by box</button><button type="button" class="btn sm ghost" data-ldadd="payment">+ Payment details</button><button type="button" class="btn sm ghost" data-ldadd="divider">+ Divider</button></div>'
-        + '<div class="ld-varbar"><select id="ldVarPick"><option value="">Insert a field into the last text box…</option>'+LETTER_VARS.map(function(v){ return '<option value="'+v[0]+'">'+escapeHtml(v[1])+' · {{'+v[0]+'}}</option>'; }).join('')+'</select><span class="hint-r">**bold** and *italic* work in any paragraph.</span></div>'
+        + '<div class="ld-add"><button type="button" class="btn sm" data-ldadd="library">+ Clause library</button><button type="button" class="btn sm" data-ldadd="text">+ Paragraph</button>'
+        + '<details class="ld-more"><summary class="btn sm ghost">More ▾</summary><div class="ld-more-menu"><button type="button" class="btn sm ghost" data-ldadd="heading">+ Heading</button>'
+        + '<button type="button" class="btn sm ghost" data-ldadd="table">+ Amounts table</button><button type="button" class="btn sm ghost" data-ldadd="paybox">+ Pay-by box</button><button type="button" class="btn sm ghost" data-ldadd="payment">+ Payment details</button><button type="button" class="btn sm ghost" data-ldadd="divider">+ Divider</button></div></details></div>'
+        + '<div class="ld-varbar"><select id="ldVarPick"><option value="">Insert a field where your cursor is…</option>'+LETTER_VARS.map(function(v){ return '<option value="'+v[0]+'">'+escapeHtml(v[1])+' · {{'+v[0]+'}}</option>'; }).join('')+'</select><span class="hint-r">Switch a section off to leave it out without deleting it. **bold** and *italic* work in any paragraph.</span></div>'
         + '<div class="ld-library" id="ldLibrary" hidden></div>';
     } else if(ldTab === 'design'){
       var o = st.overrides || {}, base = normaliseTpl(brandSettings(st.design_source));
@@ -2356,20 +2435,29 @@
         img.src = url;
       }
     });
+    box.addEventListener('change', function(e){
+      var on = e.target.getAttribute && e.target.getAttribute('data-ldon'); if(on == null) return;
+      var sb2 = ldTpl.blocks[Number(on)]; if(!sb2) return;
+      if(e.target.checked) delete sb2.off; else sb2.off = true;
+      renderLetterEditor(); markLetterDirty();
+    });
     box.addEventListener('click', function(e){
       var t = e.target.closest('button'); if(!t) return;
+      if(t.hasAttribute('data-ldopen')){ var ob = ldTpl.blocks[Number(t.getAttribute('data-ldopen'))]; if(ob){ if(ldOpenBlocks.has(ob)) ldOpenBlocks.delete(ob); else ldOpenBlocks.add(ob); } renderLetterEditor(); if(ob && ldOpenBlocks.has(ob)){ var ta = box.querySelector('[data-bi="'+ldTpl.blocks.indexOf(ob)+'"] textarea'); if(ta) ta.focus(); } return; }
+      if(t.hasAttribute('data-ldexpand')){ var all = t.getAttribute('data-ldexpand') === 'all'; ldTpl.blocks.forEach(function(x){ if(all && (x.type === 'text' || x.type === 'heading')) ldOpenBlocks.add(x); else ldOpenBlocks.delete(x); }); renderLetterEditor(); return; }
       if(t.hasAttribute('data-ldmove')){ var i = Number(t.getAttribute('data-i')), j = i + Number(t.getAttribute('data-ldmove')); var bl = ldTpl.blocks; var tmp = bl[i]; bl[i] = bl[j]; bl[j] = tmp; renderLetterEditor(); markLetterDirty(); return; }
       if(t.hasAttribute('data-lddel')){ ldTpl.blocks.splice(Number(t.getAttribute('data-lddel')), 1); renderLetterEditor(); markLetterDirty(); return; }
       if(t.hasAttribute('data-ldadd')){
         var kind = t.getAttribute('data-ldadd');
         if(kind === 'library'){ renderClauseLibrary(); document.getElementById('ldLibrary').scrollIntoView({ block: 'nearest' }); return; }
         if(ldTpl.blocks.length >= 60){ toast('A letter can have up to 60 blocks.'); return; }
-        ldTpl.blocks.push(kind === 'text' || kind === 'heading' ? { type: kind, text: '' } : { type: kind });
+        var nb = kind === 'text' || kind === 'heading' ? { type: kind, text: '' } : { type: kind }; ldTpl.blocks.push(nb); ldOpenBlocks.add(nb);
+        var mm = box.querySelector('.ld-more'); if(mm) mm.open = false;
         renderLetterEditor(); markLetterDirty();
         var last = box.querySelectorAll('textarea[data-ldb]'); if(last.length && (kind === 'text' || kind === 'heading')) last[last.length - 1].focus();
         return;
       }
-      if(t.hasAttribute('data-ldclause')){ var k = t.getAttribute('data-ldclause'); ldTpl.blocks.push({ type: 'text', text: CLAUSE_BY_KEY[k].text, clause: k }); renderLetterEditor(); renderClauseLibrary(); markLetterDirty(); toast('Added “' + CLAUSE_BY_KEY[k].label + '”. Move it with ↑ ↓.'); return; }
+      if(t.hasAttribute('data-ldclause')){ var k = t.getAttribute('data-ldclause'); var cb = { type: 'text', text: CLAUSE_BY_KEY[k].text, clause: k }; ldTpl.blocks.push(cb); ldOpenBlocks.add(cb); renderLetterEditor(); renderClauseLibrary(); markLetterDirty(); toast('Added “' + CLAUSE_BY_KEY[k].label + '”. Move it with ↑ ↓.'); return; }
       if(t.hasAttribute('data-ldlibclose')){ document.getElementById('ldLibrary').hidden = true; return; }
       if(t.hasAttribute('data-ldreset')){ ldTpl.settings.overrides = {}; renderLetterEditor(); markLetterDirty(); return; }
       if(t.hasAttribute('data-ldsigdel')){ ldTpl.settings.signature = null; renderLetterEditor(); markLetterDirty(); return; }
@@ -2381,7 +2469,7 @@
     loadLetterTemplate(this.value); ldViewing = null; renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview();
   });
   function letterRow(){ return { org_id: currentOrg.id, name: (ldTpl.name || 'My letter').slice(0, 80), stage: ldTpl.stage || 'other', type: ldTpl.stage || 'other', description: ldTpl.description || null,
-    subject_template: ldTpl.subject || '', body_template: ldTpl.blocks.filter(function(b){ return b.type === 'text'; }).map(function(b){ return b.text; }).join('\n\n').slice(0, 20000), blocks: ldTpl.blocks, settings: ldTpl.settings }; }
+    subject_template: ldTpl.subject || '', body_template: ldTpl.blocks.filter(function(b){ return b.type === 'text' && !b.off; }).map(function(b){ return b.text; }).join('\n\n').slice(0, 20000), blocks: ldTpl.blocks, settings: ldTpl.settings }; }
   document.getElementById('ldSaveAsBtn').addEventListener('click', async function(){
     var name = (prompt('Name for this template:', ldKey && ldKey.indexOf('builtin:') === 0 ? 'My ' + (ldTpl.name || 'letter').toLowerCase() : (ldTpl.name || 'My letter') + ' (copy)') || '').trim();
     if(!name) return;
@@ -2416,16 +2504,16 @@
     var c = currentLetterCase(); if(!c){ toast('Choose a case first.'); return; }
     var btn = this; btn.disabled = true; btn.textContent = 'Drafting…';
     try{
-      var tplText = ldTpl.blocks.filter(function(b){ return b.type === 'text'; }).map(function(b){ return b.text; }).join('\n\n');
+      var tplText = ldTpl.blocks.filter(function(b){ return b.type === 'text' && !b.off; }).map(function(b){ return b.text; }).join('\n\n');
       var stage = ldTpl.stage || 'other';
       var d = await invokeFn('draft-correspondence', { kind: 'letter', case_id: c.id, template_type: stage, template_text: tplText.slice(0, 4000), template_name: ldTpl.name });
       if(d.flags){ letterFlags = d.flags; }
       if(!d.ok || !d.draft){ toast(d.error || 'AI draft failed.'); renderLetterPreview(); return; }
       var paras = String(d.draft.body || '').split(/\n{2,}/).map(function(p){ return p.trim(); }).filter(Boolean);
-      var structural = ldTpl.blocks.filter(function(b){ return b.type !== 'text'; });
+      var structural = ldTpl.blocks.filter(function(b){ return b.type !== 'text'; }), offTexts = ldTpl.blocks.filter(function(b){ return b.type === 'text' && b.off; });
       var firstStruct = ldTpl.blocks.findIndex(function(b){ return b.type !== 'text'; });
       var lead = firstStruct < 0 ? paras.length : Math.min(Math.max(1, firstStruct), Math.max(1, paras.length - 1));
-      ldTpl.blocks = paras.slice(0, lead).map(function(p){ return { type: 'text', text: p, ai: true }; }).concat(structural).concat(paras.slice(lead).map(function(p){ return { type: 'text', text: p, ai: true }; }));
+      ldTpl.blocks = paras.slice(0, lead).map(function(p){ return { type: 'text', text: p, ai: true }; }).concat(structural).concat(paras.slice(lead).map(function(p){ return { type: 'text', text: p, ai: true }; })).concat(offTexts);
       if(d.draft.subject) ldTpl.subject = d.draft.subject;
       ldAi = true; ldDirty = true; ldTab = 'content';
       renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview();
@@ -2442,7 +2530,7 @@
     if(checks.length && !window.confirm('Before sending, note:\n\n• ' + checks.map(function(f){ return f.message; }).join('\n• ') + '\n\nRecord this letter as sent anyway?')) return;
     var sendVia = document.getElementById('sendVia').value;
     var subject = fillLetterText(ldTpl.subject || '', m.vars, true);
-    var bodyText = ldTpl.blocks.filter(function(b){ return b.type === 'text' || b.type === 'heading'; }).map(function(b){ return fillLetterText(b.text || '', m.vars, true); }).join('\n\n');
+    var bodyText = ldTpl.blocks.filter(function(b){ return !b.off && (b.type === 'text' || b.type === 'heading'); }).map(function(b){ return fillLetterText(b.text || '', m.vars, true); }).join('\n\n');
     var html = document.getElementById('letterPaper').innerHTML;
     var r = await sb.from('letters').insert({ org_id: currentOrg.id, case_id: c.id, template_id: ldKey && ldKey.indexOf('builtin:') !== 0 ? ldKey : null, template_key: ldKey,
       type: ldTpl.stage || 'other', subject: subject, body: bodyText, amount_at_send: m.totals.principal, interest_at_send: m.totals.interest, send_via: sendVia, status: 'sent', sent_at: new Date().toISOString(), created_by: session.user.id,
@@ -2597,7 +2685,7 @@
             + '?response_type=code'
             + '&client_id=' + encodeURIComponent(XERO_CLIENT_ID)
             + '&redirect_uri=' + encodeURIComponent(XERO_REDIRECT_URI)
-            + '&scope=' + encodeURIComponent('offline_access accounting.invoices accounting.payments accounting.contacts')
+            + '&scope=' + encodeURIComponent('offline_access accounting.invoices accounting.payments accounting.contacts accounting.settings.read')
             + '&state=' + encodeURIComponent(state);
           window.location.href = authUrl;
           return;
@@ -2617,7 +2705,7 @@
   /* ---------- account statements ---------- */
   async function loadStatementsData(){
     var r = await sb.from('invoices')
-      .select('id, debtor_id, case_id, invoice_number, description, amount, issued_date, due_date, status, source, pay_url, debtors(id,name,abn,contact_name,email,phone)')
+      .select('id, debtor_id, case_id, invoice_number, description, amount, issued_date, due_date, status, source, external_id, pay_url, debtors(id,name,abn,contact_name,email,phone)')
       .eq('org_id', currentOrg.id).neq('status', 'written_off').order('due_date', { ascending: true });
     var invs = r.data || [];
     var invIds = invs.map(function(i){ return i.id; });
@@ -2640,7 +2728,7 @@
         invoice_number: i.invoice_number, description: i.description, amount: Number(i.amount),
         issued_date: i.issued_date, due_date: i.due_date, status: i.status,
         fullyPaid: fullyPaid, isLate: isLate, daysOverdue: daysOverdue,
-        paid: Math.round(paidSum * 100) / 100, source: i.source, pay_url: i.pay_url || null
+        paid: Math.round(paidSum * 100) / 100, source: i.source, external_id: i.external_id || null, pay_url: i.pay_url || null
       };
     });
     var dmap = {};
@@ -2867,7 +2955,7 @@
   // cfg: saved Interest & Fees rules (or the unsaved form, for previews).
   // Starts: due_date | after_grace | grace_backdated | first_demand | final_demand.
   // Mode: auto (charged unless waived) | manual (charged only once someone approves).
-  var chargeDecisions = {}, demandDates = {}, disputedInvoices = {};
+  var chargeDecisions = {}, demandDates = {}, disputedInvoices = {}, postingsByInv = {}, chargeInvoiceIds = {}, syncedPosted = {};
   function isoAddDays(iso, n){ var p = String(iso).slice(0, 10).split('-'); return new Date(Date.UTC(+p[0], +p[1]-1, +p[2]) + n * 864e5).toISOString().slice(0, 10); }
   function isoDiff(a, b){ var x = String(a).slice(0, 10).split('-'), y = String(b).slice(0, 10).split('-'); return Math.round((Date.UTC(+x[0], +x[1]-1, +x[2]) - Date.UTC(+y[0], +y[1]-1, +y[2])) / 864e5); }
   function localTodayISO(){ var t = new Date(); return new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())).toISOString().slice(0, 10); }
@@ -2881,6 +2969,7 @@
     var od = inv.due_date ? isoDiff(asAt, inv.due_date) : 0;
     var out = { state: 'nothing', label: 'No charges', daysOverdue: od, startDate: null, chargeDays: 0, interest: 0, perDay: 0, fees: [], feeTotal: 0, applied: false, decision: null, note: '' };
     if(inv.fullyPaid || balance <= 0){ out.state = 'paid'; out.label = 'Paid'; return out; }
+    if(chargeInvoiceIds[inv.id]){ out.state = 'nothing'; out.label = 'Interest invoice'; out.note = 'This is an interest invoice posted to Xero, so no interest or fees are added to it.'; return out; }
     if(od <= 0){ out.state = 'not_due'; out.label = od === 0 ? 'Due today' : 'Not due yet'; return out; }
     if(!cfg || !cfg.terms_allow_charges){ out.state = 'off'; out.label = 'Charges off'; out.note = 'Turn on charges under Rules (your terms of trade must allow them).'; return out; }
     var rate = Number(cfg.rate_pa) || 0, grace = Number(cfg.grace_days) || 0, basis = cfg.interest_start || 'after_grace';
@@ -2902,6 +2991,7 @@
         var capped = cfg.cap_pct && i > balance * Number(cfg.cap_pct);
         if(capped){ i = balance * Number(cfg.cap_pct); out.note = 'Capped at ' + r2(cfg.cap_pct * 100) + '% of the balance.'; }
         out.startDate = start; out.chargeDays = d; out.interest = r2(i); out.perDay = capped ? 0 : r2(balance * rate / 365);
+        if(!opts.ignorePosted && syncedPosted[inv.id]){ out.postedOff = syncedPosted[inv.id]; out.interest = r2(Math.max(0, out.interest - syncedPosted[inv.id])); out.note = (out.note ? out.note + ' ' : '') + money(syncedPosted[inv.id]) + ' of interest is on a separate Xero invoice.'; }
       }
     }
     (cfg.fees || []).forEach(function(f){
@@ -2959,6 +3049,23 @@
     });
     disputedInvoices = {}; var seen = {};
     (res[2].data || []).forEach(function(n){ if(seen[n.invoice_id]) return; seen[n.invoice_id] = true; if(n.category === 'dispute') disputedInvoices[n.invoice_id] = true; });
+    // Interest posted to Xero: a draft keeps the interest on the original invoice; once the
+    // interest invoice is approved and synced, that interest moves to its own invoice.
+    var pr = await Promise.all([
+      sb.from('charge_postings').select('id, invoice_id, xero_invoice_id, xero_invoice_number, period_from, period_to, interest, status, created_at').eq('org_id', currentOrg.id).order('created_at', { ascending: false }).limit(1000),
+      sb.from('charge_posting_settings').select('*').eq('org_id', currentOrg.id).maybeSingle()
+    ]);
+    xpSettingsRow = pr[1].data || null;
+    postingsByInv = {}; chargeInvoiceIds = {}; syncedPosted = {};
+    var postings = pr[0].data || [];
+    postings.forEach(function(p){ (postingsByInv[p.invoice_id] = postingsByInv[p.invoice_id] || []).push(p); });
+    var xids = postings.filter(function(p){ return p.xero_invoice_id && p.status !== 'voided' && p.status !== 'deleted'; }).map(function(p){ return p.xero_invoice_id; });
+    if(xids.length){
+      var syn = await sb.from('invoices').select('id, external_id').eq('org_id', currentOrg.id).eq('source', 'xero').in('external_id', xids.slice(0, 500));
+      var xset = {}; xids.forEach(function(x){ xset[x] = true; });
+      var byExt = {}; (syn.data || []).forEach(function(i){ if(!xset[i.external_id]) return; byExt[i.external_id] = i.id; chargeInvoiceIds[i.id] = true; });
+      postings.forEach(function(p){ if(p.xero_invoice_id && byExt[p.xero_invoice_id] && p.status !== 'voided' && p.status !== 'deleted') syncedPosted[p.invoice_id] = r2((syncedPosted[p.invoice_id] || 0) + Number(p.interest)); });
+    }
   }
 
   async function loadOrgSettings(){
@@ -3830,6 +3937,7 @@
   }
   function renderChargesPortal(){
     if(!document.getElementById('chgTable')) return;
+    if(chgTab === 'xero') setTimeout(renderXeroPosting, 0);
     var formCfg = readChargesForm();
     var dirty = savedChargeKey(formCfg) !== savedChargeKey(orgCharges);
     var cfg = dirty ? formCfg : orgCharges;
@@ -3964,12 +4072,179 @@
   });
   function showChargeTab(t){
     chgTab = t;
+    if(t === 'xero'){ renderXeroPosting(); loadXeroPostingOptions(); }
     Array.prototype.forEach.call(document.querySelectorAll('[data-chgtab]'), function(b){ b.classList.toggle('active', b.getAttribute('data-chgtab') === t); });
     Array.prototype.forEach.call(document.querySelectorAll('[data-chgpane]'), function(p){ p.hidden = p.getAttribute('data-chgpane') !== t; });
   }
   Array.prototype.forEach.call(document.querySelectorAll('[data-chgtab]'), function(b){ b.addEventListener('click', function(){ showChargeTab(this.getAttribute('data-chgtab')); }); });
 
   // Start-rule controls
+  /* ---------- Post interest to Xero (draft invoices) ---------- */
+  var xpSettingsRow = null, xpAccounts = [], xpTaxRates = [], xpLoaded = false, xpSel = {}, xpBusy = false;
+  function xpLiveStatus(s){ return s !== 'voided' && s !== 'deleted'; }
+  function xpRows(){
+    var today = localTodayISO(), min = xpSettingsRow ? Number(xpSettingsRow.min_amount) : 1;
+    var rows = [], skipped = { notXero: 0, notCharging: 0, small: 0 };
+    stmtInvoices.forEach(function(i){
+      if(i.fullyPaid || !i.due_date || isoDiff(today, i.due_date) <= 0 || chargeInvoiceIds[i.id]) return;
+      var bal = r2(Math.max(0, i.amount - (i.paid || 0))); if(bal <= 0) return;
+      var ch = invoiceCharges({ id: i.id, case_id: i.case_id, due_date: i.due_date, balance: bal }, orgCharges, { ignorePosted: true });
+      if(!ch.interest){ if(ch.state !== 'paid' && ch.state !== 'not_due') skipped.notCharging++; return; }
+      if(ch.state !== 'applied'){ skipped.notCharging++; return; }
+      if(i.source !== 'xero' || !i.external_id){ skipped.notXero++; return; }
+      var posts = (postingsByInv[i.id] || []).filter(function(p){ return xpLiveStatus(p.status); });
+      var posted = r2(posts.reduce(function(s, p){ return s + Number(p.interest); }, 0));
+      var lastTo = posts.reduce(function(m, p){ return p.period_to > m ? p.period_to : m; }, '');
+      var amount = r2(ch.interest - posted);
+      if(lastTo && lastTo >= today) return;
+      if(amount < Math.max(0.01, min)){ if(amount > 0) skipped.small++; return; }
+      rows.push({ inv: i, balance: bal, ch: ch, posted: posted, from: lastTo || ch.startDate, to: today, amount: amount });
+    });
+    rows.sort(function(a, b){ return b.amount - a.amount; });
+    return { rows: rows, skipped: skipped };
+  }
+  function xpCanEdit(){ return canEditOrg(); }
+  function renderXeroPosting(){
+    var pane = document.getElementById('chgXero'); if(!pane) return;
+    var notice = document.getElementById('xpNotice');
+    if(!xeroConnected){
+      notice.innerHTML = '<div class="ai-flag info">Connect Xero to post interest as draft invoices. <button type="button" class="linkbtn" data-src-open>Connect or import</button></div>';
+    } else if(!chargesOn()){
+      notice.innerHTML = '<div class="ai-flag caution">Charges are off. Tick “Our terms of trade allow us to charge interest” on the Rules tab first.</div>';
+    } else notice.innerHTML = '';
+    // Settings
+    var s = xpSettingsRow || {};
+    var acc = document.getElementById('xpAccount'), tax = document.getElementById('xpTax');
+    if(xpLoaded){
+      var accOpts = xpAccounts.map(function(a){ return '<option value="'+escapeHtml(a.code)+'"'+(a.code === s.account_code ? ' selected' : '')+'>'+escapeHtml(a.code + ' · ' + a.name)+(a.type === 'OTHERINCOME' ? ' (Other Income)' : a.type === 'SALES' ? ' (Sales)' : ' (Revenue)')+'</option>'; }).join('');
+      if(s.account_code && !xpAccounts.some(function(a){ return a.code === s.account_code; })) accOpts = '<option value="'+escapeHtml(s.account_code)+'" selected>'+escapeHtml(s.account_code + ' · ' + (s.account_name || ''))+' (not found in Xero)</option>' + accOpts;
+      acc.innerHTML = '<option value="">Choose an account…</option>' + accOpts;
+      var rev = xpTaxRates.filter(function(r){ return r.revenue; }), other = xpTaxRates.filter(function(r){ return !r.revenue; });
+      var topt = function(r){ return '<option value="'+escapeHtml(r.tax_type)+'"'+(r.tax_type === s.tax_type ? ' selected' : '')+'>'+escapeHtml(r.name + ' (' + r2(r.rate) + '%)')+'</option>'; };
+      tax.innerHTML = '<option value="">Choose a tax rate…</option>' + (rev.length ? '<optgroup label="Used on sales">' + rev.map(topt).join('') + '</optgroup>' : '') + (other.length ? '<optgroup label="Other tax rates">' + other.map(topt).join('') + '</optgroup>' : '');
+    }
+    document.getElementById('xpLat').value = s.line_amount_types || 'Exclusive';
+    document.getElementById('xpDueDays').value = s.due_days != null ? s.due_days : 7;
+    document.getElementById('xpMin').value = s.min_amount != null ? s.min_amount : 1;
+    tax.disabled = document.getElementById('xpLat').value === 'NoTax';
+    var ro = !xpCanEdit();
+    ['xpAccount','xpTax','xpLat','xpDueDays','xpMin','xpSaveSettings'].forEach(function(id){ document.getElementById(id).disabled = ro || (id === 'xpTax' && document.getElementById('xpLat').value === 'NoTax'); });
+    document.getElementById('xpSettingsNote').textContent = ro ? 'Only owners and admins can change these.' : '';
+    var ready = !!(s.account_code && (s.line_amount_types === 'NoTax' || s.tax_type));
+    document.getElementById('xpSettingsSummary').textContent = ready
+      ? (s.account_code + ' · ' + (s.account_name || '') + ' · ' + (s.line_amount_types === 'NoTax' ? 'No tax' : (s.tax_name || s.tax_type) + ', tax ' + (s.line_amount_types === 'Inclusive' ? 'inclusive' : 'exclusive')) + ' · due in ' + s.due_days + ' days')
+      : 'Not set up yet';
+    if(!ready) document.getElementById('xpSettings').open = true;
+    // Ready to post
+    var res = xpRows(), rows = res.rows;
+    Object.keys(xpSel).forEach(function(k){ if(!rows.some(function(r){ return r.inv.id === k; })) delete xpSel[k]; });
+    document.getElementById('xpReadyCount').textContent = rows.length ? rows.length + ' invoice' + (rows.length === 1 ? '' : 's') + ' · ' + money(rows.reduce(function(t, r){ return t + r.amount; }, 0)) : '';
+    var allOn = rows.length && rows.every(function(r){ return xpSel[r.inv.id]; });
+    document.getElementById('xpReady').innerHTML = rows.length
+      ? '<thead><tr><th><input type="checkbox" id="xpAll"'+(allOn ? ' checked' : '')+' aria-label="Select all" /></th><th>Debtor</th><th>Invoice</th><th class="num">Balance</th><th>Interest period</th><th class="num">Already posted</th><th class="num">Interest to post</th></tr></thead><tbody>'
+        + rows.map(function(r){
+            var days = isoDiff(r.to, r.from);
+            return '<tr><td><input type="checkbox" data-xpsel="'+escapeHtml(r.inv.id)+'"'+(xpSel[r.inv.id] ? ' checked' : '')+' aria-label="Select '+escapeHtml(r.inv.invoice_number || '')+'" /></td>'
+              + '<td>'+escapeHtml(r.inv.debtor.name || '')+'</td><td>'+escapeHtml(r.inv.invoice_number || '')+'<span class="sub">'+r.ch.daysOverdue+' days overdue</span></td>'
+              + '<td class="num">'+money(r.balance)+'</td><td>'+fmt(r.from)+' – '+fmt(r.to)+'<span class="sub">'+days+' day'+(days === 1 ? '' : 's')+' at '+r2(Number(orgCharges.rate_pa) * 100)+'% p.a.</span></td>'
+              + '<td class="num">'+(r.posted ? money(r.posted) : '—')+'</td><td class="num"><b>'+money(r.amount)+'</b></td></tr>';
+          }).join('') + '</tbody>'
+      : '<tbody><tr><td class="empty-note">Nothing to post right now.</td></tr></tbody>';
+    var sk = res.skipped, bits = [];
+    if(sk.notXero) bits.push(sk.notXero + ' charging invoice' + (sk.notXero === 1 ? ' isn’t' : 's aren’t') + ' from Xero');
+    if(sk.notCharging) bits.push(sk.notCharging + ' with interest waiting, awaiting approval, waived or disputed');
+    if(sk.small) bits.push(sk.small + ' under the minimum');
+    document.getElementById('xpSkipped').textContent = bits.length ? 'Not listed: ' + bits.join('; ') + '.' : '';
+    renderXpSelInfo(rows);
+    // Posted
+    var posted = [];
+    Object.keys(postingsByInv).forEach(function(k){ posted = posted.concat(postingsByInv[k]); });
+    posted.sort(function(a, b){ return String(b.created_at).localeCompare(String(a.created_at)); });
+    var invById = {}; stmtInvoices.forEach(function(i){ invById[i.id] = i; });
+    document.getElementById('xpPosted').innerHTML = posted.length
+      ? '<thead><tr><th>Created</th><th>Debtor</th><th>For invoice</th><th>Period</th><th class="num">Interest</th><th>Xero invoice</th><th>Status</th></tr></thead><tbody>'
+        + posted.slice(0, 200).map(function(p){
+            var i = invById[p.invoice_id] || {};
+            var st = { draft: ['pending', 'Draft in Xero'], authorised: ['applied', 'Approved'], paid: ['resolved', 'Paid'], voided: ['dim', 'Voided'], deleted: ['dim', 'Deleted'] }[p.status] || ['', p.status];
+            var link = p.xero_invoice_id ? '<a href="https://go.xero.com/AccountsReceivable/View.aspx?InvoiceID='+encodeURIComponent(p.xero_invoice_id)+'" target="_blank" rel="noopener">'+escapeHtml(p.xero_invoice_number || 'Open in Xero')+'</a>' : '—';
+            return '<tr'+(xpLiveStatus(p.status) ? '' : ' class="dim"')+'><td>'+fmt(p.created_at)+'</td><td>'+escapeHtml((i.debtor || {}).name || '')+'</td><td>'+escapeHtml(i.invoice_number || '')+'</td>'
+              + '<td>'+fmt(p.period_from)+' – '+fmt(p.period_to)+'</td><td class="num">'+money(p.interest)+'</td><td>'+link+'</td><td><span class="pill '+st[0]+'">'+escapeHtml(st[1])+'</span></td></tr>';
+          }).join('') + '</tbody>'
+      : '<tbody><tr><td class="empty-note">No interest has been posted to Xero yet.</td></tr></tbody>';
+  }
+  function renderXpSelInfo(rows){
+    rows = rows || xpRows().rows;
+    var sel = rows.filter(function(r){ return xpSel[r.inv.id]; });
+    var s = xpSettingsRow || {}, ready = !!(s.account_code && (s.line_amount_types === 'NoTax' || s.tax_type));
+    document.getElementById('xpSelInfo').textContent = sel.length ? sel.length + ' selected · ' + money(sel.reduce(function(t, r){ return t + r.amount; }, 0)) + (s.line_amount_types === 'Exclusive' && s.tax_type ? ' plus any tax' : '') : (ready ? 'Tick the invoices to post' : 'Choose the Xero account and tax rate first');
+    document.getElementById('xpPostBtn').disabled = !sel.length || !ready || !xeroConnected || xpBusy;
+    document.getElementById('xpPostBtn').textContent = xpBusy ? 'Creating drafts…' : sel.length ? 'Create ' + sel.length + ' draft invoice' + (sel.length === 1 ? '' : 's') + ' in Xero' : 'Create draft invoices in Xero';
+    document.getElementById('xpBulk').hidden = !rows.length;
+  }
+  async function loadXeroPostingOptions(){
+    if(!xeroConnected){ renderXeroPosting(); return; }
+    var d = await invokeFn('xero-charges', { org_id: currentOrg.id, action: 'load' });
+    if(d && d.ok){
+      xpAccounts = d.accounts || []; xpTaxRates = d.tax_rates || []; xpLoaded = true;
+      if(d.refreshed) await loadChargeContext();
+    } else {
+      xpLoaded = false;
+      document.getElementById('xpAccount').innerHTML = '<option value="">'+escapeHtml((d && d.error) || 'Couldn’t load accounts from Xero.')+'</option>';
+      document.getElementById('xpTax').innerHTML = '<option value="">—</option>';
+      if(d && d.needs_reconnect) document.getElementById('xpNotice').innerHTML = '<div class="ai-flag caution">'+escapeHtml(d.error)+'</div>';
+    }
+    renderXeroPosting();
+  }
+  document.getElementById('xpLat').addEventListener('change', function(){ document.getElementById('xpTax').disabled = this.value === 'NoTax' || !xpCanEdit(); });
+  document.getElementById('xpSaveSettings').addEventListener('click', async function(){
+    if(!xpCanEdit()) return;
+    var code = document.getElementById('xpAccount').value, lat = document.getElementById('xpLat').value, tt = document.getElementById('xpTax').value;
+    if(!code){ toast('Choose the account for interest.'); return; }
+    if(lat !== 'NoTax' && !tt){ toast('Choose a tax rate, or set “Amounts are” to No tax.'); return; }
+    var a = xpAccounts.filter(function(x){ return x.code === code; })[0], r = xpTaxRates.filter(function(x){ return x.tax_type === tt; })[0];
+    var row = { org_id: currentOrg.id, account_code: code, account_name: a ? a.name : (xpSettingsRow || {}).account_name || null,
+      tax_type: lat === 'NoTax' ? null : tt, tax_name: lat === 'NoTax' ? null : (r ? r.name : null), line_amount_types: lat,
+      due_days: Math.min(120, Math.max(0, Math.round(Number(document.getElementById('xpDueDays').value) || 0))),
+      min_amount: Math.min(10000, Math.max(0, r2(document.getElementById('xpMin').value))), updated_at: new Date().toISOString() };
+    var res = await sb.from('charge_posting_settings').upsert(row, { onConflict: 'org_id' }).select().maybeSingle();
+    if(res.error){ toast('Could not save: ' + res.error.message); return; }
+    xpSettingsRow = res.data || row; document.getElementById('xpSettings').open = false;
+    renderXeroPosting(); toast('Xero settings saved.');
+  });
+  document.getElementById('chgXero').addEventListener('change', function(e){
+    var t = e.target;
+    if(t.id === 'xpAll'){ xpRows().rows.forEach(function(r){ if(t.checked) xpSel[r.inv.id] = true; else delete xpSel[r.inv.id]; }); renderXeroPosting(); return; }
+    var id = t.getAttribute && t.getAttribute('data-xpsel'); if(!id) return;
+    if(t.checked) xpSel[id] = true; else delete xpSel[id];
+    renderXpSelInfo();
+  });
+  document.getElementById('xpPostBtn').addEventListener('click', async function(){
+    var rows = xpRows().rows.filter(function(r){ return xpSel[r.inv.id]; });
+    if(!rows.length || xpBusy) return;
+    var total = rows.reduce(function(t, r){ return t + r.amount; }, 0);
+    if(!confirm('Create ' + rows.length + ' draft interest invoice' + (rows.length === 1 ? '' : 's') + ' in Xero, totalling ' + money(total) + '?\n\nThey stay as drafts until you approve them in Xero.')) return;
+    xpBusy = true; renderXpSelInfo();
+    var ok = 0, failed = [];
+    try {
+      for(var k = 0; k < rows.length; k += 25){
+        var batch = rows.slice(k, k + 25);
+        var d = await invokeFn('xero-charges', { org_id: currentOrg.id, action: 'post', items: batch.map(function(r){
+          return { invoice_id: r.inv.id, interest: r.amount, period_from: r.from, period_to: r.to, balance: r.balance, rate_pa: Number(orgCharges.rate_pa) || 0 };
+        }) });
+        if(!d || (d.error && !d.results)){ batch.forEach(function(r){ failed.push(r.inv.invoice_number + ': ' + ((d && d.error) || 'Failed')); }); continue; }
+        (d.results || []).forEach(function(x){
+          var r = batch.filter(function(b){ return b.inv.id === x.invoice_id; })[0];
+          if(x.ok){ ok++; delete xpSel[x.invoice_id]; } else failed.push((r ? r.inv.invoice_number : 'Invoice') + ': ' + x.error);
+        });
+      }
+    } finally { xpBusy = false; }
+    await loadChargeContext();
+    renderXeroPosting(); renderChargesPortal();
+    if(failed.length) alertList((ok ? ok + ' draft' + (ok === 1 ? '' : 's') + ' created in Xero. ' : '') + failed.length + ' couldn’t be posted:', failed);
+    else toast(ok + ' draft invoice' + (ok === 1 ? '' : 's') + ' created in Xero.');
+  });
+  function alertList(head, lines){ alert(head + '\n\n• ' + lines.slice(0, 15).join('\n• ') + (lines.length > 15 ? '\n…and ' + (lines.length - 15) + ' more' : '')); }
+
   function startBasisFromForm(){
     var v = document.getElementById('chgStart').value;
     if(v === 'grace') return document.getElementById('chgBackdate').checked ? 'grace_backdated' : 'after_grace';
