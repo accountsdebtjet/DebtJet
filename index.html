@@ -319,6 +319,55 @@
   .note-callout{display:flex;gap:9px;align-items:flex-start;background:var(--info-soft);color:var(--info);border-radius:9px;padding:11px 13px;font-size:12px;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto;}
 
   /* STATEMENTS */
+  /* Letters of Demand tabs */
+  .view[data-view="letters"][data-ltab="templates"] .ld-letter-only{display:none !important;}
+  .view[data-view="letters"][data-ltab="letter"] .ld-tpl-only{display:none !important;}
+  .ld-case-now{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:13.5px;}
+  .ld-case-now .k{font-size:12px;font-weight:600;color:var(--text-muted);}
+  .ld-case-list{display:flex;flex-direction:column;gap:8px;max-height:620px;overflow:auto;}
+  .ld-case{display:grid;grid-template-columns:1fr auto;gap:8px;text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:10px 12px;font:inherit;color:var(--text);cursor:pointer;}
+  .ld-case:hover{border-color:var(--accent);}
+  .ld-case.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft, rgba(30,111,217,.15));background:var(--accent-soft, #eef4fd);}
+  .ld-case-main{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .ld-case-main .sub{font-size:11.5px;color:var(--text-muted);}
+  .ld-case-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+  /* Settings */
+  .set-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:16px;align-items:start;}
+  .set-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .set-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--text-muted);}
+  .set-form .span2{grid-column:1/-1;}
+  .set-form input,.set-form textarea{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px;font-weight:400;background:var(--surface);color:var(--text);resize:vertical;}
+  .set-form input:disabled,.set-form textarea:disabled{opacity:.7;}
+  .set-logo-box{border:1px dashed var(--border-strong);border-radius:10px;min-height:110px;display:flex;align-items:center;justify-content:center;padding:16px;background:repeating-conic-gradient(#f1f3f6 0% 25%, #ffffff 0% 50%) 50% / 16px 16px;}
+  .set-logo-box img{max-width:100%;max-height:90px;display:block;}
+  .set-logo-acts{display:flex;gap:8px;margin:12px 0 4px;}
+  .set-logo-acts .btn.disabled{opacity:.5;pointer-events:none;}
+  .set-logo-acts [hidden]{display:none !important;}
+  .set-save{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:16px;}
+  @media (max-width:900px){ .set-grid,.set-form{grid-template-columns:1fr;} }
+  /* Honeycomb colour picker */
+  .cpick{display:inline-flex;}
+  .cpick-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:4px 10px 4px 5px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;font-variant-numeric:tabular-nums;}
+  .cpick-btn:hover{border-color:var(--accent);}
+  .cpick:has(.cpick-val:disabled) .cpick-btn{opacity:.45;cursor:not-allowed;}
+  .cpick-sw{width:20px;height:20px;border-radius:5px;border:1px solid rgba(0,0,0,.18);display:inline-block;}
+  .cpick-sw.big{width:30px;height:30px;border-radius:7px;}
+  .cpop{position:fixed;z-index:90;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:14px 14px 12px;}
+  .cpop[hidden]{display:none;}
+  .comb{padding:2px 0 4px;}
+  .comb-row{display:flex;justify-content:center;}
+  .comb > .comb-row + .comb-row{margin-top:-5.5px;}
+  .comb-line{margin-top:8px;gap:2px;}
+  .comb-hex{position:relative;width:20px;height:22px;margin:0 .5px;border:0;padding:0;cursor:pointer;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);transition:transform .08s;}
+  .comb-hex:hover,.comb-hex:focus-visible{transform:scale(1.25);z-index:2;outline:none;}
+  .comb-hex.sel::after{content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px #111;}
+  .comb-label{font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;margin-top:10px;}
+  .comb-foot{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+  .comb-foot label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted);flex:1;}
+  .comb-foot input{width:90px;font-family:ui-monospace,monospace;text-transform:uppercase;}
+  /* Long descriptions */
+  .sd-details{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+  .line-note .desc-short{margin-top:4px;}
   /* Account Statements tabs */
   .stmt-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:16px;width:max-content;max-width:100%;overflow-x:auto;box-shadow:var(--shadow);}
   .stmt-tabs button{border:0;background:transparent;padding:8px 16px;border-radius:9px;font:inherit;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
@@ -763,6 +812,7 @@
       <button class="nav-btn" data-view="portal"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="2.5" width="11" height="15" rx="2"/><path d="M8 15h4"/></svg>Debtor Portal</button>
       <button class="nav-btn" data-view="payments"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="10.5" rx="1.6"/><path d="M2.5 8.5h15M5.5 12.5h3"/></svg>Payment Portal</button>
       <button class="nav-btn" data-view="integrations"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="3"/><circle cx="14" cy="14" r="3"/><path d="M8.2 7.8l3.6 4.4"/></svg>Integrations</button>
+      <button class="nav-btn" data-view="settings"><svg class="ic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2.2M10 15.3v2.2M2.5 10h2.2M15.3 10h2.2M4.7 4.7l1.6 1.6M13.7 13.7l1.6 1.6M4.7 15.3l1.6-1.6M13.7 6.3l1.6-1.6"/></svg>Settings</button>
     </nav>
     <div class="sidebar-foot">
       <div class="who-row">
@@ -819,47 +869,84 @@
     <section class="view" data-view="detail" hidden id="detailView"></section>
 
     <!-- LETTERS -->
-    <section class="view" data-view="letters" hidden>
-      <div class="ld-top-bar card">
-        <label>Case<select id="letterCaseSelect"></select></label>
-        <label>Template<select id="ldTplSelect"></select></label>
-        <div class="ld-top-acts">
-          <button class="btn" id="aiDraftLetterBtn" type="button">✨ Draft with AI</button>
-          <button class="btn" id="ldPrintBtn" type="button">Print / PDF</button>
-          <select id="sendVia" aria-label="Send via"><option value="google_workspace">Google Workspace</option><option value="outlook">Outlook</option><option value="post">Post</option><option value="hand">By hand</option></select>
-          <button class="btn primary" id="ldSendBtn" type="button">Record as sent</button>
-        </div>
-        <div class="ld-status" id="ldStatus"></div>
+    <section class="view" data-view="letters" data-ltab="cases" hidden>
+      <div class="stmt-tabs" role="tablist" aria-label="Letters of demand">
+        <button type="button" role="tab" class="active" aria-selected="true" data-ltab-btn="cases">Cases</button>
+        <button type="button" role="tab" aria-selected="false" data-ltab-btn="letter">Letter</button>
+        <button type="button" role="tab" aria-selected="false" data-ltab-btn="templates">Templates</button>
+        <button type="button" role="tab" aria-selected="false" data-ltab-btn="audit">Audit history</button>
       </div>
-      <div class="ld-shell">
-        <div class="card ld-side">
-          <div class="seg ld-tabs" role="tablist">
-            <button type="button" class="seg-btn active" data-ldtab="content">Content</button>
-            <button type="button" class="seg-btn" data-ldtab="design">Design</button>
-            <button type="button" class="seg-btn" data-ldtab="settings">Settings</button>
+
+      <!-- Cases tab -->
+      <div class="stab" data-ltab-panel="cases">
+        <div class="stmt-shell">
+          <div class="card">
+            <div class="card-head"><h3>Cases</h3><span style="font-size:11.5px;color:var(--text-faint);">Choose the case to write to</span></div>
+            <div class="card-body">
+              <div class="stmt-filter-bar">
+                <select id="ldCaseFilter" aria-label="Filter cases"><option value="open">Open cases</option><option value="no_letter">No letter sent yet</option><option value="all">All cases</option></select>
+                <input type="search" id="ldCaseSearch" placeholder="Search name or invoice…" aria-label="Search cases" />
+              </div>
+              <select id="letterCaseSelect" hidden aria-hidden="true"></select>
+              <div class="ld-case-list" id="ldCaseList"></div>
+            </div>
           </div>
-          <div class="ld-editor" id="ldEditor"></div>
-          <div class="ld-save-row">
-            <button class="btn sm primary" id="ldSaveBtn" type="button">Save</button>
-            <button class="btn sm" id="ldSaveAsBtn" type="button">Save as new…</button>
-            <button class="btn sm ghost" id="ldRevertBtn" type="button">Undo changes</button>
-            <button class="btn sm ghost" id="ldDeleteBtn" type="button" hidden>Delete</button>
+          <div class="card stmt-sel-card">
+            <div class="card-head"><h3>Selected case</h3></div>
+            <div class="card-body" id="ldCaseCard"></div>
           </div>
-        </div>
-        <div>
-          <div class="ai-flags ld-flags" id="letterFlags"></div>
-          <div class="letter-paper" id="letterPaper"></div>
         </div>
       </div>
-      <details class="card hist-panel" id="hist-letters" style="margin-top:20px;">
-        <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
-        <div class="card-body hist-body"></div>
-      </details>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-head"><h3>Recently sent</h3></div>
-        <div class="card-body" style="padding-top:0;">
-          <table><thead><tr><th>Sent</th><th>Debtor</th><th>Letter</th><th>Sent via</th><th>Status</th><th></th></tr></thead>
-          <tbody id="sentLettersBody"></tbody></table>
+
+      <!-- Letter + Templates tabs share the editor and preview -->
+      <div class="stab" data-ltab-panel="work" hidden>
+        <div class="ld-top-bar card">
+          <div class="ld-case-now"><span class="k">Case</span><b id="ldCaseNow">—</b> <button type="button" class="linkbtn" data-ltab-go="cases">Change</button></div>
+          <label>Template<select id="ldTplSelect"></select></label>
+          <div class="ld-top-acts ld-letter-only">
+            <button class="btn" id="aiDraftLetterBtn" type="button">✨ Draft with AI</button>
+            <button class="btn" id="ldPrintBtn" type="button">Print / PDF</button>
+            <select id="sendVia" aria-label="Send via"><option value="google_workspace">Google Workspace</option><option value="outlook">Outlook</option><option value="post">Post</option><option value="hand">By hand</option></select>
+            <button class="btn primary" id="ldSendBtn" type="button">Record as sent</button>
+          </div>
+          <div class="ld-status" id="ldStatus"></div>
+        </div>
+        <div class="ld-shell">
+          <div class="card ld-side">
+            <div class="seg ld-tabs ld-tpl-only" role="tablist">
+              <button type="button" class="seg-btn" data-ldtab="content" hidden>Content</button>
+              <button type="button" class="seg-btn active" data-ldtab="design">Design</button>
+              <button type="button" class="seg-btn" data-ldtab="settings">Settings</button>
+            </div>
+            <div class="ld-editor" id="ldEditor"></div>
+            <div class="ld-save-row">
+              <button class="btn sm primary" id="ldSaveBtn" type="button">Save template</button>
+              <button class="btn sm" id="ldSaveAsBtn" type="button">Save as new…</button>
+              <button class="btn sm ghost" id="ldRevertBtn" type="button">Undo changes</button>
+              <button class="btn sm ghost" id="ldDeleteBtn" type="button" hidden>Delete</button>
+            </div>
+          </div>
+          <div>
+            <div class="paper-head"><span>Preview</span><button class="btn sm" type="button" data-pdf-preview="letter">📄 Preview PDF</button></div>
+            <div class="ai-flags ld-flags" id="letterFlags"></div>
+            <div class="letter-paper" id="letterPaper"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit history tab -->
+      <div class="stab" data-ltab-panel="audit" hidden>
+        <p class="muted small stab-hint" id="ldAuditHint"></p>
+        <details class="card hist-panel" id="hist-letters">
+          <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
+          <div class="card-body hist-body"></div>
+        </details>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-head"><h3>Recently sent</h3></div>
+          <div class="card-body" style="padding-top:0;">
+            <table><thead><tr><th>Sent</th><th>Debtor</th><th>Letter</th><th>Sent via</th><th>Status</th><th></th></tr></thead>
+            <tbody id="sentLettersBody"></tbody></table>
+          </div>
         </div>
       </div>
     </section>
@@ -914,7 +1001,7 @@
                   <label>Cover message (printed above the invoices, optional)
                     <textarea id="stmtNotes" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today."></textarea>
                   </label>
-                  <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line</span></div>
+                  <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line. Long descriptions can be shortened here.</span></div>
                   <div class="line-notes" id="stmtLineNotesBox"><div class="empty-note">Select invoices to add notes.</div></div>
                 </div>
                 <div class="ai-flags" id="stmtFlags"></div>
@@ -1143,6 +1230,38 @@
       </div>
     </section>
 
+    <!-- SETTINGS -->
+    <section class="view" data-view="settings" hidden>
+      <div class="set-grid">
+        <div class="card">
+          <div class="card-head"><h3>Business details</h3><span class="muted small" id="setRoNote"></span></div>
+          <div class="card-body">
+            <div class="set-form">
+              <label class="span2">Business name<input id="setName" maxlength="160" autocomplete="organization" /></label>
+              <label>ABN<input id="setAbn" maxlength="20" inputmode="numeric" placeholder="11 digits" /></label>
+              <label>Accounts email<input id="setEmail" type="email" maxlength="200" placeholder="accounts@yourbusiness.com.au" /></label>
+              <label>Phone<input id="setPhone" maxlength="40" /></label>
+              <label>Website<input id="setWebsite" maxlength="200" placeholder="yourbusiness.com.au" /></label>
+              <label class="span2">Address<textarea id="setAddress" rows="2" maxlength="300" placeholder="Street, suburb, state, postcode"></textarea></label>
+            </div>
+            <p class="fine">These details print at the top of statements and letters whenever a template’s own “business details” box is empty.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Logo</h3></div>
+          <div class="card-body">
+            <div class="set-logo-box" id="setLogoBox"></div>
+            <div class="set-logo-acts">
+              <label class="btn sm" id="setLogoPick">Upload logo<input type="file" id="setLogoFile" accept="image/png,image/jpeg,image/webp" hidden /></label>
+              <button class="btn sm ghost" type="button" id="setLogoRemove">Remove</button>
+            </div>
+            <p class="fine">PNG, JPG or WebP. A wide logo with a transparent background works best. It’s used on statements and letters unless a template has its own logo or hides it.</p>
+          </div>
+        </div>
+      </div>
+      <div class="set-save"><span class="muted small" id="setStatus"></span><button class="btn primary" type="button" id="setSaveBtn">Save settings</button></div>
+    </section>
+
     <!-- INTEGRATIONS -->
     <section class="view" data-view="integrations" hidden>
       <div class="int-grid" id="integrationsGrid"></div>
@@ -1291,6 +1410,7 @@
     document.getElementById('sidebarEmail').textContent = session.user.email;
     document.getElementById('sidebarOrg').textContent = currentOrg.name + ' · ' + currentOrg.role;
     document.getElementById('sidebarAvatar').textContent = (session.user.email || '?').slice(0,2).toUpperCase();
+    await loadOrgDetails();
     showTopLevel('app');
     await refreshAll();
   }
@@ -1724,6 +1844,7 @@
 
   var TITLES = {
     dashboard:['Dashboard','Overview of outstanding debt across all clients'],
+    settings:['Settings','Your business details and logo, used on statements and letters'],
     cases:['Debtors & Cases','Every open and resolved recovery case'],
     detail:['Case detail','Full history for this debtor'],
     letters:['Letters of Demand','Draft, preview and send recovery correspondence'],
@@ -1741,6 +1862,7 @@
     document.getElementById('sidebar').classList.remove('open');
     window.scrollTo(0,0);
     if(name === 'recovery'){ renderRecoveryCaseOptions(); selectRecoveryCase(recState.caseId); }
+    if(name === 'settings') renderSettings();
   }
   function setActiveNav(name){ Array.prototype.forEach.call(document.querySelectorAll('.nav-btn'), function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); }); }
   Array.prototype.forEach.call(document.querySelectorAll('.nav-btn[data-view]'), function(btn){ btn.addEventListener('click', function(){ var v=this.getAttribute('data-view'); showView(v); setActiveNav(v); }); });
@@ -1883,7 +2005,7 @@
     var o = st.overrides || {};
     var d = deepMerge(base, { colors: o.colors || {} });
     ['font','heading_font','font_size','table_style','density','header_style','logo_position'].forEach(function(k){ if(o[k] !== undefined && o[k] !== null && o[k] !== '') d[k] = o[k]; });
-    if(o.hide_logo) d.logo = null;
+    if(o.hide_logo){ d.logo = null; d.hide_logo = true; }
     return normaliseTpl(d);
   }
 
@@ -1921,7 +2043,7 @@
       pay_days: String(st.pay_days || 7), pay_by_date: fmt(payBy), payment_reference: nums.length === 1 ? nums[0] : ref,
       last_letter_date: lastLetter ? fmt(lastLetter) : (dd.first ? fmt(dd.first) : 'an earlier date'),
       disputed_list: listText(items.filter(function(i){ return i.disputed; }).map(function(i){ return i.invoice_number; })) || 'the disputed invoices',
-      business_name: currentOrg.name, our_contact: st.our_contact || '{{our_contact}}', today: fmt(today)
+      business_name: currentOrg.name, our_contact: st.our_contact || [currentOrg.phone, currentOrg.billing_email].filter(Boolean).join(' or ') || '{{our_contact}}', today: fmt(today)
     };
     return { c: c, debtor: d, items: items, totals: T, vars: vars, date: today, payBy: payBy, ref: ref };
   }
@@ -1987,9 +2109,11 @@
       + '@media print{'+S+'{padding:0;}'+S+' .ld-band{margin:0 0 24px;padding:18px 20px;}'+S+' .ld-pay,'+S+' .ld-bank,'+S+' table.ld-t tr,'+S+' .ld-sign{page-break-inside:avoid;}'+S+' .ld-missing{background:none;}}'
       + '</style>';
     var V = m.vars, d = m.debtor;
-    var logo = t.logo ? '<img class="ld-logo" src="'+t.logo+'" alt="" />' : '';
+    var lgo = effectiveLogo(t);
+    var logo = lgo ? '<img class="ld-logo" src="'+lgo+'" alt="" />' : '';
     var who = '<div>'+logo+'<div class="ld-name">'+escapeHtml(currentOrg.name)+'</div></div>';
-    var from = t.from_lines ? '<div class="ld-from ld-muted">'+escapeHtml(t.from_lines)+'</div>' : '<div></div>';
+    var fromTxt = t.from_lines || orgFromLines();
+    var from = fromTxt ? '<div class="ld-from ld-muted">'+escapeHtml(fromTxt)+'</div>' : '<div></div>';
     var headCls = t.header_style === 'centred' ? 'centred' : (t.logo_position === 'right' ? 'right' : '');
     var head = '<div class="ld-head '+headCls+'">'+who+from+'</div>';
     if(t.header_style === 'band') head = '<div class="ld-band">'+head+'</div>';
@@ -2054,7 +2178,7 @@
     if(intent.length) w.push({ level: 'caution', message: 'This letter says what you will do next (' + intent.map(function(b){ return CLAUSE_BY_KEY[b.clause].label.toLowerCase(); }).join(', ') + '). Under the ACCC/ASIC Debt collection guideline, only say this if you have genuinely decided to do it.' });
     var raw = tpl.subject + ' ' + tpl.blocks.map(function(b){ return b.text || ''; }).join(' ');
     var unknown = []; raw.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, function(x, k){ if((!Object.prototype.hasOwnProperty.call(m.vars, k) || /^\{\{/.test(m.vars[k])) && unknown.indexOf(k) < 0) unknown.push(k); return x; });
-    if(unknown.length) w.push({ level: 'stop', message: 'Fields with no value yet (highlighted): ' + unknown.map(function(k){ return '{{' + k + '}}'; }).join(', ') + (unknown.indexOf('our_contact') >= 0 ? '. Add your contact details on the Settings tab.' : '') + (unknown.indexOf('interest_rate') >= 0 ? '. Interest is off under Interest & Fees.' : '') });
+    if(unknown.length) w.push({ level: 'stop', message: 'Fields with no value yet (highlighted): ' + unknown.map(function(k){ return '{{' + k + '}}'; }).join(', ') + (unknown.indexOf('our_contact') >= 0 ? '. Add a phone or email in Settings, or on this template’s Settings tab.' : '') + (unknown.indexOf('interest_rate') >= 0 ? '. Interest is off under Interest & Fees.' : '') });
     if(!postalLines(m.debtor).length) w.push({ level: 'info', message: 'No postal address for this debtor. Add one on their contact card if you will post this letter.' });
     if(m.debtor.name_check === 'different' || m.debtor.name_check === 'cancelled') w.push({ level: 'caution', message: m.debtor.name_check === 'cancelled' ? 'The debtor’s ABN is cancelled. Check ASIC before sending.' : 'The debtor’s name differs from the ABN register. Confirm you have the right legal entity.' });
     if(m.totals.disputed) w.push({ level: 'info', message: 'Disputed invoices are listed but left out of the amount due.' });
@@ -2083,9 +2207,10 @@
     var cur = sel.value;
     sel.innerHTML = cases.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.debtor.name)+' — '+escapeHtml(c.invoiceNumber)+' · '+money(c.total)+'</option>'; }).join('');
     if(cur && cases.some(function(c){ return c.id === cur; })) sel.value = cur;
+    else if(cases.length) sel.value = cases[0].id;
     if(!ldTpl){ var def = letterTemplates.filter(function(t){ return t.settings && t.settings.is_default; })[0]; loadLetterTemplate(def ? def.id : 'builtin:first_demand'); }
     renderLetterTemplateSelect(); renderLetterEditor();
-    loadLastLetters().then(function(){ onLetterTargetChanged(); });
+    loadLastLetters().then(function(){ onLetterTargetChanged(); renderLetterCaseList(); });
     refreshSentLetters();
   }
   function selectLetterCase(id){ document.getElementById('letterCaseSelect').value = id; onLetterTargetChanged(); }
@@ -2095,16 +2220,16 @@
     ldViewing = null;
     var c = currentLetterCase();
     setHistoryDebtors('letters', c && c.debtor && c.debtor.id ? [c.debtor.id] : []);
-    renderLetterPreview();
+    renderLetterPreview(); renderLetterCaseCard();
     letterFlags = c ? await loadNoteFlags(c) : [];
-    if(currentLetterCase() === c) renderLetterPreview();
+    if(currentLetterCase() === c){ renderLetterPreview(); renderLetterCaseCard(); }
   }
   var letterFlags = [];
   var ldPreviewQueued = false;
   function scheduleLetterPreview(){ if(ldPreviewQueued) return; ldPreviewQueued = true; requestAnimationFrame(function(){ ldPreviewQueued = false; renderLetterPreview(); }); }
   function renderLetterPreview(){
     var paper = document.getElementById('letterPaper');
-    if(ldViewing){ paper.innerHTML = ldViewing.html; renderFlags(document.getElementById('letterFlags'), [{ level: 'info', message: 'Showing the letter exactly as sent on ' + fmt(ldViewing.sent_at) + '. Choose a case or template to go back.' }]); return; }
+    if(ldViewing){ paper.innerHTML = ldViewing.html; renderFlags(document.getElementById('letterFlags'), [{ level: 'info', message: 'Showing the letter exactly as sent on ' + fmt(ldViewing.sent_at) + '. Choose a case or template, or switch tabs, to go back.' }]); return; }
     var c = currentLetterCase();
     if(!c || !ldTpl){ paper.innerHTML = '<div class="empty-note" style="padding:30px;">No case selected yet.</div>'; renderFlags(document.getElementById('letterFlags'), []); return; }
     var st = ldSettings();
@@ -2145,11 +2270,11 @@
       var srcOpts = '<option value="default"'+(st.design_source === 'default' ? ' selected' : '')+'>Your default statement design</option>'
         + Object.keys(TPL_PRESETS).map(function(k){ return '<option value="preset:'+k+'"'+(st.design_source === 'preset:'+k ? ' selected' : '')+'>Built-in: '+escapeHtml(TPL_PRESETS[k].name)+'</option>'; }).join('')
         + stmtTemplates.map(function(t){ return '<option value="'+escapeHtml(t.id)+'"'+(st.design_source === t.id ? ' selected' : '')+'>Saved: '+escapeHtml(t.name)+'</option>'; }).join('');
-      var col = function(k, label){ var on = o.colors && o.colors[k]; return '<label class="ld-col"><span><input type="checkbox" data-ldcolon="'+k+'"'+(on ? ' checked' : '')+' /> '+label+'</span><input type="color" data-ldcol="'+k+'" value="'+escapeHtml(on || base.colors[k])+'"'+(on ? '' : ' disabled')+' /></label>'; };
+      var col = function(k, label){ var on = o.colors && o.colors[k]; return '<label class="ld-col"><span><input type="checkbox" data-ldcolon="'+k+'"'+(on ? ' checked' : '')+' /> '+label+'</span>'+colourField('data-ldcol="'+k+'"'+(on ? '' : ' disabled'), on || base.colors[k])+'</label>'; };
       var sel = function(k, label, opts){ return '<label>'+label+'<select data-ldo="'+k+'"><option value="">Brand ('+escapeHtml(String((opts.filter(function(x){ return x[0] === base[k]; })[0] || [0, base[k]])[1]))+')</option>'+opts.map(function(x){ return '<option value="'+x[0]+'"'+(o[k] === x[0] ? ' selected' : '')+'>'+escapeHtml(x[1])+'</option>'; }).join('')+'</select></label>'; };
       var fonts = FONT_OPTIONS.map(function(f){ return [f.name, f.name]; });
       box.innerHTML = '<label class="ld-field">Brand design<select data-lds="design_source">'+srcOpts+'</select></label>'
-        + '<div class="fine" style="margin-top:4px;">Logo, business details, footer and colours come from this design. Change it under Account Statements → Customise, and every letter using it updates.</div>'
+        + '<div class="fine" style="margin-top:4px;">Colours, fonts and footer come from this design (Account Statements → Templates). Your logo and business details come from Settings unless the design has its own.</div>'
         + '<h4 class="sub-h">Overrides for this template</h4><div class="ld-grid">'
         + col('accent', 'Accent') + col('heading', 'Headings') + col('text', 'Body text') + col('th_bg', 'Table header') + col('th_text', 'Table header text') + col('border', 'Lines')
         + sel('font', 'Body font', fonts) + sel('heading_font', 'Heading font', fonts)
@@ -2174,7 +2299,7 @@
         + chk('show_interest', 'Show interest') + chk('show_fees', 'Show fees') + chk('show_ref', 'Show our reference') + chk('show_abn', 'Show debtor ABN') + chk('private_conf', '“Private & confidential” above the address')
         + '<label>Signed by (name)<input data-lds="sign_name" maxlength="80" value="'+escapeHtml(st.sign_name || '')+'" /></label>'
         + '<label>Title / team<input data-lds="sign_title" maxlength="80" value="'+escapeHtml(st.sign_title || '')+'" /></label>'
-        + '<label class="span2">Your contact details, for {{our_contact}}<input data-lds="our_contact" maxlength="160" placeholder="e.g. 07 3000 0000 or accounts@yourbusiness.com.au" value="'+escapeHtml(st.our_contact || '')+'" /></label>'
+        + '<label class="span2">Your contact details, for {{our_contact}}<input data-lds="our_contact" maxlength="160" placeholder="Leave empty to use the phone and email from Settings" value="'+escapeHtml(st.our_contact || '')+'" /></label>'
         + '<label class="span2">Signature image (PNG with a clear background works best)<input type="file" accept="image/png,image/jpeg" data-ldsig="1" />'+(st.signature ? '<button type="button" class="linkbtn" data-ldsigdel="1" style="text-align:left;">Remove signature</button>' : '')+'</label>'
         + '<label class="span2">Description (shown when choosing templates)<input data-ld="description" maxlength="300" value="'+escapeHtml(ldTpl.description || '')+'" /></label>'
         + '</div>';
@@ -2341,8 +2466,7 @@
   document.getElementById('sentLettersBody').addEventListener('click', function(e){
     var id = e.target.getAttribute('data-ldview'); if(!id) return;
     var l = sentLetterRows.filter(function(x){ return x.id === id; })[0]; if(!l) return;
-    ldViewing = { html: l.snapshot.html, sent_at: l.sent_at }; renderLetterPreview();
-    document.getElementById('letterPaper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    ldViewing = { html: l.snapshot.html, sent_at: l.sent_at }; setLetterTab('letter', true); renderLetterPreview(); window.scrollTo(0, 0);
   });
 
   /* ---------- debtor portal preview ---------- */
@@ -2865,7 +2989,7 @@
     colors: { accent:'#1f3a8a', heading:'#14213d', text:'#1b2433', muted:'#5b6474', th_bg:'#eef2f8', th_text:'#14213d', border:'#d9e0ea', stripe:'#f6f8fb', band_text:'#ffffff' },
     font: 'Sora', heading_font: 'Sora', font_size: 12.5,
     table_style: 'lined', density: 'regular', header_style: 'plain',
-    logo: null, logo_position: 'left', logo_height: 44,
+    logo: null, hide_logo: false, logo_position: 'left', logo_height: 44, desc_mode: 'short_details', desc_max: 60,
     title: 'Account Statement', from_lines: '', intro: '', footer: '', sign_off: 'Accounts team',
     columns: { invoice:true, description:true, issued:false, due:true, days_overdue:true, amount:true, paid:false, interest:true, fees:true, balance:true, status:true, pay_link:true },
     sections: { summary:true, ageing:true, line_notes:true, cover:true, payment:true, remittance:false, late_rate:false }
@@ -2915,6 +3039,9 @@
     if(['plain','band','centred'].indexOf(t.header_style) < 0) t.header_style = 'plain';
     if(['left','right'].indexOf(t.logo_position) < 0) t.logo_position = 'left';
     t.logo_height = Math.min(90, Math.max(24, Number(t.logo_height) || 44));
+    t.hide_logo = !!t.hide_logo;
+    if(['full','short','short_details'].indexOf(t.desc_mode) < 0) t.desc_mode = 'short_details';
+    t.desc_max = Math.min(120, Math.max(30, Number(t.desc_max) || 60));
     if(t.logo && !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(t.logo)) t.logo = null;
     ['title','from_lines','intro','footer','sign_off'].forEach(function(k){ t[k] = String(t[k] == null ? '' : t[k]).slice(0, 1200); });
     return t;
@@ -2961,7 +3088,7 @@
       ['density','select','Row spacing', [['compact','Compact'],['regular','Regular'],['roomy','Roomy']]] ] },
     { title:'Header & logo', fields:[
       ['header_style','select','Header layout', [['plain','Logo left, details right'],['band','Coloured band'],['centred','Centred']]],
-      ['logo','logo','Logo (PNG or JPG)'], ['logo_position','select','Logo side', [['left','Left'],['right','Right']]],
+      ['logo','logo','Logo for this template only (leave empty to use your logo from Settings)'], ['hide_logo','check','Don’t show a logo'], ['logo_position','select','Logo side', [['left','Left'],['right','Right']]],
       ['logo_height','range','Logo size', 24, 90, 2] ] },
     { title:'Wording', fields:[
       ['title','text','Document title'], ['sign_off','text','Signed by'],
@@ -2972,6 +3099,9 @@
       ['columns.due','check','Due date'], ['columns.days_overdue','check','Days overdue'], ['columns.amount','check','Invoice amount'],
       ['columns.paid','check','Paid to date'], ['columns.interest','check','Interest'], ['columns.fees','check','Fees'],
       ['columns.balance','check','Balance owing'], ['columns.status','check','Status'], ['columns.pay_link','check','Pay online link'] ] },
+    { title:'Long descriptions', fields:[
+      ['desc_mode','select','How to show long invoice descriptions', [['short_details','Shorten in the table, full text under “Invoice details”'],['short','Shorten in the table only'],['full','Show in full']]],
+      ['desc_max','range','Shorten to about (characters)', 30, 120, 5] ] },
     { title:'Sections', fields:[
       ['sections.summary','check','Amount-due summary'], ['sections.cover','check','Cover message'], ['sections.line_notes','check','Notes under each invoice'],
       ['sections.ageing','check','Ageing (current, 30, 60, 90+ days)'], ['sections.payment','check','How to pay'],
@@ -2993,7 +3123,7 @@
       } else {
         body = '<div class="dz">' + g.fields.map(function(f){
           var path = f[0], type = f[1], label = escapeHtml(f[2]), v = getPath(t, path);
-          if(type === 'color') return '<label>'+label+'<input type="color" data-path="'+path+'" value="'+escapeHtml(v)+'" /></label>';
+          if(type === 'color') return '<label>'+label+colourField('data-path="'+path+'"', v)+'</label>';
           if(type === 'font') return '<label>'+label+'<select data-path="'+path+'">'+FONT_OPTIONS.map(function(o){ return '<option'+(o.name===v?' selected':'')+'>'+escapeHtml(o.name)+'</option>'; }).join('')+'</select></label>';
           if(type === 'range') return '<label>'+label+' <span data-out="'+path+'">'+escapeHtml(v)+'</span><input type="range" data-path="'+path+'" min="'+f[3]+'" max="'+f[4]+'" step="'+f[5]+'" value="'+escapeHtml(v)+'" /></label>';
           if(type === 'select') return '<label>'+label+'<select data-path="'+path+'">'+f[3].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===v?' selected':'')+'>'+escapeHtml(o[1])+'</option>'; }).join('')+'</select></label>';
@@ -3123,7 +3253,7 @@
         issued_date: i.issued_date, due_date: i.due_date, amount: i.amount, paid: i.paid || 0, balance: balance,
         daysOverdue: i.daysOverdue, fullyPaid: i.fullyPaid, disputed: disputed,
         interest: ch.interest, fees: ch.feeTotal, feeLines: ch.fees, chargesApplied: ch.applied,
-        note: (stmtLineNotes[i.id] || '').trim(), pay_url: stmtPayLinks[i.id] || i.pay_url || null
+        note: (stmtLineNotes[i.id] || '').trim(), pay_url: stmtPayLinks[i.id] || i.pay_url || null, desc_short: (stmtDescOverride[i.id] || '').trim()
       };
       item.status = statusLabel(item);
       return item;
@@ -3170,9 +3300,11 @@
     var pad = { compact: '4px 7px', regular: '7px 9px', roomy: '10px 11px' }[t.density];
     var hasCharges = !!m.charges || m.items.some(function(i){ return i.interest || i.fees; });
     var showPay = !!(m.payment && m.payment.online_provider && m.payment.online_provider !== 'none') && m.items.some(function(i){ return i.pay_url; });
+    var refMap = new Map(), refN = 0;
+    if(t.desc_mode === 'short_details' && (t.columns || {}).description) m.items.forEach(function(i){ if(itemDesc(i, t).shortened) refMap.set(i, ++refN); });
     var colDefs = [
       ['invoice', 'Invoice', function(i){ return '<b class="nw">'+escapeHtml(i.invoice_number || '—')+'</b>' + (m.multi ? '<div class="sd-sub">'+escapeHtml(i.debtor_name || '')+'</div>' : ''); }],
-      ['description', 'Description', function(i){ return escapeHtml(i.description || ''); }],
+      ['description', 'Description', function(i){ var dd = itemDesc(i, t), n = refMap.get(i); return '<span'+(dd.shortened ? ' title="'+escapeHtml(dd.full)+'"' : '')+'>'+escapeHtml(dd.text)+'</span>'+(n ? '<sup class="sd-ref">'+n+'</sup>' : ''); }, 'sd-desc'],
       ['issued', 'Issued', function(i){ return escapeHtml(fmt(i.issued_date)); }, 'nw'],
       ['due', 'Due', function(i){ return escapeHtml(fmt(i.due_date)); }, 'nw'],
       ['days_overdue', 'Days overdue', function(i){ return i.fullyPaid || i.daysOverdue <= 0 ? '<span class="sd-muted">—</span>' : '<b class="sd-od">'+i.daysOverdue+'</b>'; }, 'num'],
@@ -3217,6 +3349,9 @@
       + (t.table_style === 'boxed' ? S+' .sd-t th,'+S+' .sd-t td{border:1px solid '+c.border+';}'+S+' .sd-t tr.sd-has-note td{border-bottom:none;}'+S+' .sd-t tr.sd-note td{border-top:none;}' : '')
       + (t.table_style === 'minimal' ? S+' .sd-t th{border-bottom:1px solid '+c.border+';}' : '')
       + S+' .sd-t tr.sd-note td{padding-top:0;font-size:.88em;color:'+c.muted+';}'
+      + S+' .sd-ref{color:'+c.accent+';font-weight:700;margin-left:2px;}'+S+' .sd-t .sd-desc{min-width:150px;}'
+      + S+' .sd-det{display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:.9em;padding:6px 0;border-bottom:1px solid '+c.border+';page-break-inside:avoid;}'
+      + S+' .sd-det .k{font-weight:700;color:'+c.heading+';}'+S+' .sd-det .k sup{color:'+c.accent+';}'+S+' .sd-det .v{white-space:pre-line;}'
       + S+' .sd-t tr.sd-note td span{display:block;border-left:3px solid '+c.accent+';padding:1px 0 1px 8px;font-style:italic;}'
       + S+' .sd-od{color:#b42318;}'
       + S+' .sd-st{font-size:.85em;font-weight:700;white-space:nowrap;}'
@@ -3240,8 +3375,9 @@
       + '@media print{'+S+'{padding:0;}'+S+' .sd-band{margin:0 0 22px;padding:18px 20px;}'+S+' tr,'+S+' .sd-pay,'+S+' .sd-age,'+S+' .sd-tot,'+S+' .sd-slip,'+S+' .sd-summary{page-break-inside:avoid;}'+S+' h2{page-break-after:avoid;}}'
       + '</style>';
 
-    var logo = t.logo ? '<img class="sd-logo" src="'+t.logo+'" alt="" />' : '';
-    var who = '<div>'+logo+'<div class="sd-name">'+escapeHtml(orgName)+'</div>'+(t.from_lines ? '<div class="sd-from sd-muted">'+escapeHtml(t.from_lines)+'</div>' : '')+'</div>';
+    var lgo = effectiveLogo(t), fromTxt = t.from_lines || orgFromLines();
+    var logo = lgo ? '<img class="sd-logo" src="'+lgo+'" alt="" />' : '';
+    var who = '<div>'+logo+'<div class="sd-name">'+escapeHtml(orgName)+'</div>'+(fromTxt ? '<div class="sd-from sd-muted">'+escapeHtml(fromTxt)+'</div>' : '')+'</div>';
     var meta = '<div class="sd-meta"><h1>'+escapeHtml(t.title || 'Account Statement')+'</h1>'
       + '<div>Statement date: <b>'+escapeHtml(fmt(m.date))+'</b></div>'
       + '<div>Statement no: <b>'+escapeHtml(m.number || '—')+'</b></div>'
@@ -3310,7 +3446,9 @@
       + '<div>Statement no: <b>'+escapeHtml(m.number || '')+'</b></div><div>Amount due: <b>'+money(T.due)+'</b></div>'
       + '<div>Reference: <b>'+escapeHtml(m.reference || '')+'</b></div><div>Amount paid: <span class="line">&nbsp;</span></div>'
       + '<div>Date paid: <span class="line">&nbsp;</span></div></div></div>' : '';
-    return css + '<div class="sd">' + head + summary + cover + table + tot + ageing + pay + late + sign + foot + slip + '</div>';
+    var details = refN ? '<h2>Invoice details</h2><div class="sd-details">' + m.items.filter(function(i){ return refMap.has(i); }).map(function(i){
+        return '<div class="sd-det"><div class="k"><sup>'+refMap.get(i)+'</sup> '+escapeHtml(i.invoice_number || '')+'</div><div class="v">'+escapeHtml(String(i.description || '').trim())+'</div></div>'; }).join('') + '</div>' : '';
+    return css + '<div class="sd">' + head + summary + cover + table + tot + details + ageing + pay + late + sign + foot + slip + '</div>';
   }
 
   /* ---------- preview, notes, save, print ---------- */
@@ -3322,10 +3460,13 @@
     box.innerHTML = sel.items.length ? sel.items.map(function(i){
       var n = stmtNotesByInvoice[i.id];
       return '<div class="line-note"><b>'+escapeHtml(i.invoice_number || '—')+(n ? '<small>'+escapeHtml(NOTE_CATEGORY_LABEL[n.category] || 'Note')+'</small>' : '')+'</b>'
-        + '<input type="text" maxlength="240" data-line-note="'+escapeHtml(i.id)+'" value="'+escapeHtml(stmtLineNotes[i.id] || '')+'" placeholder="'+(n ? 'Email note: '+escapeHtml(n.summary).slice(0, 90) : 'Optional note for this invoice')+'" /></div>';
+        + '<span><input type="text" maxlength="240" data-line-note="'+escapeHtml(i.id)+'" value="'+escapeHtml(stmtLineNotes[i.id] || '')+'" placeholder="'+(n ? 'Email note: '+escapeHtml(n.summary).slice(0, 90) : 'Optional note for this invoice')+'" />'
+        + (String(i.description || '').trim().length > 40 ? '<input type="text" class="desc-short" maxlength="120" data-desc-short="'+escapeHtml(i.id)+'" value="'+escapeHtml(stmtDescOverride[i.id] || '')+'" placeholder="Short description: '+escapeHtml(shortDesc(i.description, (stmtTplSettings || {}).desc_max || 60))+'" title="Full description: '+escapeHtml(String(i.description || '').slice(0, 400))+'" />' : '')
+        + '</span></div>';
     }).join('') : '<div class="empty-note">Select invoices to add notes.</div>';
   }
   document.getElementById('stmtLineNotesBox').addEventListener('input', function(e){
+    var ds = e.target.getAttribute('data-desc-short'); if(ds){ stmtDescOverride[ds] = e.target.value; schedulePreview(); return; }
     var id = e.target.getAttribute('data-line-note'); if(!id) return;
     stmtLineNotes[id] = e.target.value; schedulePreview();
   });
@@ -3409,7 +3550,7 @@
     var recipient = m.recipient.trim() || 'Statement recipient';
     var lm = m.late || { lateCount: 0, lateValue: 0 };
     var itemsSnapshot = m.items.map(function(i){
-      return { debtor_name: i.debtor_name, invoice_number: i.invoice_number, description: i.description, issued_date: i.issued_date, due_date: i.due_date,
+      return { debtor_name: i.debtor_name, invoice_number: i.invoice_number, description: i.description, desc_short: i.desc_short || '', issued_date: i.issued_date, due_date: i.due_date,
         amount: i.amount, paid: i.paid, balance: i.balance, days_overdue: i.daysOverdue, interest: i.interest, fees: i.fees, fee_lines: i.feeLines,
         status: i.status, disputed: i.disputed, fully_paid: i.fullyPaid, note: i.note, pay_url: i.pay_url };
     });
@@ -3417,7 +3558,7 @@
       org_id: currentOrg.id, title: 'Statement ' + m.number + ' — ' + recipient, recipient_name: recipient,
       debtor_ids: sel.debtorIds, items: itemsSnapshot, total_amount: m.totals.due,
       late_count: lm.lateCount, late_value: lm.lateValue, notes: m.cover || null, created_by: session.user.id,
-      template_id: stmtTplKey && stmtTplKey.indexOf('preset:') !== 0 ? stmtTplKey : null, template_settings: stmtTplSettings,
+      template_id: stmtTplKey && stmtTplKey.indexOf('preset:') !== 0 ? stmtTplKey : null, template_settings: Object.assign({}, stmtTplSettings, { logo: effectiveLogo(stmtTplSettings), hide_logo: !effectiveLogo(stmtTplSettings), from_lines: stmtTplSettings.from_lines || orgFromLines() }),
       totals: Object.assign({}, m.totals, { ageing: m.ageing, number: m.number, reference: m.reference, payment: m.payment, charges: m.charges, multi: m.multi })
     });
     if(r.error){ toast('Could not save statement: ' + r.error.message); return; }
@@ -3448,7 +3589,7 @@
       var T = s.totals;
       var m = {
         items: (s.items || []).map(function(i){
-          return { debtor_name: i.debtor_name, invoice_number: i.invoice_number, description: i.description, issued_date: i.issued_date, due_date: i.due_date,
+          return { debtor_name: i.debtor_name, invoice_number: i.invoice_number, description: i.description, desc_short: i.desc_short || '', issued_date: i.issued_date, due_date: i.due_date,
             amount: Number(i.amount) || 0, paid: Number(i.paid) || 0, balance: Number(i.balance) || 0, daysOverdue: Number(i.days_overdue) || 0,
             interest: Number(i.interest) || 0, fees: Number(i.fees) || 0, feeLines: i.fee_lines || [], status: i.status || 'Overdue',
             disputed: !!i.disputed, fullyPaid: !!i.fully_paid, note: i.note || '', pay_url: i.pay_url || null };
@@ -4091,7 +4232,7 @@
   function sampleStatementModel(){
     function iso(days){ return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10); }
     var items = [
-      { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1001', description: 'Website build', issued_date: iso(-75), due_date: iso(-45), amount: 1650, paid: 0, balance: 1650, daysOverdue: 45, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null },
+      { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1001', description: 'Website build, stage 2: design of the home, about and services pages, CMS set-up, two rounds of revisions and launch support', issued_date: iso(-75), due_date: iso(-45), amount: 1650, paid: 0, balance: 1650, daysOverdue: 45, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null },
       { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1002', description: 'Monthly support', issued_date: iso(-40), due_date: iso(-10), amount: 440, paid: 200, balance: 240, daysOverdue: 10, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null },
       { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1003', description: 'Hosting renewal', issued_date: iso(-5), due_date: iso(25), amount: 330, paid: 0, balance: 330, daysOverdue: -25, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null }
     ];
@@ -4138,7 +4279,7 @@
       return;
     }
     var g = t.closest('[data-stab-go]'); if(g){ setStmtTab(g.getAttribute('data-stab-go')); window.scrollTo(0, 0); return; }
-    if(t.closest('[data-pdf-preview]')) openPdfPreview();
+    var pv = t.closest('[data-pdf-preview]'); if(pv) openPdfPreview(pv.getAttribute('data-pdf-preview') || 'statement');
   });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') Array.prototype.forEach.call(document.querySelectorAll('.dj-modal-backdrop:not([hidden])'), closeModal); });
 
@@ -4179,16 +4320,18 @@
     return h2pPromise;
   }
   function cleanupPdf(){ if(pdfUrl){ URL.revokeObjectURL(pdfUrl); pdfUrl = null; } document.getElementById('pdfStage').innerHTML = ''; }
-  function statementPdfName(){
-    var who = stmtTab === 'templates' && !selectedStatementItems().items.length ? 'Sample' : (document.getElementById('stmtRecipientName').value || 'Account');
-    return ('Statement - ' + who + ' - ' + new Date().toISOString().slice(0, 10)).replace(/[^\w .+&-]+/g, '').slice(0, 120) + '.pdf';
+  function statementPdfName(kind){
+    var who, what = 'Statement';
+    if(kind === 'letter'){ var lc = currentLetterCase(); what = 'Letter'; who = ldViewing ? 'sent letter' : (lc ? lc.debtor.name : 'Letter'); }
+    else who = stmtTab === 'templates' && !selectedStatementItems().items.length ? 'Sample' : (document.getElementById('stmtRecipientName').value || 'Account');
+    return (what + ' - ' + who + ' - ' + new Date().toISOString().slice(0, 10)).replace(/[^\w .+&-]+/g, '').slice(0, 120) + '.pdf';
   }
-  async function openPdfPreview(){
-    var paper = document.getElementById('statementPaper');
-    if(!paper.querySelector('.sd, table')){ toast('Select contacts and invoices first, so there’s a statement to preview.'); return; }
+  async function openPdfPreview(kind){
+    var paper = document.getElementById(kind === 'letter' ? 'letterPaper' : 'statementPaper');
+    if(!paper.querySelector(kind === 'letter' ? '.ld' : '.sd, table')){ toast(kind === 'letter' ? 'Choose a case first, so there’s a letter to preview.' : 'Select contacts and invoices first, so there’s a statement to preview.'); return; }
     if(!confirmBankSafety('preview the PDF')) return;
     var stage = document.getElementById('pdfStage'), dl = document.getElementById('pdfDownload'), ot = document.getElementById('pdfOpenTab');
-    var name = statementPdfName();
+    var name = statementPdfName(kind);
     cleanupPdf(); dl.hidden = true; ot.hidden = true;
     document.getElementById('pdfModalTitle').textContent = 'PDF preview · ' + name.replace(/\.pdf$/, '');
     stage.innerHTML = '<div class="pdf-loading">Building PDF…</div>';
@@ -4200,17 +4343,246 @@
         margin: [8, 8, 10, 8], filename: name, image: { type: 'jpeg', quality: 0.96 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sd-box', '.sd-pay', '.sd-slip', '.sd-summary'] }
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sd-box', '.sd-pay', '.sd-slip', '.sd-summary', '.sd-det', '.ld-pay', '.ld-bank', '.ld-sign'] }
       }).from(src).outputPdf('blob');
       if(document.getElementById('pdfModal').hidden) return;
       pdfUrl = URL.createObjectURL(blob);
-      stage.innerHTML = '<iframe class="pdf-frame" title="PDF preview of the statement" src="' + pdfUrl + '#view=FitH"></iframe>';
+      stage.innerHTML = '<iframe class="pdf-frame" title="PDF preview" src="' + pdfUrl + '#view=FitH"></iframe>';
       dl.href = pdfUrl; dl.download = name; dl.hidden = false; ot.href = pdfUrl; ot.hidden = false;
     } catch(e){
-      stage.innerHTML = '<div class="pdf-fallback"><div class="ai-flag caution">The PDF tool couldn’t load (' + escapeHtml(e.message) + '). This is how the statement looks on an A4 page. Use Print / export PDF to save it.</div><div class="a4-sheet"></div></div>';
+      stage.innerHTML = '<div class="pdf-fallback"><div class="ai-flag caution">The PDF tool couldn’t load (' + escapeHtml(e.message) + '). This is how it looks on an A4 page. Use Print / export PDF to save it.</div><div class="a4-sheet"></div></div>';
       stage.querySelector('.a4-sheet').appendChild(src);
     }
   }
+
+  /* ---------- Settings (business details + logo) ---------- */
+  var LOGO_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/;
+  function orgLogo(){ return currentOrg && currentOrg.logo && LOGO_RE.test(currentOrg.logo) ? currentOrg.logo : null; }
+  function effectiveLogo(t){ return t && t.hide_logo ? null : ((t && t.logo) || orgLogo()); }
+  function orgFromLines(){
+    var o = currentOrg || {};
+    return [o.address, o.abn ? 'ABN ' + o.abn : '', [o.phone, o.billing_email].filter(Boolean).join(' · '), o.website]
+      .filter(function(x){ return x && String(x).trim(); }).join('\n');
+  }
+  async function loadOrgDetails(){
+    var r = await sb.from('organizations').select('id, name, abn, billing_email, logo, address, phone, website').eq('id', currentOrg.id).maybeSingle();
+    if(r.data){ var keep = { id: currentOrg.id, role: currentOrg.role }; Object.assign(currentOrg, r.data, keep); }
+  }
+  function canEditOrg(){ return !!currentOrg && (currentOrg.role === 'owner' || currentOrg.role === 'admin'); }
+  var setLogoDraft;   // undefined = unchanged, null = removed, string = new logo
+  function renderSettings(){
+    var o = currentOrg || {}, ro = !canEditOrg();
+    [['setName','name'],['setAbn','abn'],['setEmail','billing_email'],['setPhone','phone'],['setWebsite','website'],['setAddress','address']].forEach(function(p){
+      var el = document.getElementById(p[0]); el.value = o[p[1]] || ''; el.disabled = ro;
+    });
+    setLogoDraft = undefined;
+    renderSettingsLogo();
+    document.getElementById('setLogoFile').disabled = ro;
+    document.getElementById('setLogoPick').classList.toggle('disabled', ro);
+    document.getElementById('setSaveBtn').disabled = ro;
+    document.getElementById('setRoNote').textContent = ro ? 'Only owners and admins can change these.' : '';
+    document.getElementById('setStatus').textContent = '';
+  }
+  function renderSettingsLogo(){
+    var lg = setLogoDraft === undefined ? orgLogo() : setLogoDraft;
+    document.getElementById('setLogoBox').innerHTML = lg ? '<img src="' + lg + '" alt="Your logo" />' : '<div class="empty-note">No logo yet.</div>';
+    document.getElementById('setLogoRemove').hidden = !lg || !canEditOrg();
+  }
+  function markSettingsDirty(){ document.getElementById('setStatus').textContent = 'Unsaved changes'; }
+  ['setName','setAbn','setEmail','setPhone','setWebsite','setAddress'].forEach(function(id){ document.getElementById(id).addEventListener('input', markSettingsDirty); });
+  document.getElementById('setLogoFile').addEventListener('change', function(){
+    var file = this.files && this.files[0]; this.value = '';
+    if(!file) return;
+    if(!/^image\/(png|jpeg|webp)$/.test(file.type)){ toast('Please choose a PNG, JPG or WebP image.'); return; }
+    if(file.size > 5 * 1024 * 1024){ toast('That image is over 5 MB. Please choose a smaller logo.'); return; }
+    var img = new Image(), url = URL.createObjectURL(file);
+    img.onload = function(){
+      var scale = Math.min(1, 720 / img.width, 240 / img.height), c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width * scale)); c.height = Math.max(1, Math.round(img.height * scale));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      var d = c.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9);
+      if(d.length > 400000) d = c.toDataURL('image/jpeg', 0.85);
+      if(d.length > 400000){ toast('That logo is still too large after resizing. Try a simpler image.'); return; }
+      setLogoDraft = d; renderSettingsLogo(); markSettingsDirty();
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); toast('That file could not be read as an image.'); };
+    img.src = url;
+  });
+  document.getElementById('setLogoRemove').addEventListener('click', function(){ setLogoDraft = null; renderSettingsLogo(); markSettingsDirty(); });
+  document.getElementById('setSaveBtn').addEventListener('click', async function(){
+    if(!canEditOrg()) return;
+    var v = function(id){ return document.getElementById(id).value.trim(); };
+    var name = v('setName'), abn = v('setAbn').replace(/\s+/g, ''), email = v('setEmail');
+    if(!name){ toast('Add your business name.'); return; }
+    if(abn && !/^\d{11}$/.test(abn)){ toast('An ABN has 11 digits.'); return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('That email address doesn’t look right.'); return; }
+    var patch = { name: name, abn: abn || null, billing_email: email || null, phone: v('setPhone') || null, website: v('setWebsite') || null, address: v('setAddress') || null };
+    if(setLogoDraft !== undefined) patch.logo = setLogoDraft;
+    var btn = this; btn.disabled = true;
+    var r = await sb.from('organizations').update(patch).eq('id', currentOrg.id);
+    btn.disabled = false;
+    if(r.error){ toast('Could not save settings: ' + r.error.message); return; }
+    Object.assign(currentOrg, patch); setLogoDraft = undefined;
+    document.getElementById('sidebarOrg').textContent = currentOrg.name + ' · ' + currentOrg.role;
+    renderSettings(); document.getElementById('setStatus').textContent = 'Saved.';
+    try { renderStatementPreview(); renderLetterPreview(); } catch(e){}
+    toast('Settings saved.');
+  });
+
+  /* ---------- Honeycomb colour picker ---------- */
+  function hslHex(h, s, l){
+    s /= 100; l /= 100;
+    var k = function(n){ return (n + h / 30) % 12; }, a = s * Math.min(l, 1 - l);
+    var f = function(n){ return Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))); };
+    return '#' + [f(0), f(8), f(4)].map(function(x){ return ('0' + x.toString(16)).slice(-2); }).join('');
+  }
+  var combRows = null;
+  function honeycombRows(){
+    if(combRows) return combRows;
+    var R = 6; combRows = [];
+    for(var r = -R; r <= R; r++){
+      var row = [];
+      for(var q = Math.max(-R, -r - R); q <= Math.min(R, -r + R); q++){
+        var d = Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
+        var x = Math.sqrt(3) * (q + r / 2), y = 1.5 * r;
+        var hue = (Math.atan2(y, x) * 180 / Math.PI + 450) % 360;
+        row.push(d === 0 ? '#ffffff' : hslHex(Math.round(hue), 88, Math.round(94 - d * 7.5)));
+      }
+      combRows.push(row);
+    }
+    return combRows;
+  }
+  var COMB_GREYS = ['#ffffff','#e6e6e6','#cccccc','#b3b3b3','#999999','#808080','#666666','#4d4d4d','#333333','#1a1a1a','#000000'];
+  var COMB_BRAND = [['#0B2A5B','Navy'],['#1E6FD9','Jet Blue'],['#FFC72C','Signal Yellow'],['#3F5170','Slate'],['#7DB6FA','Sky Blue']];
+  function colourField(attrs, value){
+    var v = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value).toLowerCase() : '#000000';
+    return '<span class="cpick"><button type="button" class="cpick-btn" data-cpick><span class="cpick-sw" style="background:' + v + '"></span><span class="cpick-hex">' + v.toUpperCase() + '</span></button>'
+      + '<input type="text" class="cpick-val" hidden ' + attrs + ' value="' + v + '" /></span>';
+  }
+  var cpickInput = null;
+  function hexCell(c, title){ return '<button type="button" class="comb-hex" data-comb="' + c + '" style="background:' + c + '" title="' + (title ? escapeHtml(title) + ' ' : '') + c.toUpperCase() + '" aria-label="' + (title ? escapeHtml(title) + ' ' : '') + c.toUpperCase() + '"></button>'; }
+  function openColourPicker(btn){
+    var wrap = btn.closest('.cpick'), input = wrap.querySelector('.cpick-val');
+    if(input.disabled) return;
+    cpickInput = input;
+    var pop = document.getElementById('cpop');
+    if(!pop){ pop = document.createElement('div'); pop.id = 'cpop'; pop.className = 'cpop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Choose a colour'); document.body.appendChild(pop); }
+    var cur = input.value.toLowerCase();
+    pop.innerHTML = '<div class="comb">' + honeycombRows().map(function(row){ return '<div class="comb-row">' + row.map(function(c){ return hexCell(c); }).join('') + '</div>'; }).join('') + '</div>'
+      + '<div class="comb-row comb-line">' + COMB_GREYS.map(function(c){ return hexCell(c); }).join('') + '</div>'
+      + '<div class="comb-label">DebtJet brand</div><div class="comb-row comb-line">' + COMB_BRAND.map(function(c){ return hexCell(c[0].toLowerCase(), c[1]); }).join('') + '</div>'
+      + '<div class="comb-foot"><span class="cpick-sw big" id="cpopSw" style="background:' + cur + '"></span><label>Hex<input id="cpopHex" maxlength="7" value="' + cur.toUpperCase() + '" spellcheck="false" /></label><button type="button" class="btn sm primary" data-cpop-done>Done</button></div>';
+    Array.prototype.forEach.call(pop.querySelectorAll('.comb-hex'), function(h){ h.classList.toggle('sel', h.getAttribute('data-comb') === cur); });
+    pop.hidden = false;
+    var r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    var left = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+    var top = r.bottom + 6 + ph > window.innerHeight ? Math.max(8, r.top - ph - 6) : r.bottom + 6;
+    pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  }
+  function applyPickedColour(hex){
+    if(!cpickInput || !/^#[0-9a-f]{6}$/i.test(hex)) return;
+    hex = hex.toLowerCase();
+    var wrap = cpickInput.closest('.cpick');
+    cpickInput.value = hex;
+    if(wrap){ wrap.querySelector('.cpick-sw').style.background = hex; wrap.querySelector('.cpick-hex').textContent = hex.toUpperCase(); }
+    var pop = document.getElementById('cpop');
+    if(pop){ pop.querySelector('#cpopSw').style.background = hex; var hx = pop.querySelector('#cpopHex'); if(document.activeElement !== hx) hx.value = hex.toUpperCase();
+      Array.prototype.forEach.call(pop.querySelectorAll('.comb-hex'), function(h){ h.classList.toggle('sel', h.getAttribute('data-comb') === hex); }); }
+    cpickInput.dispatchEvent(new Event('input', { bubbles: true }));
+    cpickInput.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  function closeColourPicker(){ var pop = document.getElementById('cpop'); if(pop) pop.hidden = true; cpickInput = null; }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-cpick]'); if(b){ e.preventDefault(); openColourPicker(b); return; }
+    var pop = document.getElementById('cpop'); if(!pop || pop.hidden) return;
+    var h = e.target.closest('[data-comb]'); if(h){ applyPickedColour(h.getAttribute('data-comb')); return; }
+    if(e.target.closest('[data-cpop-done]')){ closeColourPicker(); return; }
+    if(!e.target.closest('#cpop')) closeColourPicker();
+  });
+  document.addEventListener('input', function(e){
+    if(e.target.id !== 'cpopHex') return;
+    var v = e.target.value.trim(); if(v && v[0] !== '#') v = '#' + v;
+    if(/^#[0-9a-f]{6}$/i.test(v)) applyPickedColour(v);
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeColourPicker(); });
+  window.addEventListener('resize', closeColourPicker);
+
+  /* ---------- Long invoice descriptions ---------- */
+  function shortDesc(s, max){
+    var raw = String(s || '').trim(); max = max || 60;
+    var flat = raw.replace(/\s+/g, ' ');
+    if(flat.length <= max) return flat;
+    var first = raw.split(/\r?\n|(?<=[.;])\s+/)[0].replace(/\s+/g, ' ').trim();
+    if(first.length >= 10 && first.length <= max) return first.replace(/[.;,:]+$/, '') + '…';
+    var cut = flat.slice(0, max), sp = cut.lastIndexOf(' ');
+    return (sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s.;,:\-–—]+$/, '') + '…';
+  }
+  var stmtDescOverride = {};
+  function itemDesc(i, t){
+    var full = String(i.description || '').trim();
+    var own = (i.desc_short || '').trim();
+    if(own) return { text: own, full: full, shortened: own !== full && !!full };
+    if(t.desc_mode === 'full') return { text: full, full: full, shortened: false };
+    var s = shortDesc(full, t.desc_max);
+    return { text: s, full: full, shortened: s !== full.replace(/\s+/g, ' ') };
+  }
+  /* ---------- Letters of Demand tabs ---------- */
+  var ldPane = 'cases', ldCaseFilter = 'open', ldCaseSearch = '';
+  function setLetterTab(t, keepPaper){
+    ldPane = t;
+    var sec = document.querySelector('.view[data-view="letters"]'); sec.setAttribute('data-ltab', t);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ltab-btn]'), function(b){ var on = b.getAttribute('data-ltab-btn') === t; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    var panel = t === 'letter' || t === 'templates' ? 'work' : t;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ltab-panel]'), function(p){ p.hidden = p.getAttribute('data-ltab-panel') !== panel; });
+    if(t === 'letter'){ ldTab = 'content'; renderLetterEditor(); }
+    if(t === 'templates'){ if(ldTab === 'content') ldTab = 'design'; renderLetterEditor(); }
+    if(t === 'audit'){
+      var h = document.getElementById('hist-letters'); if(!h.open) h.open = true;
+      var c = currentLetterCase();
+      document.getElementById('ldAuditHint').textContent = c ? 'History and correspondence for ' + c.debtor.name + '. Letters sent across all cases are listed below.' : 'Choose a case in the Cases tab to see its history. Letters sent across all cases are listed below.';
+    }
+    if(t === 'cases') renderLetterCaseList();
+    if((t === 'letter' || t === 'templates') && !keepPaper){ ldViewing = null; renderLetterPreview(); }
+  }
+  function renderLetterCaseList(){
+    var list = document.getElementById('ldCaseList'); if(!list) return;
+    var cur = document.getElementById('letterCaseSelect').value, q = ldCaseSearch.trim().toLowerCase();
+    var rows = cases.filter(function(c){
+      if(ldCaseFilter === 'all') return true;
+      if(c.status === 'resolved') return false;
+      return ldCaseFilter === 'no_letter' ? !ldLastLetter[c.id] : true;
+    }).filter(function(c){
+      return !q || String(c.debtor.name || '').toLowerCase().indexOf(q) >= 0 || c.invoices.some(function(i){ return String(i.invoice_number || '').toLowerCase().indexOf(q) >= 0; });
+    });
+    list.innerHTML = rows.length ? rows.map(function(c){
+      var n = c.invoices.length, last = ldLastLetter[c.id];
+      return '<button type="button" class="ld-case' + (c.id === cur ? ' sel' : '') + '" data-ldcase="' + escapeHtml(c.id) + '">'
+        + '<span class="ld-case-main"><b>' + escapeHtml(c.debtor.name || '—') + '</b><span class="sub">' + n + ' invoice' + (n === 1 ? '' : 's') + (c.daysOverdue > 0 ? ' · oldest ' + c.daysOverdue + ' days overdue' : '') + '</span>'
+        + '<span class="sub">' + (last ? 'Last letter ' + escapeHtml(fmt(last)) : 'No letter sent yet') + '</span></span>'
+        + '<span class="ld-case-side"><b>' + money(c.total) + '</b>' + pill(c.status) + '</span></button>';
+    }).join('') : '<div class="empty-note">No cases match.</div>';
+    renderLetterCaseCard();
+  }
+  function renderLetterCaseCard(){
+    var c = currentLetterCase(), box = document.getElementById('ldCaseCard');
+    document.getElementById('ldCaseNow').textContent = c ? (c.debtor.name || '—') + ' · ' + money(c.total) : 'No case selected';
+    if(!box) return;
+    if(!c){ box.innerHTML = '<p class="muted small">Choose a case on the left.</p>'; return; }
+    var last = ldLastLetter[c.id], n = c.invoices.length;
+    box.innerHTML = '<ul class="sel-names"><li>' + escapeHtml(c.debtor.name || '—') + '</li></ul>'
+      + '<div class="sel-total"><span>Owing</span><b>' + money(c.total) + '</b></div>'
+      + '<p class="muted small">' + n + ' open invoice' + (n === 1 ? '' : 's') + (c.daysOverdue > 0 ? ' · oldest ' + c.daysOverdue + ' days overdue' : '') + '<br>' + (last ? 'Last letter sent ' + escapeHtml(fmt(last)) : 'No letter sent yet') + '</p>'
+      + '<div class="ai-flags">' + (letterFlags || []).map(function(f){ return '<div class="ai-flag ' + escapeHtml(f.level) + '">' + escapeHtml(f.message) + '</div>'; }).join('') + '</div>'
+      + '<button class="btn primary" type="button" data-ltab-go="letter">Write letter →</button>';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ltab-btn]'), function(b){ b.addEventListener('click', function(){ setLetterTab(this.getAttribute('data-ltab-btn')); }); });
+  document.getElementById('ldCaseFilter').addEventListener('change', function(){ ldCaseFilter = this.value; renderLetterCaseList(); });
+  document.getElementById('ldCaseSearch').addEventListener('input', function(){ ldCaseSearch = this.value; renderLetterCaseList(); });
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('[data-ltab-go]'); if(g){ setLetterTab(g.getAttribute('data-ltab-go')); window.scrollTo(0, 0); return; }
+    var c = e.target.closest('[data-ldcase]'); if(c){ selectLetterCase(c.getAttribute('data-ldcase')); renderLetterCaseList(); }
+  });
 
   initHistoryPanel('stmt'); initHistoryPanel('letters');
   /* =====================================================================
