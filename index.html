@@ -319,6 +319,64 @@
   .note-callout{display:flex;gap:9px;align-items:flex-start;background:var(--info-soft);color:var(--info);border-radius:9px;padding:11px 13px;font-size:12px;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto;}
 
   /* STATEMENTS */
+  /* Account Statements tabs */
+  .stmt-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:16px;width:max-content;max-width:100%;overflow-x:auto;box-shadow:var(--shadow);}
+  .stmt-tabs button{border:0;background:transparent;padding:8px 16px;border-radius:9px;font:inherit;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+  .stmt-tabs button:hover{color:var(--text);background:var(--surface-alt);}
+  .stmt-tabs button.active{background:var(--accent);color:#fff;}
+  .stab-badge{background:#FFC72C;color:#0B2A5B;border-radius:999px;font-size:11px;padding:0 7px;line-height:18px;font-weight:700;}
+  .stmt-shell.stmt-shell-doc{grid-template-columns:minmax(260px,340px) minmax(0,1fr);}
+  .stmt-paper-slot .statement-paper{overflow-x:auto;}
+  .stmt-sel-card .sel-names{list-style:none;margin:0 0 10px;padding:0;font-weight:600;font-size:13.5px;}
+  .stmt-sel-card .sel-names li{padding:4px 0;border-bottom:1px solid var(--border);}
+  .stmt-sel-card .sel-total{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 2px;}
+  .stmt-sel-card .sel-total b{font-size:22px;}
+  .paper-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+  .stab-hint{margin:0 0 12px;}
+  /* Top bar: connected apps */
+  .tb-sources{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;}
+  .tb-src-logos{display:flex;gap:6px;align-items:center;}
+  .tb-src-chip{position:relative;display:inline-flex;align-items:center;height:34px;padding:0 12px;background:#fff;border:1px solid rgba(11,42,91,.18);border-radius:9px;cursor:pointer;}
+  .tb-src-chip:hover{border-color:#0B2A5B;}
+  .tb-src-chip img{height:16px;width:auto;display:block;}
+  .tb-src-chip img.tb-src-quickbooks{height:22px;}
+  .tb-src-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#1FA35B;border:2px solid #fff;}
+  .tb-src-add{height:34px;border:1px dashed rgba(11,42,91,.5);background:color-mix(in srgb, var(--topbar-bg) 65%, #fff 35%);color:var(--topbar-text,#0B2A5B);border-radius:9px;padding:0 12px;font:inherit;font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+  .tb-src-add:hover{background:color-mix(in srgb, var(--topbar-bg) 30%, #fff 70%);}
+  .pdf-actions [hidden]{display:none !important;}
+  .topbar .search{margin-left:0;}
+  /* Modals */
+  body.modal-open{overflow:hidden;}
+  .dj-modal-backdrop{position:fixed;inset:0;background:rgba(8,20,40,.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .dj-modal-backdrop[hidden]{display:none;}
+  .dj-modal{background:var(--surface);color:var(--text);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:min(640px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;}
+  .dj-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);}
+  .dj-modal-head h3{margin:0;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dj-modal-x{border:0;background:transparent;font-size:24px;line-height:1;cursor:pointer;color:var(--text-muted);padding:0 4px;}
+  .dj-modal-body{padding:16px 18px 20px;overflow:auto;}
+  .src-section{margin:4px 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+  .src-section:not(:first-child){margin-top:20px;}
+  .src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .src-tile{border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+  .src-tile.on{border-color:#1FA35B;}
+  .src-tile p{margin:0;font-size:12.5px;color:var(--text-muted);flex:1;}
+  .src-tile-top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:30px;}
+  .src-tile-logo{height:20px;width:auto;background:#fff;border-radius:6px;padding:4px 6px;box-sizing:content-box;}
+  .src-tile-logo.tb-src-quickbooks{height:26px;padding:2px 6px;}
+  .src-tile-ico{font-size:18px;margin-right:6px;color:var(--text-muted);}
+  .src-tile-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .dj-modal-pdf{width:min(1000px,100%);height:92vh;}
+  .pdf-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto;}
+  .pdf-stage{flex:1;background:#525659;display:flex;min-height:0;}
+  .pdf-frame{flex:1;border:0;width:100%;height:100%;background:#525659;}
+  .pdf-loading{margin:auto;color:#fff;font-weight:600;}
+  .pdf-fallback{flex:1;overflow:auto;padding:16px;}
+  .pdf-fallback .ai-flag{max-width:794px;margin:0 auto 12px;}
+  .a4-sheet{width:794px;max-width:100%;min-height:1123px;margin:0 auto;background:#fff;box-shadow:0 4px 18px rgba(0,0,0,.35);}
+  .pdf-src{border:none !important;box-shadow:none !important;border-radius:0 !important;}
+  @media (max-width:900px){ .tb-sources .tb-src-add{font-size:0;padding:0 10px;} .tb-sources .tb-src-add::before{content:'+';font-size:16px;} }
+  @media (max-width:900px){ .stmt-shell.stmt-shell-doc{grid-template-columns:1fr;} }
+  @media (max-width:640px){ .topbar{flex-wrap:wrap;} .topbar .tb-sources{order:3;margin-left:0;} }
   .stmt-shell{display:grid;grid-template-columns:minmax(320px,.85fr) minmax(0,1.45fr);gap:16px;align-items:start;}
   .src-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
   .src-label{font-size:12px;font-weight:600;color:var(--text-muted);margin-right:2px;}
@@ -721,6 +779,7 @@
         <h1 id="pageTitle">Dashboard</h1>
         <div class="sub" id="pageSub">Overview of outstanding debt across all clients</div>
       </div>
+      <div class="tb-sources" aria-label="Connected apps"><div class="tb-src-logos" id="tbSrcLogos"></div><button type="button" class="tb-src-add" id="tbSrcAdd" data-src-open>+ Connect or import</button></div>
       <div class="search"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M16 16l-3.5-3.5"/></svg><input placeholder="Search debtors, invoices, ABNs…" /></div>
       <button class="btn primary" id="refreshBtn">↻ Refresh</button>
     </div>
@@ -807,78 +866,109 @@
 
     <!-- ACCOUNT STATEMENTS -->
     <section class="view" data-view="statements" hidden>
-      <div class="src-bar">
-        <span class="src-label">Invoices from</span>
-        <button class="src-btn" id="stmtImportXeroBtn" type="button"><img class="src-logo lg-light" src="assets/logos/xero-midnight.svg" alt="Xero" onload="this.closest('.src-btn').classList.add('has-logo')" onerror="this.remove()" /><img class="src-logo lg-dark" src="assets/logos/xero-white.svg" alt="Xero" onerror="this.remove()" /><span class="src-name">Xero</span><span class="src-state" id="srcXeroState"></span></button>
-        <button class="src-btn" id="stmtImportQbBtn" type="button"><img class="src-logo lg-light" src="assets/logos/quickbooks-dark-text.webp" alt="QuickBooks" onload="this.closest('.src-btn').classList.add('has-logo')" onerror="this.remove()" /><img class="src-logo lg-dark" src="assets/logos/quickbooks-white-text.webp" alt="QuickBooks" onerror="this.remove()" /><span class="src-name">QuickBooks</span><span class="src-state" id="srcQbState"></span></button>
-        <button class="src-btn" id="stmtImportCsvBtn" type="button"><span class="src-ico" aria-hidden="true">⇪</span><span class="src-name">CSV file</span></button>
-        <button class="linkbtn" id="stmtCsvTemplate" type="button" title="Download a CSV with the right column headings">CSV template</button>
-        <input type="file" id="stmtCsvInput" accept=".csv" hidden />
+      <div class="stmt-tabs" role="tablist" aria-label="Account statements">
+        <button type="button" role="tab" class="active" aria-selected="true" data-stab="contacts">Contacts <span class="stab-badge" id="stabCount" hidden></span></button>
+        <button type="button" role="tab" aria-selected="false" data-stab="statement">Statement</button>
+        <button type="button" role="tab" aria-selected="false" data-stab="templates">Templates</button>
+        <button type="button" role="tab" aria-selected="false" data-stab="audit">Audit history</button>
       </div>
-      <div class="stmt-shell">
-        <div class="card">
-          <div class="card-head"><h3>Contacts &amp; debts</h3><span style="font-size:11.5px;color:var(--text-faint);">Tick contacts to merge, tick invoices to include</span></div>
-          <div class="card-body">
-            <div class="stmt-filter-bar">
-              <select id="stmtFilter" aria-label="Filter contacts"></select>
-              <input type="search" id="stmtSearch" placeholder="Search name, ABN or invoice…" aria-label="Search contacts" />
+
+      <!-- Contacts tab -->
+      <div class="stab" data-stab-panel="contacts">
+        <div class="stmt-shell">
+          <div class="card">
+            <div class="card-head"><h3>Contacts</h3><span style="font-size:11.5px;color:var(--text-faint);">Tick contacts to merge, tick invoices to include</span></div>
+            <div class="card-body">
+              <div class="stmt-filter-bar">
+                <select id="stmtFilter" aria-label="Filter contacts"></select>
+                <input type="search" id="stmtSearch" placeholder="Search name, ABN or invoice…" aria-label="Search contacts" />
+              </div>
+              <div class="stmt-filter-meta"><span id="stmtFilterCount"></span><button type="button" class="linkbtn" id="stmtClearSel">Clear selection</button></div>
+              <div class="contact-list" id="stmtContactList"></div>
+              <div class="stmt-selection-summary" id="stmtSelectionSummary"></div>
             </div>
-            <div class="stmt-filter-meta"><span id="stmtFilterCount"></span><button type="button" class="linkbtn" id="stmtClearSel">Clear selection</button></div>
-            <div class="contact-list" id="stmtContactList"></div>
-            <div class="stmt-selection-summary" id="stmtSelectionSummary"></div>
+          </div>
+          <div class="card stmt-sel-card">
+            <div class="card-head"><h3>Selection</h3></div>
+            <div class="card-body" id="stmtSelCard"></div>
           </div>
         </div>
-        <div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-body" style="padding-top:16px;">
-              <div class="stmt-recipient-row">
-                <label>Statement addressed to</label>
-                <input type="text" id="stmtRecipientName" placeholder="Select contacts on the left…" />
-              </div>
-              <div class="send-row">
-                <button class="btn primary" id="stmtSaveBtn" disabled>Save statement</button>
-                <button class="btn" id="stmtPrintBtn" disabled>Print / export PDF</button>
-              </div>
-              <div class="draft-fields">
-                <button class="btn sm" id="stmtAiNotesBtn" type="button" disabled>✨ Draft notes with AI</button>
-                <label>Cover message (printed above the invoices, optional)
-                  <textarea id="stmtNotes" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today."></textarea>
-                </label>
-                <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line</span></div>
-                <div class="line-notes" id="stmtLineNotesBox"><div class="empty-note">Select invoices to add notes.</div></div>
-              </div>
-              <div class="ai-flags" id="stmtFlags"></div>
-            </div>
-          </div>
-          <div class="card tpl-card" style="margin-bottom:14px;">
-            <div class="card-body" style="padding-top:14px;">
-              <div class="tpl-bar">
-                <label>Template<select id="stmtTplSelect"></select></label>
-                <div class="tpl-actions">
-                  <button class="btn sm" type="button" id="stmtTplCustomise">🎨 Customise</button>
-                  <button class="btn sm primary" type="button" id="stmtTplSave">Save</button>
-                  <button class="btn sm" type="button" id="stmtTplSaveAs">Save as new…</button>
-                  <button class="btn sm ghost" type="button" id="stmtTplDefault">Set as default</button>
-                  <button class="btn sm ghost" type="button" id="stmtTplDelete">Delete</button>
+      </div>
+
+      <!-- Statement tab -->
+      <div class="stab" data-stab-panel="statement" hidden>
+        <div class="stmt-shell stmt-shell-doc">
+          <div>
+            <div class="card" style="margin-bottom:14px;">
+              <div class="card-body" style="padding-top:16px;">
+                <div class="stmt-recipient-row">
+                  <label>Statement addressed to</label>
+                  <input type="text" id="stmtRecipientName" placeholder="Select contacts in the Contacts tab…" />
                 </div>
+                <div class="send-row">
+                  <button class="btn primary" id="stmtSaveBtn" disabled>Save statement</button>
+                  <button class="btn" id="stmtPrintBtn" disabled>Print / export PDF</button>
+                </div>
+                <div class="draft-fields">
+                  <button class="btn sm" id="stmtAiNotesBtn" type="button" disabled>✨ Draft notes with AI</button>
+                  <label>Cover message (printed above the invoices, optional)
+                    <textarea id="stmtNotes" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today."></textarea>
+                  </label>
+                  <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line</span></div>
+                  <div class="line-notes" id="stmtLineNotesBox"><div class="empty-note">Select invoices to add notes.</div></div>
+                </div>
+                <div class="ai-flags" id="stmtFlags"></div>
               </div>
-              <div class="tpl-status" id="stmtTplStatus"></div>
-              <div class="designer" id="stmtDesigner" hidden></div>
             </div>
           </div>
-          <div class="stmt-warn" id="stmtWarn"></div>
-          <div class="statement-paper" id="statementPaper"></div>
+          <div class="stmt-paper-slot" data-slot="statement">
+            <div class="paper-head"><span>Preview</span><button class="btn sm" type="button" data-pdf-preview>📄 Preview PDF</button></div>
+            <div class="stmt-warn" id="stmtWarn"></div>
+            <div class="statement-paper" id="statementPaper"></div>
+          </div>
         </div>
       </div>
-      <details class="card hist-panel" id="hist-stmt" style="margin-top:20px;">
-        <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
-        <div class="card-body hist-body"></div>
-      </details>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-head"><h3>Previously generated statements</h3></div>
-        <div class="card-body" style="padding-top:0;">
-          <table><thead><tr><th>Generated</th><th>Recipient</th><th class="num">Amount due</th><th>Invoices</th><th>Overdue %</th><th></th></tr></thead>
-          <tbody id="savedStatementsBody"></tbody></table>
+
+      <!-- Templates tab -->
+      <div class="stab" data-stab-panel="templates" hidden>
+        <div class="stmt-shell stmt-shell-doc">
+          <div>
+            <div class="card tpl-card" style="margin-bottom:14px;">
+              <div class="card-body" style="padding-top:14px;">
+                <div class="tpl-bar">
+                  <label>Template<select id="stmtTplSelect"></select></label>
+                  <div class="tpl-actions">
+                    <button class="btn sm" type="button" id="stmtTplCustomise">🎨 Customise</button>
+                    <button class="btn sm primary" type="button" id="stmtTplSave">Save</button>
+                    <button class="btn sm" type="button" id="stmtTplSaveAs">Save as new…</button>
+                    <button class="btn sm ghost" type="button" id="stmtTplDefault">Set as default</button>
+                    <button class="btn sm ghost" type="button" id="stmtTplDelete">Delete</button>
+                  </div>
+                </div>
+                <div class="tpl-status" id="stmtTplStatus"></div>
+                <div class="designer" id="stmtDesigner" hidden></div>
+              </div>
+            </div>
+          </div>
+          <div class="stmt-paper-slot" data-slot="templates">
+            <div class="paper-head"><span>Preview</span><button class="btn sm" type="button" data-pdf-preview>📄 Preview PDF</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit history tab -->
+      <div class="stab" data-stab-panel="audit" hidden>
+        <p class="muted small stab-hint" id="auditHint"></p>
+        <details class="card hist-panel" id="hist-stmt">
+          <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
+          <div class="card-body hist-body"></div>
+        </details>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-head"><h3>Previously generated statements</h3></div>
+          <div class="card-body" style="padding-top:0;">
+            <table><thead><tr><th>Generated</th><th>Recipient</th><th class="num">Amount due</th><th>Invoices</th><th>Overdue %</th><th></th></tr></thead>
+            <tbody id="savedStatementsBody"></tbody></table>
+          </div>
         </div>
       </div>
     </section>
@@ -1062,6 +1152,36 @@
 
 <div class="toast" id="toast"></div>
 <div id="printRoot"></div>
+  <!-- Connect or import (opened from the top bar) -->
+  <div class="dj-modal-backdrop" id="srcModal" hidden>
+    <div class="dj-modal" role="dialog" aria-modal="true" aria-labelledby="srcModalTitle">
+      <div class="dj-modal-head"><h3 id="srcModalTitle">Connect or import invoices</h3><button type="button" class="dj-modal-x" data-close-modal aria-label="Close">×</button></div>
+      <div class="dj-modal-body">
+        <h4 class="src-section">Accounting apps</h4>
+        <div class="src-grid" id="srcAppGrid"></div>
+        <h4 class="src-section">Import</h4>
+        <div class="src-grid">
+          <div class="src-tile">
+            <div class="src-tile-top" style="justify-content:flex-start;"><span class="src-tile-ico" aria-hidden="true">⇪</span><b>CSV file</b></div>
+            <p>Upload contacts and invoices from a spreadsheet. Use the template so the columns line up.</p>
+            <div class="src-tile-actions"><button class="btn sm primary" id="stmtImportCsvBtn" type="button">Upload CSV</button><button class="btn sm ghost" id="stmtCsvTemplate" type="button" title="Download a CSV with the right column headings">Download template</button></div>
+            <input type="file" id="stmtCsvInput" accept=".csv" hidden />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF preview -->
+  <div class="dj-modal-backdrop" id="pdfModal" hidden>
+    <div class="dj-modal dj-modal-pdf" role="dialog" aria-modal="true" aria-labelledby="pdfModalTitle">
+      <div class="dj-modal-head"><h3 id="pdfModalTitle">PDF preview</h3>
+        <div class="pdf-actions"><a class="btn sm primary" id="pdfDownload" download hidden>Download PDF</a><a class="btn sm" id="pdfOpenTab" target="_blank" rel="noopener" hidden>Open in new tab</a><button type="button" class="dj-modal-x" data-close-modal aria-label="Close">×</button></div>
+      </div>
+      <div class="pdf-stage" id="pdfStage"></div>
+    </div>
+  </div>
+
 
 <script>
 (function(){
@@ -2278,6 +2398,7 @@
     var xr = await sb.from('xero_connections').select('tenant_name, last_synced_at').eq('org_id', currentOrg.id).maybeSingle();
     var xeroConn = xr.data || null;
     xeroConnected = !!xeroConn;
+    renderSourceStates();
     var providers = ['xero','quickbooks','outlook','google_workspace'];
     document.getElementById('integrationsGrid').innerHTML = providers.map(function(p){
       var meta = PROVIDER_META[p];
@@ -3244,11 +3365,16 @@
     paper.className = 'statement-paper';
     if(!stmtTplSettings) stmtTplSettings = normaliseTpl({});
     if(!sel.items.length){
+      renderStmtSelection(sel, null);
       renderStatementWarnings(null);
-      paper.innerHTML = '<div class="empty-note">Select one or more contacts on the left, and the invoices to include, to build a statement.</div>';
+      if(stmtTab === 'templates'){
+        paper.innerHTML = renderStatementDoc(sampleStatementModel(), stmtTplSettings, currentOrg.name);
+        renderFlags(document.getElementById('stmtWarn'), [{ level: 'info', message: 'Showing sample data. Select contacts in the Contacts tab to preview a real statement with this template.' }]);
+      } else paper.innerHTML = '<div class="empty-note">Select one or more contacts in the Contacts tab, and the invoices to include, to build a statement.</div>';
       return;
     }
     var m = buildStatementModel();
+    renderStmtSelection(sel, m);
     renderStatementWarnings(m);
     paper.innerHTML = renderStatementDoc(m, stmtTplSettings, currentOrg.name);
     maybeFetchPayLinks(m);
@@ -3314,6 +3440,7 @@
 
   function viewSavedStatement(id){
     var s = savedStatements.filter(function(x){ return x.id===id; })[0]; if(!s) return;
+    setStmtTab('statement', true); window.scrollTo(0, 0);
     var recipEl = document.getElementById('stmtRecipientName');
     recipEl.value = s.recipient_name; recipEl.dataset.manual = '1';
     if(!s.template_settings || !s.totals){ viewLegacyStatement(s); }
@@ -3944,6 +4071,147 @@
     if(r.error){ toast('Could not delete: ' + r.error.message); return; }
     loadHistory(panel, histState[panel].debtorIds, true);
   }
+  /* ---------- Account Statements tabs ---------- */
+  var stmtTab = 'contacts';
+  function setStmtTab(t, keepPaper){
+    stmtTab = t;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-stab]'), function(b){ var on = b.getAttribute('data-stab') === t; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-stab-panel]'), function(p){ p.hidden = p.getAttribute('data-stab-panel') !== t; });
+    var slot = document.querySelector('.stmt-paper-slot[data-slot="' + (t === 'templates' ? 'templates' : 'statement') + '"]');
+    if(slot){ slot.appendChild(document.getElementById('stmtWarn')); slot.appendChild(document.getElementById('statementPaper')); }
+    if(t === 'audit'){
+      var h = document.getElementById('hist-stmt'); if(!h.open) h.open = true;
+      var n = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; }).length;
+      document.getElementById('auditHint').textContent = n ? 'History and correspondence for the contacts selected in Contacts. Previously generated statements are listed below.' : 'Select contacts in the Contacts tab to see their history and correspondence. Previously generated statements are listed below.';
+    }
+    if(!keepPaper && (t === 'statement' || t === 'templates')) renderStatementPreview();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-stab]'), function(b){ b.addEventListener('click', function(){ setStmtTab(this.getAttribute('data-stab')); }); });
+
+  function sampleStatementModel(){
+    function iso(days){ return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10); }
+    var items = [
+      { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1001', description: 'Website build', issued_date: iso(-75), due_date: iso(-45), amount: 1650, paid: 0, balance: 1650, daysOverdue: 45, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null },
+      { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1002', description: 'Monthly support', issued_date: iso(-40), due_date: iso(-10), amount: 440, paid: 200, balance: 240, daysOverdue: 10, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null },
+      { debtor_name: 'Sample Customer Pty Ltd', invoice_number: 'INV-1003', description: 'Hosting renewal', issued_date: iso(-5), due_date: iso(25), amount: 330, paid: 0, balance: 330, daysOverdue: -25, interest: 0, fees: 0, feeLines: [], disputed: false, fullyPaid: false, note: '', pay_url: null }
+    ];
+    items.forEach(function(i){ i.status = statusLabel(i); });
+    var m = {
+      items: items, totals: { balance: 2220, interest: 0, fees: 0, statement_fees: [], overdue: 1890, disputed: 0, due: 2220 },
+      ageing: { current: 330, d1_30: 240, d31_60: 1650, d61_90: 0, d90: 0 }, debtorIds: [], multi: false,
+      recipient: 'Sample Customer Pty Ltd', date: new Date().toISOString(), number: 'ST-SAMPLE', cover: '', late: null,
+      payment: orgPayment ? { account_name: orgPayment.account_name, bsb: orgPayment.bsb, account_number: orgPayment.account_number, bank_name: orgPayment.bank_name,
+        payid: orgPayment.payid, payid_type: orgPayment.payid_type, bpay_biller_code: orgPayment.bpay_biller_code,
+        show_bank: orgPayment.show_bank, show_payid: orgPayment.show_payid, show_bpay: orgPayment.show_bpay,
+        online_provider: orgPayment.online_provider, instructions: orgPayment.instructions } : null,
+      charges: null
+    };
+    try { m.reference = paymentReference(m); } catch(e){ m.reference = m.number; }
+    return m;
+  }
+  function renderStmtSelection(sel, m){
+    var badge = document.getElementById('stabCount');
+    badge.hidden = !sel.debtorIds.length; badge.textContent = sel.debtorIds.length;
+    var box = document.getElementById('stmtSelCard');
+    if(!sel.items.length){ box.innerHTML = '<p class="muted small">Tick one or more contacts, then the invoices to include. Ticking several contacts merges them into one statement.</p>'; return; }
+    var names = sel.debtorIds.map(function(id){ var d = stmtDebtors.filter(function(x){ return x.id === id; })[0]; return d ? d.name : ''; }).filter(Boolean);
+    box.innerHTML = '<ul class="sel-names">' + names.map(function(n){ return '<li>' + escapeHtml(n) + '</li>'; }).join('') + '</ul>'
+      + '<div class="sel-total"><span>Amount due</span><b>' + money(m.totals.due) + '</b></div>'
+      + '<p class="muted small">' + sel.items.length + ' invoice' + (sel.items.length === 1 ? '' : 's') + ' selected' + (m.totals.overdue ? ' · ' + money(m.totals.overdue) + ' overdue' : '') + '</p>'
+      + '<button class="btn primary" type="button" data-stab-go="statement">Build statement →</button>';
+  }
+
+  /* ---------- Modals (connect/import, PDF preview) ---------- */
+  function openModal(id){ var m = document.getElementById(id); m.hidden = false; document.body.classList.add('modal-open'); var x = m.querySelector('.dj-modal-x'); if(x) x.focus(); }
+  function closeModal(m){ if(!m) return; m.hidden = true; if(m.id === 'pdfModal') cleanupPdf(); if(!document.querySelector('.dj-modal-backdrop:not([hidden])')) document.body.classList.remove('modal-open'); }
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if(t.classList && t.classList.contains('dj-modal-backdrop')){ closeModal(t); return; }
+    var c = t.closest('[data-close-modal]'); if(c){ closeModal(c.closest('.dj-modal-backdrop')); return; }
+    if(t.closest('[data-src-open]')){ renderSourceStates(); openModal('srcModal'); return; }
+    var act = t.closest('[data-src-act]');
+    if(act){
+      closeModal(document.getElementById('srcModal'));
+      var p = act.getAttribute('data-p'), label = PROVIDER_META[p].label;
+      showView('integrations'); setActiveNav('integrations');
+      toast(act.getAttribute('data-src-act') === 'manage' ? (p === 'xero' ? 'Use Sync now to pull the latest invoices from Xero.' : label + ' is connected.') : 'Connect ' + label + ' here.');
+      return;
+    }
+    var g = t.closest('[data-stab-go]'); if(g){ setStmtTab(g.getAttribute('data-stab-go')); window.scrollTo(0, 0); return; }
+    if(t.closest('[data-pdf-preview]')) openPdfPreview();
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') Array.prototype.forEach.call(document.querySelectorAll('.dj-modal-backdrop:not([hidden])'), closeModal); });
+
+  /* Connected sources in the top bar */
+  function connectedSources(){
+    var out = []; if(xeroConnected) out.push('xero');
+    if(integrationRows.some(function(r){ return r.provider === 'quickbooks' && r.status === 'connected'; })) out.push('quickbooks');
+    return out;
+  }
+  function renderSourceStates(){
+    var on = connectedSources();
+    document.getElementById('tbSrcLogos').innerHTML = on.map(function(p){ var meta = PROVIDER_META[p];
+      return '<button type="button" class="tb-src-chip" data-src-open title="' + escapeHtml(meta.label) + ' connected"><img src="' + meta.logo[0] + '" alt="' + escapeHtml(meta.label) + '" class="tb-src-' + p + '" /><span class="tb-src-dot" aria-hidden="true"></span></button>'; }).join('');
+    var add = document.getElementById('tbSrcAdd');
+    add.textContent = on.length ? '+ Connect or import' : '+ Connect accounting app';
+    document.getElementById('srcAppGrid').innerHTML = ['xero', 'quickbooks'].map(function(p){
+      var meta = PROVIDER_META[p], conn = on.indexOf(p) >= 0;
+      return '<div class="src-tile' + (conn ? ' on' : '') + '"><div class="src-tile-top"><img src="' + meta.logo[0] + '" alt="' + escapeHtml(meta.label) + '" class="src-tile-logo tb-src-' + p + '" /><span class="pill ' + (conn ? 'connected' : 'not_connected') + '">' + (conn ? 'Connected' : 'Not connected') + '</span></div>'
+        + '<p>' + escapeHtml(meta.desc) + '</p>'
+        + '<div class="src-tile-actions"><button class="btn sm ' + (conn ? '' : 'primary') + '" type="button" data-src-act="' + (conn ? 'manage' : 'connect') + '" data-p="' + p + '">' + (conn ? (p === 'xero' ? 'Sync or manage' : 'Manage') : 'Connect ' + escapeHtml(meta.label)) + '</button></div></div>';
+    }).join('');
+  }
+
+  /* PDF preview: built in the browser with html2pdf.js (loaded on first use, pinned version + integrity hash) */
+  var H2P_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  var H2P_SRI = 'sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
+  var h2pPromise = null, pdfUrl = null;
+  function loadHtml2Pdf(){
+    if(window.html2pdf) return Promise.resolve(window.html2pdf);
+    if(h2pPromise) return h2pPromise;
+    h2pPromise = new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = H2P_URL; s.integrity = H2P_SRI; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
+      s.onload = function(){ window.html2pdf ? resolve(window.html2pdf) : reject(new Error('PDF tool did not start')); };
+      s.onerror = function(){ h2pPromise = null; s.remove(); reject(new Error('PDF tool could not be downloaded')); };
+      document.head.appendChild(s);
+    });
+    return h2pPromise;
+  }
+  function cleanupPdf(){ if(pdfUrl){ URL.revokeObjectURL(pdfUrl); pdfUrl = null; } document.getElementById('pdfStage').innerHTML = ''; }
+  function statementPdfName(){
+    var who = stmtTab === 'templates' && !selectedStatementItems().items.length ? 'Sample' : (document.getElementById('stmtRecipientName').value || 'Account');
+    return ('Statement - ' + who + ' - ' + new Date().toISOString().slice(0, 10)).replace(/[^\w .+&-]+/g, '').slice(0, 120) + '.pdf';
+  }
+  async function openPdfPreview(){
+    var paper = document.getElementById('statementPaper');
+    if(!paper.querySelector('.sd, table')){ toast('Select contacts and invoices first, so there’s a statement to preview.'); return; }
+    if(!confirmBankSafety('preview the PDF')) return;
+    var stage = document.getElementById('pdfStage'), dl = document.getElementById('pdfDownload'), ot = document.getElementById('pdfOpenTab');
+    var name = statementPdfName();
+    cleanupPdf(); dl.hidden = true; ot.hidden = true;
+    document.getElementById('pdfModalTitle').textContent = 'PDF preview · ' + name.replace(/\.pdf$/, '');
+    stage.innerHTML = '<div class="pdf-loading">Building PDF…</div>';
+    openModal('pdfModal');
+    var src = paper.cloneNode(true); src.removeAttribute('id'); src.classList.add('pdf-src');
+    try {
+      var h2p = await loadHtml2Pdf();
+      var blob = await h2p().set({
+        margin: [8, 8, 10, 8], filename: name, image: { type: 'jpeg', quality: 0.96 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sd-box', '.sd-pay', '.sd-slip', '.sd-summary'] }
+      }).from(src).outputPdf('blob');
+      if(document.getElementById('pdfModal').hidden) return;
+      pdfUrl = URL.createObjectURL(blob);
+      stage.innerHTML = '<iframe class="pdf-frame" title="PDF preview of the statement" src="' + pdfUrl + '#view=FitH"></iframe>';
+      dl.href = pdfUrl; dl.download = name; dl.hidden = false; ot.href = pdfUrl; ot.hidden = false;
+    } catch(e){
+      stage.innerHTML = '<div class="pdf-fallback"><div class="ai-flag caution">The PDF tool couldn’t load (' + escapeHtml(e.message) + '). This is how the statement looks on an A4 page. Use Print / export PDF to save it.</div><div class="a4-sheet"></div></div>';
+      stage.querySelector('.a4-sheet').appendChild(src);
+    }
+  }
+
   initHistoryPanel('stmt'); initHistoryPanel('letters');
   /* =====================================================================
      DEBT RECOVERY (QLD QCAT and ACT ACAT live)
@@ -4858,22 +5126,6 @@
 
   document.getElementById('checkAllAbnsBtn').addEventListener('click', function(){ checkAllAbns(this); });
   /* -- import -- */
-  function statementsImportInfo(provider){
-    if(provider === 'xero' && xeroConnected){
-      toast('Opening Integrations — use Sync now to pull live Xero invoices in.');
-      showView('integrations'); setActiveNav('integrations');
-      return;
-    }
-    var row = integrationRows.filter(function(x){ return x.provider===provider; })[0];
-    if(row && row.status === 'connected'){
-      toast(PROVIDER_META[provider].label + ' is connected, but pulling live invoices into statements isn\'t built yet — use Import CSV, or add debtors & invoices under Debtors & Cases.');
-    } else {
-      toast(PROVIDER_META[provider].label + ' isn\'t connected yet — opening Integrations.');
-      showView('integrations'); setActiveNav('integrations');
-    }
-  }
-  document.getElementById('stmtImportXeroBtn').addEventListener('click', function(){ statementsImportInfo('xero'); });
-  document.getElementById('stmtImportQbBtn').addEventListener('click', function(){ statementsImportInfo('quickbooks'); });
   document.getElementById('stmtFilter').addEventListener('change', function(){
     stmtFilter = this.value;
     stmtInvoiceOverride = {};  // re-tick invoices to suit the new filter
@@ -4887,13 +5139,7 @@
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = 'debtjet-invoice-import-template.csv'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   });
-  function renderSourceStates(){
-    var x = document.getElementById('srcXeroState'), q = document.getElementById('srcQbState');
-    if(x){ x.textContent = xeroConnected ? 'Connected' : 'Connect'; x.className = 'src-state' + (xeroConnected ? ' on' : ''); }
-    var qb = integrationRows.filter(function(r){ return r.provider === 'quickbooks' && r.status === 'connected'; })[0];
-    if(q){ q.textContent = qb ? 'Connected' : 'Connect'; q.className = 'src-state' + (qb ? ' on' : ''); }
-  }
-  document.getElementById('stmtImportCsvBtn').addEventListener('click', function(){ document.getElementById('stmtCsvInput').click(); });
+  document.getElementById('stmtImportCsvBtn').addEventListener('click', function(){ closeModal(document.getElementById('srcModal')); document.getElementById('stmtCsvInput').click(); });
 
   function parseCsv(text){
     var rows = [], row = [], field = '', inQuotes = false;
