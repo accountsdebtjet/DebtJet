@@ -1353,6 +1353,8 @@
             <div class="set-form">
               <label class="span2">Business name<input id="setName" maxlength="160" autocomplete="organization" /></label>
               <label>ABN<input id="setAbn" maxlength="20" inputmode="numeric" placeholder="11 digits" /></label>
+              <label>Business type<select id="setKind"><option value="">Choose…</option><option value="company">Company (Pty Ltd or Ltd)</option><option value="sole_trader">Sole trader</option><option value="partnership">Partnership</option><option value="trust">Trust (with a company trustee)</option><option value="association">Incorporated association or co-op</option><option value="government">Government body or council</option></select>
+                <span class="fine">Courts and tribunals charge corporations a higher filing fee. Sole traders and partnerships of individuals pay the individual rate.</span></label>
               <label>Accounts email<input id="setEmail" type="email" maxlength="200" placeholder="accounts@yourbusiness.com.au" /></label>
               <label>Phone<input id="setPhone" maxlength="40" /></label>
               <label>Website<input id="setWebsite" maxlength="200" placeholder="yourbusiness.com.au" /></label>
@@ -2037,6 +2039,7 @@
   }
   function setActiveNav(name){ Array.prototype.forEach.call(document.querySelectorAll('.nav-btn'), function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); }); }
   Array.prototype.forEach.call(document.querySelectorAll('.nav-btn[data-view]'), function(btn){ btn.addEventListener('click', function(){ var v=this.getAttribute('data-view'); showView(v); setActiveNav(v); }); });
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-goto-settings]'); if(!t) return; e.preventDefault(); showView('settings'); setActiveNav('settings'); });
   Array.prototype.forEach.call(document.querySelectorAll('[data-goto="cases"]'), function(btn){ btn.addEventListener('click', function(){ showView('cases'); setActiveNav('cases'); }); });
 
   /* ---------- letters ---------- */
@@ -4748,14 +4751,14 @@
       .filter(function(x){ return x && String(x).trim(); }).join('\n');
   }
   async function loadOrgDetails(){
-    var r = await sb.from('organizations').select('id, name, abn, billing_email, logo, address, phone, website').eq('id', currentOrg.id).maybeSingle();
+    var r = await sb.from('organizations').select('id, name, abn, billing_email, logo, address, phone, website, entity_kind').eq('id', currentOrg.id).maybeSingle();
     if(r.data){ var keep = { id: currentOrg.id, role: currentOrg.role }; Object.assign(currentOrg, r.data, keep); }
   }
   function canEditOrg(){ return !!currentOrg && (currentOrg.role === 'owner' || currentOrg.role === 'admin'); }
   var setLogoDraft;   // undefined = unchanged, null = removed, string = new logo
   function renderSettings(){
     var o = currentOrg || {}, ro = !canEditOrg();
-    [['setName','name'],['setAbn','abn'],['setEmail','billing_email'],['setPhone','phone'],['setWebsite','website'],['setAddress','address']].forEach(function(p){
+    [['setName','name'],['setAbn','abn'],['setEmail','billing_email'],['setPhone','phone'],['setWebsite','website'],['setAddress','address'],['setKind','entity_kind']].forEach(function(p){
       var el = document.getElementById(p[0]); el.value = o[p[1]] || ''; el.disabled = ro;
     });
     setLogoDraft = undefined;
@@ -4772,7 +4775,7 @@
     document.getElementById('setLogoRemove').hidden = !lg || !canEditOrg();
   }
   function markSettingsDirty(){ document.getElementById('setStatus').textContent = 'Unsaved changes'; }
-  ['setName','setAbn','setEmail','setPhone','setWebsite','setAddress'].forEach(function(id){ document.getElementById(id).addEventListener('input', markSettingsDirty); });
+  ['setName','setAbn','setEmail','setPhone','setWebsite','setAddress','setKind'].forEach(function(id){ document.getElementById(id).addEventListener('input', markSettingsDirty); });
   document.getElementById('setLogoFile').addEventListener('change', function(){
     var file = this.files && this.files[0]; this.value = '';
     if(!file) return;
@@ -4800,7 +4803,7 @@
     if(!name){ toast('Add your business name.'); return; }
     if(abn && !/^\d{11}$/.test(abn)){ toast('An ABN has 11 digits.'); return; }
     if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ toast('That email address doesn’t look right.'); return; }
-    var patch = { name: name, abn: abn || null, billing_email: email || null, phone: v('setPhone') || null, website: v('setWebsite') || null, address: v('setAddress') || null };
+    var patch = { name: name, abn: abn || null, billing_email: email || null, phone: v('setPhone') || null, website: v('setWebsite') || null, address: v('setAddress') || null, entity_kind: v('setKind') || null };
     if(setLogoDraft !== undefined) patch.logo = setLogoDraft;
     var btn = this; btn.disabled = true;
     var r = await sb.from('organizations').update(patch).eq('id', currentOrg.id);
@@ -5290,7 +5293,9 @@
   function recFiles(R){ return !!(R && R.terms && R.verb !== 'lodge'); }
   function recTerms(R){ return (R && R.terms) || ['applicant', 'respondent']; }
   function cap1(t){ return t.charAt(0).toUpperCase() + t.slice(1); }
-  function recEntity(m){ return (m && m.applicant && m.applicant.entity) || recState.entity || 'corporation'; }
+  // Fee rate from Settings → Business type: sole traders and partnerships of individuals pay the individual rate.
+  function orgFeeEntity(){ var k = currentOrg && currentOrg.entity_kind; return !k ? null : (/^(sole_trader|partnership|individual)$/.test(k) ? 'person' : 'corporation'); }
+  function recEntity(m){ return (m && m.applicant && m.applicant.entity) || recState.entity || orgFeeEntity() || 'corporation'; }
   var REC_STATUS = { preparing:'Preparing', lodged:'Lodged', served:'Served', responded:'Response received', no_response:'No response', hearing:'Hearing or conference set', decided:'Decision made', enforcing:'Enforcing order', paid:'Paid', closed:'Closed', withdrawn:'Withdrawn' };
   var REC_STATUS_TONE = { preparing:'new', lodged:'letter_sent', served:'awaiting_response', responded:'debt_recovery', no_response:'debt_recovery', hearing:'tribunal', decided:'payment_plan', enforcing:'escalated', paid:'resolved', closed:'resolved', withdrawn:'not_connected' };
   var RAISED_VIA = { email:'Email', phone:'Phone call', letter:'Letter', portal:'Debtor portal', tribunal_response:'Their tribunal response', other:'Other' };
@@ -5505,10 +5510,11 @@
       (locked ? '<p class="muted small">Amounts were locked when the application was lodged. Figures below are today’s.</p>' : '')
       + '<div class="rec-togs">' + tog('include_interest', 'Include interest', money(cl.fullInterest)) + tog('include_fees', 'Include fees', money(cl.fullFees)) + (cl.disputedItems.length ? tog('include_disputed', 'Include disputed invoices') : '')
       + (R.limitOver === 'abandon' && (cl.gross > R.limit || cl.opt.abandon_excess) ? tog('abandon_excess', 'Abandon the excess over ' + money(R.limit), cl.gross > R.limit ? money(r2(cl.gross - R.limit)) : '') : '')
-      + (R.entityFees ? '<label class="rec-tog">You are <select data-rentity'+(locked ? ' disabled' : '')+'><option value="corporation"'+(cl.entity !== 'person' ? ' selected' : '')+'>a company</option><option value="person"'+(cl.entity === 'person' ? ' selected' : '')+'>an individual or sole trader</option></select></label>' : '')
+      + (R.entityFees ? '<label class="rec-tog">You pay <select data-rentity'+(locked ? ' disabled' : '')+'><option value="corporation"'+(cl.entity !== 'person' ? ' selected' : '')+'>the corporation fee</option><option value="person"'+(cl.entity === 'person' ? ' selected' : '')+'>the individual fee</option></select></label>'
+        + '<span class="muted small rec-ent-src">' + (!orgFeeEntity() ? '<a href="#" data-goto-settings>Set your business type in Settings</a>' : (cl.entity === orgFeeEntity() ? 'From Settings' : 'Changed for this claim (Settings says ' + (orgFeeEntity() === 'person' ? 'individual' : 'corporation') + ')')) + '</span>' : '')
       + '</div>'
       + '<div class="rec-total"><div><span>Unpaid invoices</span><b>'+money(cl.principal)+'</b></div><div><span>Interest</span><b>'+money(cl.interest)+'</b></div><div><span>Fees</span><b>'+money(cl.fees)+'</b></div><div class="t"><span>Amount claimed</span><b>'+money(cl.total)+'</b>'+(cl.abandoned ? '<em class="small">'+money(cl.abandoned)+' abandoned</em>' : '')+'</div><div><span>Estimated filing fee</span><b>'+(cl.filingFee != null ? money(cl.filingFee) : '—')+'</b></div></div>'
-      + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check '+escapeHtml(R.theShort || R.short)+'’s current fees</a> before lodging.'+(R.entityFees ? ' Companies pay a higher fee than individuals.' : '')+(R.feeNote ? ' ' + escapeHtml(R.feeNote) : '')+(R.recoverable ? ' You can ask '+escapeHtml(R.short)+' to award '+escapeHtml(R.recoverable)+'.' : '')+'</p>'
+      + '<p class="muted small">Filing fees from '+escapeHtml(R.feesFrom)+'. Fees change: <a href="'+R.links.fees+'" target="_blank" rel="noopener">check '+escapeHtml(R.theShort || R.short)+'’s current fees</a> before lodging.'+(R.entityFees ? ' Corporations (companies, incorporated associations, co-ops and councils) pay a higher fee. Sole traders and partnerships of individuals pay the individual fee.' : '')+(R.feeNote ? ' ' + escapeHtml(R.feeNote) : '')+(R.recoverable ? ' You can ask '+escapeHtml(R.short)+' to award '+escapeHtml(R.recoverable)+'.' : '')+'</p>'
       + '<div class="rec-tablewrap"><table class="rec-table"><thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="num">Unpaid</th><th class="num">Interest</th><th class="num">Fees</th></tr></thead><tbody>'+(rows || '<tr><td colspan="6" class="empty-note">No invoices in the claim.</td></tr>')+'</tbody></table></div>');
     if(!m){
       P2.start = '<div class="card rec-start"><div class="card-body"><div><b>Ready to prepare '+(R.terms ? 'your ' + escapeHtml(R.short) + ' ' + escapeHtml(R.docNoun || 'claim') : (/^(A|E|I|O|U|N)/.test(R.short) ? 'an ' : 'a ') + escapeHtml(R.short) + ' application')+'?</b><p class="muted small">Starting a file records the claim, keeps your application details and tracks lodging, service and the response deadline. Nothing is sent or lodged for you.</p></div>'
