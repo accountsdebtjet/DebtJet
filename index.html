@@ -975,6 +975,21 @@
   .ln-desc{font-size:12.5px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
   .ln-email{font-size:12px;color:var(--text-muted);font-style:italic;}
   .ln-lab{display:flex;flex-direction:column;gap:3px;font-size:11.5px;font-weight:600;color:var(--text-muted);}
+  .paper-acts{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .ins-panel .as-ask-row{flex-direction:column;align-items:stretch;}
+  .ins-panel .as-ai{justify-content:center;}
+  .txt-secs-head{font-size:13px;font-weight:700;margin:12px 0 4px;}
+  .txt-secs-head span{font-weight:400;color:var(--text-muted);display:block;font-size:12px;}
+  .txt-sec{border-top:1px solid var(--border);padding:8px 0;display:flex;flex-direction:column;gap:6px;}
+  .txt-sec-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;}
+  .txt-sec:not(.on) .txt-sec-h span{color:var(--text-muted);font-weight:500;}
+  .txt-sec textarea{width:100%;box-sizing:border-box;field-sizing:content;min-height:48px;resize:vertical;font:inherit;font-size:13px;}
+  .as-badge{display:inline-flex;align-items:center;gap:5px;}
+  .ln-lab-row{display:flex;justify-content:space-between;align-items:center;}
+  .ln-clear{background:none;border:0;color:var(--text-muted);font:inherit;font-size:11.5px;cursor:pointer;text-decoration:underline;padding:0;}
+  .ln-clear:hover{color:#B42318;}
+  .toast.show{pointer-events:auto;}
+  body:has(.style-dock:not([hidden])) .toast{bottom:96px;}
   .ln-lab textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:44px;field-sizing:content;font:inherit;font-size:13px;font-weight:400;color:var(--text);line-height:1.45;padding:6px 8px;}
   .ln-lab input{width:100%;box-sizing:border-box;font-size:13px;font-weight:400;}
   .dj-dismissable{display:flex;align-items:flex-start;gap:10px;}
@@ -982,6 +997,21 @@
   .flag-x{background:none;border:0;color:inherit;opacity:.65;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;margin:-2px -4px 0 0;}
   .flag-x:hover{opacity:1;}
   .stmt-more{margin:8px 0 2px;width:100%;}
+  /* DebtJet dialog */
+  .dj-ask-wrap{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:transparent;}
+  .dj-ask{width:min(440px,calc(100vw - 32px));background:var(--surface);color:var(--text);border-top:4px solid var(--ink);box-shadow:0 24px 60px -18px rgba(11,20,40,.45),0 0 0 1px var(--border);padding:18px 20px 16px;animation:djAskIn .14s ease-out;}
+  @keyframes djAskIn{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+  .dj-ask-brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+  .dj-ask-t{font-size:16px;font-weight:700;line-height:1.35;}
+  .dj-ask-b{font-size:13.5px;color:var(--text-muted);margin-top:8px;white-space:pre-line;line-height:1.5;}
+  .dj-ask-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .btn.primary.danger{background:#B42318;border-color:#B42318;color:#fff;}
+  .toast-undo{background:none;border:0;color:#FFC72C;font:inherit;font-weight:700;cursor:pointer;margin-left:8px;text-decoration:underline;}
+  /* DebtJet AI buttons */
+  .ai-btn{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);font-weight:700;}
+  .ai-btn:hover:not(:disabled){background:var(--warm-soft);}
+  .ai-btn .dj-mark{flex:0 0 auto;}
+  .ai-btn .ai-tag{font-size:10px;font-weight:800;letter-spacing:.06em;background:var(--ink);color:#FFC72C;padding:1px 5px;}
   /* Case summary (Debtors & Cases) */
   .case-sum{border-top:var(--rule) solid var(--ink);padding-top:14px;margin-bottom:22px;}
   .cs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:12px;}
@@ -1202,7 +1232,7 @@
           <div class="ld-case-now"><span class="k">Case</span><b id="ldCaseNow">—</b> <button type="button" class="linkbtn" data-ltab-go="cases">Change</button></div>
           <label>Template<select id="ldTplSelect"></select></label>
           <div class="ld-top-acts ld-letter-only">
-            <button class="btn" id="aiDraftLetterBtn" type="button">✨ Draft with AI</button>
+            <button class="btn ai-btn" id="aiDraftLetterBtn" type="button"><svg class="dj-mark" width="16" height="14" viewBox="0 0 26 22" aria-hidden="true"><path d="M1 12 25 1 15 21 12 13Z" fill="#1E6FD9"/><path d="M1 12 25 1 12 13Z" fill="#FFC72C"/><path d="M12 13 15 21 13.5 14.2Z" fill="#0B2A5B"/></svg>Draft letter with DebtJet AI</button>
             <button class="btn" id="ldPrintBtn" type="button">Print / PDF</button>
             <select id="sendVia" aria-label="Send via"><option value="google_workspace">Google Workspace</option><option value="outlook">Outlook</option><option value="post">Post</option><option value="hand">By hand</option></select>
             <button class="btn primary" id="ldSendBtn" type="button">Record as sent</button>
@@ -1290,15 +1320,13 @@
                   <label>Statement addressed to</label>
                   <input type="text" id="stmtRecipientName" placeholder="Select contacts in the Contacts tab…" />
                 </div>
-                <div class="send-row">
-                  <button class="btn primary" id="stmtSaveBtn" disabled>Save statement</button>
-                  <button class="btn" id="stmtPrintBtn" disabled>Print / export PDF</button>
-                </div>
                 <div class="draft-fields">
-                  <button class="btn sm" id="stmtAiNotesBtn" type="button" disabled>✨ Draft notes with AI</button>
-                  <label>Cover message (printed above the invoices, optional)
-                    <textarea id="stmtNotes" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today."></textarea>
-                  </label>
+                  <button class="btn sm ai-btn" id="stmtAiNotesBtn" type="button" disabled><svg class="dj-mark" width="16" height="14" viewBox="0 0 26 22" aria-hidden="true"><path d="M1 12 25 1 15 21 12 13Z" fill="#1E6FD9"/><path d="M1 12 25 1 12 13Z" fill="#FFC72C"/><path d="M12 13 15 21 13.5 14.2Z" fill="#0B2A5B"/></svg>Draft notes with DebtJet AI</button>
+                  <div class="txt-secs-head">Text on this statement <span>Switch a section on to add your own words. The Insert panel adds to the box you last clicked.</span></div>
+                  <div class="txt-sec" data-txt-sec="cover"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="cover" aria-label="Include: Message above the invoices" /><span aria-hidden="true"></span></label><span>Message above the invoices</span></div><textarea id="stmtNotes" data-ins-label="Message above the invoices" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="after_totals"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="after_totals" aria-label="Include: Message after the totals" /><span aria-hidden="true"></span></label><span>Message after the totals</span></div><textarea id="stmtTxt-after_totals" data-ts="after_totals" data-ins-label="Message after the totals" rows="2" maxlength="1000" placeholder="e.g. Please pay the overdue amount by 30 November." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="pay_note"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="pay_note" aria-label="Include: Note under “How to pay”" /><span aria-hidden="true"></span></label><span>Note under “How to pay”</span></div><textarea id="stmtTxt-pay_note" data-ts="pay_note" data-ins-label="Note under How to pay" rows="2" maxlength="600" placeholder="e.g. Please use the statement number as your reference." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="closing"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="closing" aria-label="Include: Closing message (before the sign-off)" /><span aria-hidden="true"></span></label><span>Closing message (before the sign-off)</span></div><textarea id="stmtTxt-closing" data-ts="closing" data-ins-label="Closing message" rows="2" maxlength="600" placeholder="e.g. If you have any questions about this statement, call us on 07 5550 1234." hidden></textarea></div>
                   <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line. Long descriptions can be shortened here.</span></div>
                   <div class="line-notes" id="stmtLineNotesBox"><div class="empty-note">Select invoices to add notes.</div></div>
                 </div>
@@ -1307,7 +1335,7 @@
             </div>
           </div>
           <div class="stmt-paper-slot" data-slot="statement">
-            <div class="paper-head"><span>Preview</span><button class="btn sm" type="button" data-pdf-preview>📄 Preview PDF</button></div>
+            <div class="paper-head"><span>Preview</span><span class="paper-acts"><button class="btn sm primary" id="stmtSaveBtn" disabled>Save statement</button><button class="btn sm" id="stmtPrintBtn" disabled>Print / export PDF</button><button class="btn sm" type="button" data-pdf-preview>📄 Preview PDF</button></span></div>
             <div class="stmt-warn" id="stmtWarn"></div>
             <div class="statement-paper" id="statementPaper"></div>
           </div>
@@ -2062,7 +2090,7 @@
       var t = e.target, act = t.getAttribute('data-cc');
       if(t.getAttribute('data-cc-pick')){ ccSearch = null; t.disabled = true; await abnCheck(c, t.getAttribute('data-cc-pick')); return; }
       if(t.getAttribute('data-cc-del')){
-        if(!confirm('Remove this contact?')) return;
+        if(!await djAsk('Remove this contact?')) return;
         var del = await sb.from('debtor_contacts').delete().eq('id', t.getAttribute('data-cc-del'));
         if(del.error){ toast(del.error.message); return; }
         await loadDebtorContacts(c.debtor.id); renderContactCard(c); return;
@@ -2094,13 +2122,13 @@
         var kind = v('debtor_kind');
         var abn = kind === 'individual' ? null : ((v('abn') || '').replace(/\D/g, '') || null);
         if(abn && !validAbnClient(abn)){ toast("That ABN isn't valid. Check it for typos."); return; }
-        if(kind === 'individual' && c.debtor.abn && !confirm('Individuals have no ABN. Remove the ABN on file for ' + c.debtor.name + '?')) return;
+        if(kind === 'individual' && c.debtor.abn && !await djAsk('Individuals have no ABN. Remove the ABN on file for ' + c.debtor.name + '?')) return;
         if(v('postcode') && !/^\d{4}$/.test(v('postcode'))){ toast('Postcode should be 4 digits.'); return; }
         var legal = kind === 'individual' ? null : v('legal_name');
         var acn = kind === 'individual' ? null : ((v('acn') || '').replace(/\D/g, '') || null);
         if(acn && acn.length !== 9){ toast('An ACN has 9 digits.'); return; }
         var legalByHand = legal !== (c.debtor.legal_name || null);
-        if(legalByHand && legal && legalFromRegister(c.debtor) && !confirm('This replaces the legal name from the ABN register (' + c.debtor.legal_name + '). Continue?')) return;
+        if(legalByHand && legal && legalFromRegister(c.debtor) && !await djAsk('This replaces the legal name from the ABN register (' + c.debtor.legal_name + '). Continue?')) return;
         var row = { name: v('name') || c.debtor.name, abn: abn, debtor_kind: kind, website: v('website'), contact_name: v('contact_name'), email: v('email'), phone: v('phone'),
           address_line1: v('address_line1'), address_line2: v('address_line2'), suburb: v('suburb'), state: v('state'), postcode: v('postcode'), country: v('country'), notes: v('notes'), legal_name: legal, acn: acn };
         var abnChanged = abn !== (c.debtor.abn || null) || row.name !== c.debtor.name;
@@ -2346,6 +2374,41 @@
     }
     return out;
   }
+  /* ---------- DebtJet dialog: replaces the browser's confirm() ----------
+     Centred, branded, and the page behind stays visible (no grey-out). */
+  var AI_MARK = '<svg class="dj-mark" width="16" height="14" viewBox="0 0 26 22" aria-hidden="true"><path d="M1 12 25 1 15 21 12 13Z" fill="#1E6FD9"/><path d="M1 12 25 1 12 13Z" fill="#FFC72C"/><path d="M12 13 15 21 13.5 14.2Z" fill="#0B2A5B"/></svg>';
+  function djAsk(message, opts){
+    opts = opts || {};
+    var first = String(message).split(/[\s?.,]/)[0];
+    var okLabel = opts.ok || (/^(Delete|Remove|Disconnect|Discard|Create|Undo)$/.test(first) ? first : 'OK');
+    var danger = /^(Delete|Remove|Disconnect|Discard)$/.test(okLabel);
+    return new Promise(function(resolve){
+      var prev = document.activeElement;
+      var wrap = document.createElement('div'); wrap.className = 'dj-ask-wrap';
+      var parts = String(message).split('\n\n');
+      wrap.innerHTML = '<div class="dj-ask" role="alertdialog" aria-modal="true" aria-labelledby="djAskT" aria-describedby="djAskB">'
+        + '<div class="dj-ask-brand">' + AI_MARK + '<span>DebtJet</span></div>'
+        + '<div class="dj-ask-t" id="djAskT">' + escapeHtml(parts[0]) + '</div>'
+        + (parts.length > 1 ? '<div class="dj-ask-b" id="djAskB">' + escapeHtml(parts.slice(1).join('\n\n')) + '</div>' : '<span id="djAskB" hidden></span>')
+        + '<div class="dj-ask-acts"><button type="button" class="btn" data-ask="no">' + escapeHtml(opts.cancel || 'Cancel') + '</button>'
+        + '<button type="button" class="btn primary' + (danger ? ' danger' : '') + '" data-ask="yes">' + escapeHtml(okLabel) + '</button></div></div>';
+      document.body.appendChild(wrap);
+      var done = function(v){ document.removeEventListener('keydown', key, true); wrap.remove(); if(prev && prev.focus) try { prev.focus(); } catch(e){} resolve(v); };
+      var key = function(e){ if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); done(false); } if(e.key === 'Tab'){ var b = wrap.querySelectorAll('button'); if(e.shiftKey && document.activeElement === b[0]){ e.preventDefault(); b[b.length - 1].focus(); } else if(!e.shiftKey && document.activeElement === b[b.length - 1]){ e.preventDefault(); b[0].focus(); } } };
+      document.addEventListener('keydown', key, true);
+      wrap.addEventListener('click', function(e){ var b = e.target.closest('[data-ask]'); if(b) done(b.getAttribute('data-ask') === 'yes'); });
+      wrap.querySelector('[data-ask="' + (danger ? 'no' : 'yes') + '"]').focus();
+    });
+  }
+  // Remove straight away, with an Undo button on the message.
+  function toastUndo(msg, undo){
+    var t = document.getElementById('toast');
+    t.innerHTML = '<span>' + escapeHtml(msg) + '</span> <button type="button" class="toast-undo">Undo</button>';
+    t.classList.add("show"); clearTimeout(toastTimer);
+    t.querySelector(".toast-undo").onclick = function(){ clearTimeout(toastTimer); t.classList.remove('show'); undo(); };
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 6000);
+  }
+
   /* =====================================================================
      SHARED PARAGRAPH EDITOR (letters, claim details, packs)
      Text is stored as light markup so it stays safe and portable:
@@ -2534,12 +2597,12 @@
     box.innerHTML = '<div class="as-ask"><label class="as-label" for="asQ-'+A.scope+'">What do you want to say?</label>'
       + '<textarea id="asQ-'+A.scope+'" class="as-q" rows="2" maxlength="600" placeholder="'+escapeHtml(A.placeholder || 'e.g. offer a payment plan over 3 months')+'">'+escapeHtml(S.q)+'</textarea>'
       + '<div class="as-ask-row"><span class="muted small">'+(words.length ? list.length + ' matching clause' + (list.length === 1 ? '' : 's') : 'Type to search the clause library')+'</span>'
-      + (A.noAi ? '' : '<button type="button" class="btn sm as-ai" data-as="ai"'+(S.busy || !S.q.trim() ? ' disabled' : '')+'>'+(S.busy ? 'Drafting…' : '✨ Draft with AI')+'</button>') + '</div>'
+      + (A.noAi ? '' : '<button type="button" class="btn sm as-ai ai-btn" data-as="ai"'+(S.busy || !S.q.trim() ? ' disabled' : '')+'>'+(S.busy ? 'Drafting…' : AI_MARK + 'Draft with DebtJet AI')+'</button>') + '</div>'
       + (A.noAi ? '<div class="fine">'+escapeHtml(A.noAi)+'</div>' : '')
       + (A.canAi && !A.canAi() ? '<div class="fine">Choose a case to draft with AI.</div>' : '')
       + '</div>'
       + (S.err ? '<div class="ai-flag caution">'+escapeHtml(S.err)+'</div>' : '')
-      + (draft ? '<div class="as-draft"><div class="as-draft-h"><span class="as-badge">AI draft</span><span class="muted small">Check it, then insert it. Nothing is added until you do.</span></div>'
+      + (draft ? '<div class="as-draft"><div class="as-draft-h"><span class="as-badge">'+AI_MARK+'DebtJet AI draft</span><span class="muted small">Check it, then insert it. Nothing is added until you do.</span></div>'
           + '<div class="as-draft-body">'+(A.preview ? A.preview(draft.text) : djRich(draft.text, {}, 'html'))+'</div>'
           + (draft.note ? '<div class="fine">'+escapeHtml(draft.note)+'</div>' : '')
           + '<div class="as-acts"><button type="button" class="btn sm primary" data-as="draft-insert">Insert</button><button type="button" class="btn sm" data-as="ai">Try again</button><button type="button" class="btn sm ghost" data-as="draft-save">Save as clause</button><button type="button" class="btn sm ghost" data-as="draft-drop">Discard</button></div></div>' : '')
@@ -2563,10 +2626,11 @@
           return;
         }
         if(t.hasAttribute('data-asdel')){
-          if(!confirm('Remove this clause from Your clauses?')) return;
-          var id = t.getAttribute('data-asdel'), r = await sb.from('clause_library').delete().eq('id', id);
+          var id = t.getAttribute('data-asdel'), gone = (userClauses[A2.scope] || []).filter(function(u){ return u.id === id; })[0], r = await sb.from('clause_library').delete().eq('id', id);
           if(r.error){ toast(r.error.message); return; }
-          userClauses[A2.scope] = (userClauses[A2.scope] || []).filter(function(u){ return u.id !== id; }); renderAssist(box, A2); return;
+          userClauses[A2.scope] = (userClauses[A2.scope] || []).filter(function(u){ return u.id !== id; }); renderAssist(box, A2);
+          if(gone) toastUndo('“' + gone.label + '” removed from Your clauses.', async function(){ var r2 = await sb.from('clause_library').insert({ org_id: currentOrg.id, scope: gone.scope || A2.scope, category: gone.category || 'Your clauses', label: gone.label, body: gone.body }).select('id, scope, category, label, body').maybeSingle(); if(r2.data){ userClauses[A2.scope].push(r2.data); renderAssist(box, A2); } });
+          return;
         }
         var act = t.getAttribute('data-as');
         if(act === 'ai'){
@@ -2661,7 +2725,7 @@
     el.focus(); el.selectionStart = el.selectionEnd = (pre + sep + t).length;
     toast('Added to ' + insTargetLabel(el) + '.');
   }
-  var STMT_ASSIST = { scope: 'statement', builtins: STMT_CLAUSES, noAi: 'AI notes for statements: use “Draft notes with AI” on the Statement tab.', placeholder: 'e.g. thank them, or note a promise', insert: function(t){ insertIntoTarget(t, document.getElementById('stmtNotes')); } };
+  var STMT_ASSIST = { scope: 'statement', builtins: STMT_CLAUSES, beforeInsert: function(){ var el = insTarget && document.body.contains(insTarget) && insTarget.offsetParent ? insTarget : null; if(!el){ setStmtTxt('cover', true); } }, noAi: 'AI notes for statements: use “Draft notes with DebtJet AI” on the Statement tab.', placeholder: 'e.g. thank them, or note a promise', insert: function(t){ STMT_ASSIST.beforeInsert(); insertIntoTarget(t, document.getElementById('stmtNotes')); } };
   var TERMS_ASSIST = { scope: 'letter', builtins: TERMS_CLAUSES, noAi: 'Wording to adapt for your own terms of trade. Check it with your adviser.', placeholder: 'e.g. interest on overdue invoices', insert: function(t){ insertIntoTarget(t); } };
   var NOTES_ASSIST = { scope: 'letter', builtins: NOTE_CLAUSES, noAi: 'Click a notes box first, then a note to add it.', placeholder: 'e.g. promise to pay', insert: function(t){ insertIntoTarget(t); } };
   var INS_KINDS = {
@@ -3307,7 +3371,7 @@
     paper.addEventListener('click', async function(e){
       var t = e.target.closest('button'); if(!t || !ldTpl) return;
       if(t.hasAttribute('data-ldmove')){ var i = Number(t.getAttribute('data-i')), j = i + Number(t.getAttribute('data-ldmove')), bl = ldTpl.blocks; if(j < 0 || j >= bl.length) return; var tmp = bl[i]; bl[i] = bl[j]; bl[j] = tmp; ldCur = j; ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); return; }
-      if(t.hasAttribute('data-lddel')){ var k = Number(t.getAttribute('data-lddel')), bb = ldTpl.blocks[k]; if(bb && (bb.type === 'text' || bb.type === 'heading') && (bb.text || '').trim().length > 60 && !confirm('Remove this ' + (bb.type === 'heading' ? 'heading' : 'paragraph') + '? You can also switch it off to keep it for later.')) return; ldTpl.blocks.splice(k, 1); ldCur = null; ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); return; }
+      if(t.hasAttribute('data-lddel')){ var k = Number(t.getAttribute('data-lddel')), bb = ldTpl.blocks[k]; if(!bb) return; ldTpl.blocks.splice(k, 1); ldCur = null; ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); toastUndo((bb.type === 'heading' ? 'Heading' : bb.type === 'text' ? 'Paragraph' : (BLOCK_LABEL[bb.type] || 'Block')) + ' removed.', function(){ ldTpl.blocks.splice(Math.min(k, ldTpl.blocks.length), 0, bb); ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); }); return; }
       if(t.hasAttribute('data-ldsaveclause')){ var sb3 = ldTpl.blocks[Number(t.getAttribute('data-ldsaveclause'))]; if(sb3 && (sb3.text || '').trim()) { await saveUserClause('letter', sb3.text, sb3.clause && CLAUSE_BY_KEY[sb3.clause] ? CLAUSE_BY_KEY[sb3.clause].label : ''); if(ldTab === 'content') renderLetterEditor(); } return; }
       if(t.hasAttribute('data-ldadd')){ var kind = t.getAttribute('data-ldadd'); ldInsertBlock(kind === 'text' || kind === 'heading' ? { type: kind, text: '' } : { type: kind }); return; }
     });
@@ -3382,8 +3446,8 @@
     });
   })();
   Array.prototype.forEach.call(document.querySelectorAll('[data-ldtab]'), function(b){ b.addEventListener('click', function(){ ldTab = this.getAttribute('data-ldtab'); renderLetterEditor(); }); });
-  document.getElementById('ldTplSelect').addEventListener('change', function(){
-    if(ldDirty && !confirm('Discard your unsaved changes to this template?')){ this.value = ldKey; return; }
+  document.getElementById('ldTplSelect').addEventListener('change', async function(){
+    if(ldDirty && !await djAsk('Discard your unsaved changes to this template?')){ this.value = ldKey; return; }
     loadLetterTemplate(this.value); ldViewing = null; renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview();
   });
   function letterRow(){ return { org_id: currentOrg.id, name: (ldTpl.name || 'My letter').slice(0, 80), stage: ldTpl.stage || 'other', type: ldTpl.stage || 'other', description: ldTpl.description || null,
@@ -3407,7 +3471,7 @@
   });
   document.getElementById('ldDeleteBtn').addEventListener('click', async function(){
     var row = letterTemplates.filter(function(t){ return t.id === ldKey; })[0]; if(!row) return;
-    if(!confirm('Delete the template “' + row.name + '”? Letters already sent keep their own copy.')) return;
+    if(!await djAsk('Delete the template “' + row.name + '”? Letters already sent keep their own copy.')) return;
     var used = await sb.from('letters').select('id', { count: 'exact', head: true }).eq('template_id', row.id);
     if(used.count){ var up = await sb.from('letters').update({ template_id: null, template_key: 'deleted:' + row.name.slice(0, 60) }).eq('template_id', row.id); if(up.error){ toast('Could not delete: ' + up.error.message); return; } }
     var r = await sb.from('letter_templates').delete().eq('id', row.id);
@@ -3415,7 +3479,7 @@
     letterTemplates = letterTemplates.filter(function(t){ return t.id !== row.id; });
     loadLetterTemplate('builtin:first_demand'); renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview(); toast('Template deleted.');
   });
-  document.getElementById('ldRevertBtn').addEventListener('click', function(){ if(ldDirty && !confirm('Undo all changes since the template was last saved?')) return; loadLetterTemplate(ldKey); renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview(); });
+  document.getElementById('ldRevertBtn').addEventListener('click', async function(){ if(ldDirty && !await djAsk('Undo all changes since the template was last saved?')) return; loadLetterTemplate(ldKey); renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview(); });
 
   // ---- AI draft: replaces the paragraphs for this letter only; tables and boxes stay where they are.
   document.getElementById('aiDraftLetterBtn').addEventListener('click', async function(){
@@ -3436,7 +3500,7 @@
       ldAi = true; ldDirty = true; ldTab = 'content';
       renderLetterTemplateSelect(); renderLetterEditor(); renderLetterPreview();
       toast('AI draft ready. ' + (d.draft.recommendation || 'Read and edit it before sending.'));
-    } finally { btn.disabled = false; btn.textContent = '✨ Draft with AI'; }
+    } finally { btn.disabled = false; btn.innerHTML = AI_MARK + 'Draft letter with DebtJet AI'; }
   });
 
   // ---- Print and send (records the letter, with an exact snapshot)
@@ -3609,7 +3673,7 @@
           return;
         }
         if(p === 'xero' && wasConnected){
-          if(!confirm('Disconnect Xero?\n\nDebtJet will stop syncing and won’t be able to post interest invoices. Contacts and invoices already in DebtJet stay here. You can reconnect at any time.')) return;
+          if(!await djAsk('Disconnect Xero?\n\nDebtJet will stop syncing and won’t be able to post interest invoices. Contacts and invoices already in DebtJet stay here. You can reconnect at any time.')) return;
           btn.disabled = true; btn.textContent = 'Disconnecting…';
           var res = await invokeFn('xero-disconnect', { org_id: currentOrg.id });
           btn.disabled = false;
@@ -4220,8 +4284,8 @@
       if(e.target.getAttribute('data-logo-remove')){ stmtTplSettings.logo = null; renderDesigner(); markTplDirty(); }
     });
   })();
-  document.getElementById('stmtTplSelect').addEventListener('change', function(){
-    if(stmtTplDirty && !confirm('Discard your unsaved design changes?')){ this.value = stmtTplKey; return; }
+  document.getElementById('stmtTplSelect').addEventListener('change', async function(){
+    if(stmtTplDirty && !await djAsk('Discard your unsaved design changes?')){ this.value = stmtTplKey; return; }
     selectStatementTemplate(this.value);
   });
   document.getElementById('stmtTplCustomise').addEventListener('click', function(){
@@ -4256,7 +4320,7 @@
   });
   document.getElementById('stmtTplDelete').addEventListener('click', async function(){
     var t = stmtTemplates.filter(function(x){ return x.id === stmtTplKey; })[0]; if(!t) return;
-    if(!confirm('Delete the template “' + t.name + '”? Saved statements keep their own copy of the design.')) return;
+    if(!await djAsk('Delete the template “' + t.name + '”? Saved statements keep their own copy of the design.')) return;
     var r = await sb.from('statement_templates').delete().eq('id', t.id);
     if(r.error){ toast('Could not delete: ' + r.error.message); return; }
     stmtTemplates = stmtTemplates.filter(function(x){ return x.id !== t.id; });
@@ -4323,7 +4387,8 @@
       recipient: document.getElementById('stmtRecipientName').value || '',
       date: today.toISOString(),
       number: 'ST-' + today.toISOString().slice(2, 10).replace(/-/g, '') + '-' + (sel.debtorIds[0] || '0000').replace(/-/g, '').slice(0, 4).toUpperCase(),
-      cover: document.getElementById('stmtNotes').value.trim(),
+      cover: stmtTxtOn.cover ? document.getElementById('stmtNotes').value.trim() : '',
+      texts: ['after_totals', 'pay_note', 'closing'].reduce(function(o, k){ var el = document.getElementById('stmtTxt-' + k); if(stmtTxtOn[k] && el && el.value.trim()) o[k] = el.value.trim(); return o; }, {}),
       late: sel.debtorIds.length ? lateMetrics(sel.debtorIds) : null,
       payment: orgPayment ? {
         account_name: orgPayment.account_name, bsb: orgPayment.bsb, account_number: orgPayment.account_number, bank_name: orgPayment.bank_name,
@@ -4386,7 +4451,7 @@
       + S+' .sd-cover{margin:0 0 14px;white-space:pre-line;}'
       + S+' table.sd-t{width:100%;border-collapse:collapse;margin:4px 0 6px;}'
       + S+' .sd-t th{background:'+(t.table_style === 'minimal' ? 'transparent' : c.th_bg)+';color:'+c.th_text+';text-align:left;font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding:'+pad+';font-weight:700;}'
-      + S+' .sd-t td{padding:'+pad+';vertical-align:top;}'
+      + S+' .sd-t td{padding:'+pad+';vertical-align:top;}'+S+' .sd-t th{white-space:normal;vertical-align:bottom;line-height:1.25;}'
       + S+' .sd-t .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}'+S+' .nw{white-space:nowrap;}'
       + (t.table_style === 'lined' ? S+' .sd-t th{border-bottom:2px solid '+c.accent+';}'+S+' .sd-t tr.sd-end td{border-bottom:1px solid '+c.border+';}' : '')
       + (t.table_style === 'striped' ? S+' .sd-t tr.alt td{background:'+c.stripe+';}' : '')
@@ -4395,7 +4460,7 @@
       + S+' .sd-t tr.sd-note td{padding-top:0;font-size:.88em;color:'+c.muted+';}'
       + S+' .sd-t tr.sd-grp td{padding:12px 0 5px;font-weight:800;color:'+c.heading+';border-bottom:2px solid '+c.accent+';background:transparent;}'
       + S+' .sd-t tr.sd-grp td span.sd-grp-amt{float:right;font-variant-numeric:tabular-nums;}'
-      + S+' .sd-ref{color:'+c.accent+';font-weight:700;margin-left:2px;}'+S+' .sd-t .sd-desc{min-width:150px;}'
+      + S+' .sd-ref{color:'+c.accent+';font-weight:700;margin-left:2px;}'+S+' .sd-t .sd-desc{min-width:90px;}'
       + S+' .sd-det{display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:.9em;padding:6px 0;border-bottom:1px solid '+c.border+';page-break-inside:avoid;}'
       + S+' .sd-det .k{font-weight:700;color:'+c.heading+';}'+S+' .sd-det .k sup{color:'+c.accent+';}'+S+' .sd-det .v{white-space:pre-line;}'
       + S+' .sd-t tr.sd-note td span{display:block;border-left:3px solid '+c.accent+';padding:1px 0 1px 8px;font-style:italic;}'
@@ -4504,9 +4569,28 @@
       + '<div>Date paid: <span class="line">&nbsp;</span></div></div></div>' : '';
     var details = refN ? '<h2>Invoice details</h2><div class="sd-details">' + m.items.filter(function(i){ return refMap.has(i); }).map(function(i){
         return '<div class="sd-det"><div class="k"><sup>'+refMap.get(i)+'</sup> '+escapeHtml(i.invoice_number || '')+'</div><div class="v">'+escapeHtml(String(i.description || '').trim())+'</div></div>'; }).join('') + '</div>' : '';
-    return css + '<div class="sd">' + head + summary + cover + table + tot + details + ageing + pay + late + sign + foot + slip + '</div>';
+    var TX = m.texts || {}, txt = function(k){ return TX[k] ? '<div class="sd-cover">' + escapeHtml(TX[k]) + '</div>' : ''; };
+    if(TX.pay_note && pay) pay += '<div class="sd-cover" style="margin-top:8px;">' + escapeHtml(TX.pay_note) + '</div>';
+    return css + '<div class="sd">' + head + summary + cover + table + tot + txt('after_totals') + details + ageing + pay + late + txt('closing') + sign + foot + slip + '</div>';
   }
 
+  // Keep the invoice table inside the page: if it is wider than the paper, shrink its text a little at a time.
+  function fitStatementTable(root){
+    var sd = root && root.querySelector('.sd'); if(!sd) return;
+    var cs = getComputedStyle(sd), avail = sd.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    sd.querySelectorAll('table.sd-t').forEach(function(t){
+      t.style.fontSize = ''; var fs = 100;
+      while(t.scrollWidth > avail + 1 && fs > 66){ fs -= 4; t.style.fontSize = fs + '%'; }
+    });
+  }
+  // On screen: lay the statement out at A4 width (794px) and scale it to the column, so the preview matches the PDF.
+  function fitStatementPreview(paper){
+    var sd = paper && paper.querySelector('.sd'); if(!sd) return;
+    sd.style.zoom = ''; sd.style.width = '794px'; sd.style.boxSizing = 'border-box';
+    fitStatementTable(paper);
+    var w = paper.clientWidth; if(w > 0 && w < 794) sd.style.zoom = String(Math.max(0.35, w / 794));
+  }
+  window.addEventListener('resize', function(){ var p = document.getElementById('statementPaper'); if(p && p.offsetParent) fitStatementPreview(p); });
   /* ---------- preview, notes, save, print ---------- */
   function renderLineNoteEditors(sel){
     var key = sel.items.map(function(i){ return i.id; }).join(',');
@@ -4524,7 +4608,7 @@
         + (n ? '<span class="ln-cat">'+escapeHtml(NOTE_CATEGORY_LABEL[n.category] || 'Email note')+'</span>' : '') + '</div>'
         + (desc ? '<div class="ln-desc" title="'+escapeHtml(desc)+'">'+escapeHtml(desc)+'</div>' : '')
         + (n ? '<div class="ln-email">From email: '+escapeHtml(String(n.summary || '').slice(0, 220))+'</div>' : '')
-        + '<label class="ln-lab">Note under this invoice<textarea rows="2" maxlength="240" data-line-note="'+escapeHtml(i.id)+'" placeholder="e.g. Stage 2 kitchen cabinetry, installed 14 Oct">'+escapeHtml(stmtLineNotes[i.id] || '')+'</textarea></label>'
+        + '<div class="ln-lab"><span class="ln-lab-row"><label for="ln-'+escapeHtml(i.id)+'">Note under this invoice</label><button type="button" class="ln-clear" data-ln-clear="'+escapeHtml(i.id)+'" title="Remove this note"'+(stmtLineNotes[i.id] ? '' : ' hidden')+'>Remove</button></span><textarea id="ln-'+escapeHtml(i.id)+'" data-ins-label="Note under '+escapeHtml(i.invoice_number || 'this invoice')+'" rows="2" maxlength="240" data-line-note="'+escapeHtml(i.id)+'" placeholder="e.g. Stage 2 kitchen cabinetry, installed 14 Oct">'+escapeHtml(stmtLineNotes[i.id] || '')+'</textarea></div>'
         + (desc.length > 40 ? '<label class="ln-lab">Short description for the table<input type="text" class="desc-short" maxlength="120" data-desc-short="'+escapeHtml(i.id)+'" value="'+escapeHtml(stmtDescOverride[i.id] || '')+'" placeholder="'+escapeHtml(shortDesc(desc, 60))+'" /></label>' : '')
         + '</div>';
     }).join('') : '<div class="empty-note">Select invoices to add notes.</div>';
@@ -4533,6 +4617,13 @@
     var ds = e.target.getAttribute('data-desc-short'); if(ds){ stmtDescOverride[ds] = e.target.value; schedulePreview(); return; }
     var id = e.target.getAttribute('data-line-note'); if(!id) return;
     stmtLineNotes[id] = e.target.value; schedulePreview();
+    var cb = e.target.parentNode.querySelector('.ln-clear'); if(cb) cb.hidden = !e.target.value;
+  });
+  document.getElementById('stmtLineNotesBox').addEventListener('click', function(e){
+    var b = e.target.closest('[data-ln-clear]'); if(!b) return;
+    var id = b.getAttribute('data-ln-clear'), ta = document.getElementById('ln-' + id), old = stmtLineNotes[id] || '';
+    stmtLineNotes[id] = ''; if(ta) ta.value = ''; b.hidden = true; schedulePreview();
+    toastUndo('Note removed.', function(){ stmtLineNotes[id] = old; if(ta) ta.value = old; b.hidden = !old; schedulePreview(); });
   });
   function renderStatementWarnings(m){
     var w = [];
@@ -4573,7 +4664,7 @@
       renderStmtSelection(sel, null);
       renderStatementWarnings(null);
       if(stmtTab === 'templates'){
-        paper.innerHTML = renderStatementDoc(sampleStatementModel(), stmtTplSettings, currentOrg.name);
+        paper.innerHTML = renderStatementDoc(sampleStatementModel(), stmtTplSettings, currentOrg.name); fitStatementPreview(paper);
         renderFlags(document.getElementById('stmtWarn'), [{ level: 'info', message: 'Showing sample data. Select contacts in the Contacts tab to preview a real statement with this template.' }]);
       } else paper.innerHTML = '<div class="empty-note">Select one or more contacts in the Contacts tab, and the invoices to include, to build a statement.</div>';
       return;
@@ -4581,11 +4672,21 @@
     var m = buildStatementModel();
     renderStmtSelection(sel, m);
     renderStatementWarnings(m);
-    paper.innerHTML = renderStatementDoc(m, stmtTplSettings, currentOrg.name);
+    paper.innerHTML = renderStatementDoc(m, stmtTplSettings, currentOrg.name); fitStatementPreview(paper);
     maybeFetchPayLinks(m);
   }
   document.getElementById('stmtRecipientName').addEventListener('input', function(){ this.dataset.manual = '1'; schedulePreview(); });
   document.getElementById('stmtNotes').addEventListener('input', schedulePreview);
+  var stmtTxtOn = { cover: false, after_totals: false, pay_note: false, closing: false };
+  function setStmtTxt(k, on){
+    stmtTxtOn[k] = !!on;
+    var box = document.querySelector('[data-txt-sec="' + k + '"]'); if(!box) return;
+    box.querySelector('[data-ts-on]').checked = !!on; box.classList.toggle('on', !!on);
+    var ta = box.querySelector('textarea'); ta.hidden = !on;
+    schedulePreview();
+  }
+  document.querySelectorAll('[data-ts-on]').forEach(function(cb){ cb.addEventListener('change', function(){ setStmtTxt(cb.getAttribute('data-ts-on'), cb.checked); if(cb.checked) cb.closest('.txt-sec').querySelector('textarea').focus(); }); });
+  document.querySelectorAll('textarea[data-ts]').forEach(function(ta){ ta.addEventListener('input', schedulePreview); });
   document.getElementById('stmtAiNotesBtn').addEventListener('click', async function(){
     var sel = selectedStatementItems(); if(!sel.items.length) return;
     var btn = this; btn.disabled = true; btn.textContent = 'Drafting…';
@@ -4596,20 +4697,20 @@
       var byNumber = {};
       (d.draft.line_notes || []).forEach(function(n){ if(n && n.invoice_number) byNumber[String(n.invoice_number).trim()] = String(n.note || '').trim(); });
       sel.items.forEach(function(i){ if(byNumber.hasOwnProperty(i.invoice_number)) stmtLineNotes[i.id] = byNumber[i.invoice_number]; });
-      if(typeof d.draft.message === 'string') document.getElementById('stmtNotes').value = d.draft.message;
+      if(typeof d.draft.message === 'string'){ document.getElementById('stmtNotes').value = d.draft.message; if(d.draft.message.trim()) setStmtTxt('cover', true); }
       if(d.draft.internal_summary) renderFlags(document.getElementById('stmtFlags'), (d.flags || []).concat([{ level:'info', message:'For staff: ' + d.draft.internal_summary }]));
       lastLineNoteKey = '';
       renderStatementPreview();
       toast('AI notes drafted on each invoice. Check them before saving or printing.');
-    } finally { btn.disabled = selectedStatementItems().items.length === 0; btn.textContent = '✨ Draft notes with AI'; }
+    } finally { btn.disabled = selectedStatementItems().items.length === 0; btn.innerHTML = AI_MARK + 'Draft notes with DebtJet AI'; }
   });
-  function confirmBankSafety(action){
+  async function confirmBankSafety(action){
     if(!bankChangedRecently()) return true;
-    return confirm('Your bank details were changed ' + fmtDateTime(orgPayment.bank_changed_at) + '.\n\nHave you confirmed with the owner that this change is genuine? Choose OK to ' + action + ' anyway.');
+    return await djAsk('Your bank details were changed ' + fmtDateTime(orgPayment.bank_changed_at) + '.\n\nHave you confirmed with the owner that this change is genuine? Choose OK to ' + action + ' anyway.');
   }
   document.getElementById('stmtSaveBtn').addEventListener('click', async function(){
     var sel = selectedStatementItems(); if(!sel.items.length) return;
-    if(!confirmBankSafety('save')) return;
+    if(!await confirmBankSafety('save')) return;
     var m = buildStatementModel();
     var recipient = m.recipient.trim() || 'Statement recipient';
     var lm = m.late || { lateCount: 0, lateValue: 0 };
@@ -4629,7 +4730,10 @@
     toast('Statement ' + m.number + ' saved for ' + recipient + '.');
     await loadSavedStatements();
   });
-  document.getElementById('stmtPrintBtn').addEventListener('click', function(){ if(confirmBankSafety('print')) window.print(); });
+  document.getElementById('stmtPrintBtn').addEventListener('click', async function(){ if(await confirmBankSafety('print')) window.print(); });
+  // Printing: fit the table to the A4 content width first, then put the on-screen preview back.
+  window.addEventListener('beforeprint', function(){ var p = document.getElementById('statementPaper'); if(!p || !p.offsetParent) return; var sd = p.querySelector('.sd'); if(sd){ sd.style.zoom = ''; sd.style.width = ''; } p.dataset.w = p.style.width || ''; p.style.width = '733px'; fitStatementTable(p); });
+  window.addEventListener('afterprint', function(){ var p = document.getElementById('statementPaper'); if(!p || p.dataset.w === undefined) return; p.style.width = p.dataset.w; delete p.dataset.w; fitStatementPreview(p); });
   window.addEventListener('beforeprint', function(){
     var paper = document.getElementById('statementPaper'), lpaper = document.getElementById('letterPaper');
     var onStatements = !document.querySelector('.view[data-view="statements"]').hidden;
@@ -4664,7 +4768,7 @@
       var paper = document.getElementById('statementPaper');
       paper.className = 'statement-paper';
       ensureFont(s.template_settings.font); ensureFont(s.template_settings.heading_font);
-      paper.innerHTML = renderStatementDoc(m, s.template_settings, currentOrg.name);
+      paper.innerHTML = renderStatementDoc(m, s.template_settings, currentOrg.name); fitStatementPreview(paper);
       renderFlags(document.getElementById('stmtWarn'), [{ level: 'info', message: 'Showing saved statement ' + (T.number || '') + ' exactly as it was issued on ' + fmt(s.generated_at || s.created_at) + '.' }]);
     }
     document.getElementById('stmtPrintBtn').disabled = false;
@@ -4847,7 +4951,7 @@
     if(bad.length){ toast(bad[0]); return; }
     var old = orgPayment || {};
     var bankChanged = old.bsb !== row.bsb || old.account_number !== row.account_number || old.account_name !== row.account_name || old.payid !== row.payid || old.bpay_biller_code !== row.bpay_biller_code;
-    if(bankChanged && (old.bsb || old.payid) && !confirm('You are changing where debtors send money.\n\nNew details:\nAccount name: ' + (row.account_name || '—') + '\nBSB: ' + (row.bsb || '—') + '\nAccount: ' + (row.account_number || '—') + (row.payid ? '\nPayID: ' + row.payid : '') + '\n\nThis is logged, and staff will be warned for 24 hours. Continue?')) return;
+    if(bankChanged && (old.bsb || old.payid) && !await djAsk('You are changing where debtors send money.\n\nNew details:\nAccount name: ' + (row.account_name || '—') + '\nBSB: ' + (row.bsb || '—') + '\nAccount: ' + (row.account_number || '—') + (row.payid ? '\nPayID: ' + row.payid : '') + '\n\nThis is logged, and staff will be warned for 24 hours. Continue?')) return;
     var r = await sb.from('org_payment_details').upsert(row, { onConflict: 'org_id' }).select('*').single();
     if(r.error){ toast('Could not save: ' + r.error.message); return; }
     orgPayment = r.data;
@@ -4859,7 +4963,7 @@
   document.getElementById('chgSaveBtn').addEventListener('click', async function(){
     if(!canEditPayments()) return;
     var cfg = readChargesForm();
-    if(cfg.interest_enabled && cfg.rate_pa > 0.3 && !confirm('An interest rate of ' + r2(cfg.rate_pa * 100) + '% a year is very high and may be unenforceable or unfair. Save anyway?')) return;
+    if(cfg.interest_enabled && cfg.rate_pa > 0.3 && !await djAsk('An interest rate of ' + r2(cfg.rate_pa * 100) + '% a year is very high and may be unenforceable or unfair. Save anyway?')) return;
     var r = await sb.from('org_charge_settings').upsert(Object.assign({ org_id: currentOrg.id, updated_by: session.user.id, updated_at: new Date().toISOString() }, cfg), { onConflict: 'org_id' }).select('*').single();
     if(r.error){ toast('Could not save: ' + r.error.message); return; }
     orgCharges = r.data; if(!Array.isArray(orgCharges.fees)) orgCharges.fees = [];
@@ -5179,7 +5283,7 @@
     var rows = xpRows().rows.filter(function(r){ return xpSel[r.inv.id]; });
     if(!rows.length || xpBusy) return;
     var total = rows.reduce(function(t, r){ return t + r.amount; }, 0);
-    if(!confirm('Create ' + rows.length + ' draft interest invoice' + (rows.length === 1 ? '' : 's') + ' in Xero, totalling ' + money(total) + '?\n\nThey stay as drafts until you approve them in Xero.')) return;
+    if(!await djAsk('Create ' + rows.length + ' draft interest invoice' + (rows.length === 1 ? '' : 's') + ' in Xero, totalling ' + money(total) + '?\n\nThey stay as drafts until you approve them in Xero.')) return;
     xpBusy = true; renderXpSelInfo();
     var ok = 0, failed = [];
     try {
@@ -5439,7 +5543,7 @@
     loadHistory(panel, st.debtorIds, true);
   }
   async function deleteLogEntry(panel, id){
-    if(!confirm('Delete this history entry?')) return;
+    if(!await djAsk('Delete this history entry?')) return;
     var r = await sb.from('correspondence_log').delete().eq('id', id);
     if(r.error){ toast('Could not delete: ' + r.error.message); return; }
     loadHistory(panel, histState[panel].debtorIds, true);
@@ -5561,7 +5665,7 @@
   async function openPdfPreview(kind){
     var paper = document.getElementById(kind === 'letter' ? 'letterPaper' : 'statementPaper');
     if(!paper.querySelector(kind === 'letter' ? '.ld' : '.sd, table')){ toast(kind === 'letter' ? 'Choose a case first, so there’s a letter to preview.' : 'Select contacts and invoices first, so there’s a statement to preview.'); return; }
-    if(!confirmBankSafety('preview the PDF')) return;
+    if(!await confirmBankSafety('preview the PDF')) return;
     var stage = document.getElementById('pdfStage'), dl = document.getElementById('pdfDownload'), ot = document.getElementById('pdfOpenTab');
     var name = statementPdfName(kind);
     cleanupPdf(); dl.hidden = true; ot.hidden = true;
@@ -5569,6 +5673,12 @@
     stage.innerHTML = '<div class="pdf-loading">Building PDF…</div>';
     openModal('pdfModal');
     var src = kind === 'letter' ? letterCleanPaper() : paper.cloneNode(true); src.removeAttribute('id'); src.classList.add('pdf-src');
+    // Lay the copy out at the A4 content width (210mm less 16mm margins) so nothing runs off the page.
+    var holder = document.createElement('div'); holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:733px;';
+    src.style.width = '733px'; src.style.maxWidth = '733px'; src.style.boxSizing = 'border-box';
+    src.querySelectorAll('.sd').forEach(function(x){ x.style.zoom = ''; x.style.width = ''; });
+    holder.appendChild(src); document.body.appendChild(holder);
+    if(kind !== 'letter') fitStatementTable(src);
     try {
       var h2p = await loadHtml2Pdf();
       var blob = await h2p().set({
@@ -5577,6 +5687,7 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.sd-box', '.sd-pay', '.sd-slip', '.sd-summary', '.sd-det', '.ld-pay', '.ld-bank', '.ld-sign'] }
       }).from(src).outputPdf('blob');
+      holder.remove();
       if(document.getElementById('pdfModal').hidden) return;
       pdfUrl = URL.createObjectURL(blob);
       stage.innerHTML = '<iframe class="pdf-frame" title="PDF preview" src="' + pdfUrl + '#view=FitH"></iframe>';
@@ -6518,7 +6629,7 @@
         + '<label class="rec-f wide"><span>Our response (facts only, each linked to a record)</span><textarea data-dresp rows="6">'+escapeHtml(dr.text != null ? dr.text : (x.our_response || ''))+'</textarea></label>'
         + unknown + (ev ? '<div class="rec-evchips"><span class="muted small">Records cited:</span>'+ev+'</div>' : '') + gaps
         + '<div class="rec-acts">'
-        + '<button class="btn" type="button" data-dact="ai">✨ Draft from our records</button>'
+        + '<button class="btn ai-btn" type="button" data-dact="ai">'+AI_MARK+'Draft from our records with DebtJet AI</button>'
         + '<button class="btn ghost sm" type="button" data-dact="pick">Choose records'+(dr.keys ? ' ('+dr.keys.length+')' : '')+'</button>'
         + '<button class="btn" type="button" data-dact="save">Save</button>'
         + '<label class="rec-approve"><input type="checkbox" data-dact="approve"'+(x.approved_at ? ' checked' : '')+'> I’ve checked every statement against our records and approve this response</label>'
@@ -6582,7 +6693,7 @@
     if(act === 'ai'){
       el.disabled = true; el.textContent = 'Drafting…';
       var r = await invokeFn('dispute-response', { case_id: c.id, invoice_id: x.invoice_id, debtor_says: x.debtor_says, evidence_keys: dr.keys || null });
-      el.disabled = false; el.textContent = '✨ Draft from our records';
+      el.disabled = false; el.innerHTML = AI_MARK + 'Draft from our records with DebtJet AI';
       if(!r.ok){ toast(r.error || 'Could not draft a response.'); return; }
       var gaps = (r.draft.gaps || []).concat((r.draft.questions || []).map(function(q){ return 'Question: ' + q; }));
       var upd = await sb.from('recovery_disputes').update({ our_response: String(r.draft.response || '').slice(0, 6000), gaps: gaps, evidence: (r.evidence || []).slice(0, 40), ai_drafted: true, approved_at: null }).eq('id', x.id).select().maybeSingle();
@@ -6604,7 +6715,7 @@
       renderRecovery(); return;
     }
     if(act === 'del'){
-      if(!confirm('Delete this disputed point and its response?')) return;
+      if(!await djAsk('Delete this disputed point and its response?')) return;
       var dl = await sb.from('recovery_disputes').delete().eq('id', x.id);
       if(dl.error){ toast('Could not delete: ' + dl.error.message); return; }
       recState.disputes = recState.disputes.filter(function(d){ return d.id !== x.id; });
@@ -6698,7 +6809,7 @@
       return;
     }
     if(act === 'delete-file'){
-      if(!confirm('Delete this recovery file? Disputed points stay on the case.')) return;
+      if(!await djAsk('Delete this recovery file? Disputed points stay on the case.')) return;
       var dl = await sb.from('recovery_matters').delete().eq('id', m.id);
       if(dl.error){ toast('Could not delete: ' + dl.error.message); return; }
       recMatters = recMatters.filter(function(x){ return x.id !== m.id; });
@@ -6844,7 +6955,7 @@
     if(c){ var id = c.getAttribute('data-rcasepick'); document.getElementById('recCaseSelect').value = id; selectRecoveryCase(id).then(renderRecoveryCaseList); renderRecoveryCaseList(); }
   });
 
-  document.getElementById('recRoot').addEventListener('click', function(e){
+  document.getElementById('recRoot').addEventListener('click', async function(e){
     var b = e.target.closest('[data-ract]'); if(b){ recoveryAction(b.getAttribute('data-ract'), b); return; }
     if(e.target.id === 'recStartBtn'){ recoveryAction('start', e.target); return; }
     var addSec = e.target.closest('[data-raddsec]');
@@ -6860,7 +6971,7 @@
     var sa = e.target.closest('[data-rsec]');
     if(sa){
       var sec = sa.closest('.rec-sec'), how = sa.getAttribute('data-rsec');
-      if(how === 'del'){ if(djSerialize(sec.querySelector('.rec-rich')).length > 40 && !confirm('Remove this section?')) return; sec.remove(); }
+      if(how === 'del'){ var par = sec.parentNode, nxt = sec.nextSibling, ttl = (sec.querySelector('.rec-sec-title') || {}).value || 'Section'; sec.remove(); toastUndo('“' + ttl + '” removed. Save to keep the change.', function(){ par.insertBefore(sec, nxt && nxt.parentNode === par ? nxt : null); }); }
       if(how === 'up' && sec.previousElementSibling) sec.parentNode.insertBefore(sec, sec.previousElementSibling);
       if(how === 'down' && sec.nextElementSibling) sec.parentNode.insertBefore(sec.nextElementSibling, sec);
       return;
