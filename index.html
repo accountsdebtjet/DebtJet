@@ -1,5 +1,5 @@
 <title>DebtJet</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700;800&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
 <style>
   :root{
@@ -353,6 +353,92 @@
   .p-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px;}
   .note-callout{display:flex;gap:9px;align-items:flex-start;background:var(--info-soft);color:var(--info);border-radius:9px;padding:11px 13px;font-size:12px;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto;}
 
+  /* ---------- Shared paragraph editor ---------- */
+  .dj-b{position:relative;border-radius:6px;margin:0 -10px;padding:2px 10px;transition:background .12s, box-shadow .12s;}
+  .dj-b:hover{box-shadow:inset 3px 0 0 #FFC72C;}
+  .dj-b.cur{box-shadow:inset 3px 0 0 #0B2A5B;background:rgba(255,199,44,.07);}
+  .dj-b.off{opacity:.75;}
+  .dj-offnote{font-size:12px;color:#7a8494;font-style:italic;border:1px dashed #cfd6e0;border-radius:6px;padding:5px 10px;margin:2px 0 10px;}
+  .dj-ctl{position:absolute;right:4px;top:-13px;display:flex;align-items:center;gap:2px;background:#fff;border:1px solid #d9dee6;border-radius:999px;padding:1px 6px 1px 4px;box-shadow:0 2px 6px rgba(11,42,91,.12);opacity:0;pointer-events:none;transition:opacity .12s;z-index:3;font-family:var(--font, system-ui);}
+  .dj-b:hover .dj-ctl,.dj-b.cur .dj-ctl,.dj-b.off .dj-ctl,.dj-ctl:focus-within{opacity:1;pointer-events:auto;}
+  .dj-ctl button{border:0;background:none;color:#334;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:5px;line-height:1.2;}
+  .dj-ctl button:hover:not(:disabled){background:#eef1f6;}
+  .dj-ctl button:disabled{opacity:.3;cursor:default;}
+  .dj-ctl .ld-switch{transform:scale(.8);margin-right:-2px;}
+  .dj-tag{font-size:10.5px;font-weight:600;color:#6b7686;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px;}
+  .dj-txt{outline:none;min-height:1.4em;cursor:text;}
+  .dj-txt > div{margin:0;}
+  .dj-txt:focus{caret-color:#0B2A5B;}
+  .dj-b .dj-txt{margin-bottom:10px;}
+  .dj-subj{outline:none;cursor:text;}
+  .dj-subj:focus{background:rgba(255,199,44,.12);}
+  .dj-txt:empty::before,.dj-txt > div:only-child > br:only-child{content:'';}
+  .dj-var{background:#FFF1C2;color:#5a4300;border-radius:4px;padding:0 3px;box-shadow:inset 0 -1px 0 #f0c64a;white-space:nowrap;cursor:default;}
+  .dj-var.empty{background:#fde2e2;color:#8a1f1f;box-shadow:inset 0 -1px 0 #f3a5a5;}
+  .dj-add{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 14px;padding:8px 10px;border:1px dashed #cfd6e0;border-radius:8px;font-family:var(--font, system-ui);font-size:12px;}
+  .dj-add span{color:#7a8494;font-weight:600;margin-right:2px;}
+  .dj-add button{border:1px solid #d9dee6;background:#fff;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;color:#0B2A5B;}
+  .dj-add button:hover{border-color:#0B2A5B;}
+  .dj-bar{position:fixed;z-index:9999;display:flex;align-items:center;gap:1px;background:#14213D;color:#fff;border-radius:9px;padding:3px;box-shadow:0 8px 24px rgba(11,20,40,.28);font-size:13px;}
+  .dj-bar[hidden]{display:none !important;}
+  body.modal-open .dj-bar{display:none !important;}
+  .dj-bar button{background:none;border:0;color:#fff;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:13px;line-height:1;}
+  .dj-bar button:hover{background:rgba(255,255,255,.14);}
+  .dj-bar .dj-sep{width:1px;height:18px;background:rgba(255,255,255,.2);margin:0 2px;}
+  .dj-bar [hidden]{display:none !important;}
+  .dj-fieldwrap{position:relative;}
+  .dj-fieldmenu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;color:#14213D;border:1px solid #d9dee6;border-radius:8px;box-shadow:0 8px 24px rgba(11,20,40,.2);max-height:280px;overflow:auto;min-width:220px;padding:4px;}
+  .dj-fieldmenu.up{top:auto;bottom:calc(100% + 6px);}
+  .dj-fieldmenu button{display:block;width:100%;text-align:left;color:#14213D;padding:6px 9px;font-size:12.5px;}
+  .dj-fieldmenu button:hover{background:#FFF1C2;}
+  /* Assist sidebar */
+  .as-intro{font-size:12.5px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;}
+  .as-label{display:block;font-weight:700;font-size:13px;margin-bottom:6px;}
+  .as-q{width:100%;resize:vertical;min-height:54px;font:inherit;font-size:13px;}
+  .as-ask-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0 10px;}
+  .as-ai{white-space:nowrap;}
+  .as-draft{border:1.5px solid #FFC72C;background:var(--warm-soft);border-radius:10px;padding:10px 12px;margin:0 0 12px;}
+  .as-draft-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px;}
+  .as-badge{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#14213D;color:#FFC72C;border-radius:4px;padding:1px 6px;}
+  .as-draft-body{font-size:13px;line-height:1.55;}
+  .as-draft-body p,.as-draft-body ul,.as-draft-body ol{margin:0 0 6px;}
+  .as-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .as-cats{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px;}
+  .as-chip{border:1px solid var(--border);background:transparent;border-radius:999px;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--text);}
+  .as-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .as-list{display:flex;flex-direction:column;gap:6px;}
+  .as-clause{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:9px;background:var(--surface, #fff);overflow:hidden;}
+  .as-clause:hover{border-color:#FFC72C;box-shadow:0 0 0 2px rgba(255,199,44,.25);}
+  .as-clause-main{flex:1;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;color:inherit;font:inherit;}
+  .as-clause-h{display:flex;gap:6px;align-items:baseline;font-weight:700;font-size:12.5px;margin-bottom:2px;}
+  .as-cat{margin-left:auto;font-weight:500;font-size:10.5px;color:var(--text-muted);}
+  .as-clause-t{display:block;font-size:12px;color:var(--text-muted);line-height:1.45;}
+  .as-clause-t p{margin:0;}
+  .as-del{border:0;background:none;color:var(--text-muted);cursor:pointer;padding:0 9px;}
+  .as-del:hover{color:#B42318;}
+  /* Letters: paper on the left, sidebar on the right */
+  .ld-shell{grid-template-columns:minmax(0,1fr) minmax(320px,380px) !important;}
+  .ld-shell > .ld-side{order:2;}
+  @media (max-width:1000px){ .ld-shell{grid-template-columns:1fr !important;} }
+  /* Recovery: rich claim details and sections */
+  .rec-f.wide > .rec-rich,.rec-sec .rec-rich{display:block;}
+  .rec-rich{border:1px solid var(--border);border-radius:10px;background:var(--surface, #fff);padding:10px 12px;min-height:150px;line-height:1.6;font-size:13.5px;outline:none;cursor:text;transition:box-shadow .15s, border-color .15s;}
+  .rec-rich:focus{border-color:#14213D;box-shadow:0 0 0 3px rgba(255,199,44,.35);}
+  .rec-rich.flash{box-shadow:0 0 0 3px rgba(255,199,44,.7);}
+  .rec-rich ul,.rec-rich ol{margin:2px 0 6px;padding-left:1.4em;}
+  .rec-sec{margin:14px 0 4px;}
+  .rec-sec-h{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .rec-sec-title{flex:1;font-weight:700;font-size:14px;border:0;border-bottom:1px dashed var(--border);background:transparent;padding:4px 2px;color:var(--text);}
+  .rec-sec-title:focus{outline:none;border-bottom-color:#14213D;}
+  .rec-sec .rec-rich{min-height:80px;}
+  .rec-sec-acts button{border:0;background:none;cursor:pointer;color:var(--text-muted);padding:3px 6px;border-radius:6px;}
+  .rec-sec-acts button:hover{background:var(--surface-2, #eef1f6);color:var(--text);}
+  .rec-addsec{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 4px;padding:9px 10px;border:1px dashed var(--border);border-radius:10px;font-size:12.5px;}
+  .rec-addsec span{font-weight:600;color:var(--text-muted);margin-right:2px;}
+  .rec-addsec button{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;}
+  .rec-addsec button:hover{border-color:#14213D;}
+  .rec-assist .card-head h3{margin:0;}
+  .rec-assist .as-list{max-height:48vh;overflow:auto;padding-right:2px;}
   /* STATEMENTS */
   .cc-form [hidden]{display:none !important;}
   /* Debt Recovery tabs */
@@ -800,6 +886,64 @@
     .topbar{padding:12px 14px;}
     .view{padding:16px 14px 50px;}
   }
+  /* =====================================================================
+     PAPER & INK — DebtJet's own look (Nov 2026)
+     Warm paper, ink-navy text and sidebar, a serif for titles, and Signal Yellow
+     used like a highlighter pen (never as text on light backgrounds).
+     ===================================================================== */
+  @media not (prefers-color-scheme: dark){ :root:not([data-theme="dark"]){
+    --bg:#F6F2E9; --surface:#FFFDF8; --surface-alt:#F1EBDD; --border:#E6DECD; --border-strong:#D3C7AF;
+    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#7A8496;
+    --accent:#1E6FD9; --accent-strong:#1554B8; --accent-soft:#E3ECF8;
+    --warm-soft:#FFF4CF;
+    --sidebar-bg:#0B2A5B; --sidebar-text:#E9E2D0; --sidebar-text-dim:#93A5C4; --sidebar-active:rgba(255,199,44,.13); --sidebar-active-text:#FFFDF8;
+    --sidebar-hover:rgba(255,253,248,.07); --sidebar-strong:#FFFDF8; --sidebar-jet:#FFC72C; --sidebar-line:rgba(255,253,248,.12);
+    --topbar-bg:#F6F2E9; --topbar-text:#0B2A5B; --topbar-sub:#3F5170; --topbar-border:#E6DECD;
+    --shadow:0 1px 0 rgba(70,52,20,.04), 0 3px 12px rgba(70,52,20,.05);
+    --radius:10px;
+    --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55);
+  } }
+  :root[data-theme="light"]{
+    --bg:#F6F2E9; --surface:#FFFDF8; --surface-alt:#F1EBDD; --border:#E6DECD; --border-strong:#D3C7AF;
+    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#7A8496;
+    --accent:#1E6FD9; --accent-strong:#1554B8; --accent-soft:#E3ECF8;
+    --warm-soft:#FFF4CF;
+    --sidebar-bg:#0B2A5B; --sidebar-text:#E9E2D0; --sidebar-text-dim:#93A5C4; --sidebar-active:rgba(255,199,44,.13); --sidebar-active-text:#FFFDF8;
+    --sidebar-hover:rgba(255,253,248,.07); --sidebar-strong:#FFFDF8; --sidebar-jet:#FFC72C; --sidebar-line:rgba(255,253,248,.12);
+    --topbar-bg:#F6F2E9; --topbar-text:#0B2A5B; --topbar-sub:#3F5170; --topbar-border:#E6DECD;
+    --shadow:0 1px 0 rgba(70,52,20,.04), 0 3px 12px rgba(70,52,20,.05);
+    --radius:10px;
+    --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55);
+  }
+  :root{ --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --hl:rgba(255,211,92,.3); --ink:#E7EDF9; --paper:#122142; } }
+  :root[data-theme="dark"]{ --hl:rgba(255,211,92,.3); --ink:#E7EDF9; --paper:#122142; }
+  .serif, .topbar h1, .card-head h3, .stab-title, h2.page{font-family:"Newsreader", Georgia, "Times New Roman", serif;letter-spacing:-0.01em;}
+  .topbar h1{font-size:26px;font-weight:600;line-height:1.15;display:inline;padding:0 3px;margin-left:-3px;
+    background:linear-gradient(100deg, transparent 0 1%, var(--hl) 2% 97%, transparent 98%) no-repeat 0 88% / 100% 38%;}
+  .topbar{border-bottom:1px solid var(--topbar-border);backdrop-filter:saturate(1.1) blur(6px);background:color-mix(in srgb, var(--topbar-bg) 92%, transparent);}
+  .card-head h3{font-size:18px;font-weight:600;}
+  .card{box-shadow:var(--shadow);}
+  .card-head{border-bottom:1px solid color-mix(in srgb, var(--border) 70%, transparent);padding-bottom:12px;margin-bottom:4px;}
+  /* Sidebar: ink with a highlighter on the current page */
+  .nav-btn{color:var(--sidebar-text);}
+  .nav-btn.active{background:var(--sidebar-active);color:var(--sidebar-active-text);box-shadow:inset 3px 0 0 #FFC72C;border-radius:4px 8px 8px 4px;}
+  .nav-btn.active .ic{color:#FFC72C;opacity:1;}
+  /* Buttons and tabs: ink first, blue for links */
+  .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .stmt-tabs button.active,.seg-btn.active{background:var(--ink);color:var(--paper);box-shadow:inset 0 -3px 0 #FFC72C;}
+  .stmt-tabs{background:var(--surface);}
+  .stmt-tabs button.active .rtab-b.ok{background:rgba(255,199,44,.25);color:#FFC72C;}
+  /* Top bar "Connect" button sits on paper now */
+  .tb-src-add{background:var(--surface);border-color:var(--border-strong);}
+  .tb-src-add:hover{background:var(--warm-soft);}
+  /* Tables: ruled like a ledger */
+  .rec-table th, table th{letter-spacing:.05em;}
+  /* Letters and recovery: paper sheets sit on the desk */
+  .letter-paper{box-shadow:0 1px 0 rgba(70,52,20,.05), 0 10px 30px -12px rgba(70,52,20,.25);border-color:#E9E2D2;}
+  /* Highlighter utility */
+  .hl{background:linear-gradient(transparent 58%, var(--hl) 58% 92%, transparent 92%);padding:0 2px;}
 </style>
 
 <!-- AUTH -->
@@ -961,7 +1105,7 @@
         <div class="ld-shell">
           <div class="card ld-side">
             <div class="seg ld-tabs ld-tpl-only" role="tablist">
-              <button type="button" class="seg-btn" data-ldtab="content" hidden>Content</button>
+              <button type="button" class="seg-btn" data-ldtab="content">Write</button>
               <button type="button" class="seg-btn active" data-ldtab="design">Design</button>
               <button type="button" class="seg-btn" data-ldtab="settings">Settings</button>
             </div>
@@ -2075,6 +2219,264 @@
     return out;
   }
   /* =====================================================================
+     SHARED PARAGRAPH EDITOR (letters, claim details, packs)
+     Text is stored as light markup so it stays safe and portable:
+       **bold**  *italic*  __underline__   lines starting "- " (bullets) or "1. " (numbered)
+       {{field}} placeholders, filled from the case when the document is built.
+     On screen it is edited in place (contenteditable) with a floating toolbar.
+     ===================================================================== */
+  function djInline(src, vars, mode){
+    var s = escapeHtml(src || '');
+    s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/__(.+?)__/g, '<u>$1</u>').replace(/(^|[^*\w])\*(?!\s)(.+?)\*(?!\*)/g, '$1<i>$2</i>');
+    return s.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, function(m, k){
+      var has = vars && Object.prototype.hasOwnProperty.call(vars, k) && !/^\{\{/.test(vars[k]);
+      if(mode === 'edit'){
+        var lab = (DJ_FIELD_LABEL[k] || k.replace(/_/g, ' '));
+        return '<span class="dj-var'+(has ? '' : ' empty')+'" contenteditable="false" data-var="'+k+'" title="Field: '+escapeHtml(lab)+'">'+escapeHtml(has ? vars[k] : lab)+'</span>';
+      }
+      return has ? escapeHtml(vars[k]) : '<span class="ld-missing">' + m + '</span>';
+    });
+  }
+  // Markup → HTML. mode 'html' = finished document, 'edit' = editable (one <div> per line, fields as chips).
+  function djRich(text, vars, mode){
+    var lines = String(text || '').replace(/\r/g, '').split('\n'), out = '', para = [], list = null;
+    var closeList = function(){ if(list){ out += '</' + list + '>'; list = null; } };
+    var closePara = function(){ if(para.length){ out += '<p>' + para.join('<br>') + '</p>'; para = []; } };
+    lines.forEach(function(line){
+      var b = /^\s*[-•]\s+(.*)$/.exec(line), n = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+      if(b || n){
+        if(mode !== 'edit') closePara();
+        var want = b ? 'ul' : 'ol';
+        if(list !== want){ closeList(); out += '<' + want + '>'; list = want; }
+        out += '<li>' + djInline((b || n)[1], vars, mode) + '</li>'; return;
+      }
+      closeList();
+      if(mode === 'edit'){ out += '<div>' + (line.trim() ? djInline(line, vars, mode) : '<br>') + '</div>'; return; }
+      if(!line.trim()){ closePara(); return; }
+      para.push(djInline(line, vars, mode));
+    });
+    closeList(); if(mode !== 'edit') closePara();
+    return out || (mode === 'edit' ? '<div><br></div>' : '');
+  }
+  // Markup → plain text (copying into court portals, emails): formatting removed, lists kept.
+  function djPlain(text, vars){
+    var s = String(text || '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/__(.+?)__/g, '$1').replace(/(^|[^*\w])\*(?!\s)(.+?)\*(?!\*)/g, '$1$2');
+    return vars ? s.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, function(m, k){ return Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : m; }) : s;
+  }
+  function djWrapMk(s, m){ if(!s.trim()) return s; var a = s.match(/^\s*/)[0], z = s.match(/\s*$/)[0]; return a + m + s.trim() + m + z; }
+  function djInl(n){
+    if(n.nodeType === 3) return n.nodeValue.replace(/ /g, ' ').replace(/\n/g, ' ');
+    if(n.nodeType !== 1) return '';
+    if(n.classList.contains('dj-var')) return '{{' + n.getAttribute('data-var') + '}}';
+    if(n.tagName === 'BR') return '\n';
+    var s = Array.prototype.map.call(n.childNodes, djInl).join(''), t = n.tagName, st = n.style || {};
+    if(t === 'B' || t === 'STRONG' || st.fontWeight === 'bold' || Number(st.fontWeight) >= 600) s = djWrapMk(s, '**');
+    if(t === 'I' || t === 'EM' || st.fontStyle === 'italic') s = djWrapMk(s, '*');
+    if(t === 'U' || /underline/.test(st.textDecoration || st.textDecorationLine || '')) s = djWrapMk(s, '__');
+    return s;
+  }
+  // Editable DOM → markup.
+  function djSerialize(root){
+    var L = [''];
+    var put = function(s){ var p = s.split('\n'); L[L.length - 1] += p[0]; for(var i = 1; i < p.length; i++) L.push(p[i]); };
+    var brk = function(){ if(L[L.length - 1] !== '') L.push(''); };
+    (function walk(n){
+      Array.prototype.forEach.call(n.childNodes, function(c){
+        if(c.nodeType === 1 && (c.tagName === 'UL' || c.tagName === 'OL')){
+          brk(); Array.prototype.forEach.call(c.children, function(li, i){ brk(); put((c.tagName === 'UL' ? '- ' : (i + 1) + '. ') + djInl(li).replace(/\n+/g, ' ').trim()); }); brk(); return;
+        }
+        if(c.nodeType === 1 && /^(DIV|P|H[1-6]|BLOCKQUOTE|LI)$/.test(c.tagName)){
+          brk();
+          if(!c.textContent.trim() && !c.querySelector('.dj-var')){ L.push(''); return; }
+          walk(c); brk(); return;
+        }
+        put(djInl(c));
+      });
+    })(root);
+    return L.join('\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  var DJ_FIELD_LABEL = {};
+  // ---- Floating toolbar: one for the whole app, shown above the text you're editing.
+  var djBar = null, djActive = null;
+  function djEnsureBar(){
+    if(djBar) return djBar;
+    djBar = document.createElement('div'); djBar.className = 'dj-bar'; djBar.hidden = true; djBar.setAttribute('role', 'toolbar'); djBar.setAttribute('aria-label', 'Formatting');
+    djBar.innerHTML = '<button type="button" data-djc="bold" title="Bold (Ctrl+B)"><b>B</b></button><button type="button" data-djc="italic" title="Italic (Ctrl+I)"><i>I</i></button><button type="button" data-djc="underline" title="Underline (Ctrl+U)"><u>U</u></button>'
+      + '<span class="dj-sep"></span><button type="button" data-djc="insertUnorderedList" title="Bullet list">• List</button><button type="button" data-djc="insertOrderedList" title="Numbered list">1. List</button>'
+      + '<span class="dj-sep dj-only-heading"></span><button type="button" data-djc="heading" class="dj-only-heading" title="Turn this into a heading, or back into a paragraph">H</button>'
+      + '<span class="dj-sep dj-only-fields"></span><span class="dj-fieldwrap dj-only-fields"><button type="button" data-djc="fields" title="Insert a field that fills in from the case">{ } Field ▾</button><div class="dj-fieldmenu" hidden></div></span>'
+      + '<span class="dj-sep"></span><button type="button" data-djc="removeFormat" title="Clear formatting">⌫</button>';
+    document.body.appendChild(djBar);
+    djBar.addEventListener('mousedown', function(e){ if(!e.target.closest('input')) e.preventDefault(); });
+    djBar.addEventListener('click', function(e){
+      var b = e.target.closest('[data-djc],[data-djf]'); if(!b || !djActive) return;
+      if(b.hasAttribute('data-djf')){ djInsertField(djActive, b.getAttribute('data-djf')); djBar.querySelector('.dj-fieldmenu').hidden = true; return; }
+      var c = b.getAttribute('data-djc');
+      if(c === 'fields'){ var fm = djBar.querySelector('.dj-fieldmenu'); fm.hidden = !fm.hidden; fm.classList.toggle('up', djBar.getBoundingClientRect().bottom + 300 > window.innerHeight); return; }
+      if(c === 'heading'){ if(djActive._dj && djActive._dj.onHeading) djActive._dj.onHeading(); return; }
+      document.execCommand(c, false, null);
+      djFire(djActive);
+    });
+    return djBar;
+  }
+  function djFire(el){ if(el && el._dj && el._dj.onChange) el._dj.onChange(djSerialize(el), el); }
+  function djInsertField(el, key){
+    var sel = window.getSelection();
+    if(!sel.rangeCount || !el.contains(sel.anchorNode)){ el.focus(); var r0 = document.createRange(); r0.selectNodeContents(el); r0.collapse(false); sel.removeAllRanges(); sel.addRange(r0); }
+    var r = sel.getRangeAt(0); r.deleteContents();
+    var tmp = document.createElement('div'); tmp.innerHTML = djInline('{{' + key + '}}', (el._dj && el._dj.vars) || {}, 'edit');
+    var chip = tmp.firstChild, sp = document.createTextNode(' ');
+    r.insertNode(sp); r.insertNode(chip);
+    r.setStartAfter(sp); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+    djFire(el);
+  }
+  // Attach editing behaviour to an element. opts: { vars, fields:[[key,label]], heading:bool, singleLine:bool, onChange(markup, el), onHeading(), onFocus(el) }
+  function djAttach(el, opts){
+    el._dj = opts || {};
+    el.setAttribute('contenteditable', 'true'); el.setAttribute('data-dj-edit', '');
+    el.setAttribute('spellcheck', 'true');
+    if(opts.singleLine) el.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); } });
+  }
+  function djPositionBar(){
+    if(!djActive || !document.body.contains(djActive)){ if(djBar) djBar.hidden = true; djActive = null; return; }
+    var bar = djEnsureBar(), o = djActive._dj || {};
+    bar.querySelectorAll('.dj-only-heading').forEach(function(x){ x.hidden = !o.heading; });
+    bar.querySelectorAll('.dj-only-fields').forEach(function(x){ x.hidden = !(o.fields && o.fields.length); });
+    bar.querySelector('.dj-fieldmenu').innerHTML = (o.fields || []).map(function(f){ return '<button type="button" data-djf="'+f[0]+'">'+escapeHtml(f[1])+'</button>'; }).join('');
+    bar.hidden = false;
+    var sel = window.getSelection(), rect = null;
+    if(sel.rangeCount && djActive.contains(sel.anchorNode)){ var rr = sel.getRangeAt(0).getClientRects(); rect = rr.length ? rr[0] : null; }
+    var box = djActive.getBoundingClientRect();
+    if(!rect || (!rect.width && !rect.height)) rect = box;
+    var top = Math.max(8, rect.top - bar.offsetHeight - 8), left = Math.min(window.innerWidth - bar.offsetWidth - 8, Math.max(8, rect.left));
+    if(top < box.top - bar.offsetHeight - 60) top = box.top - bar.offsetHeight - 8;
+    bar.style.top = top + 'px'; bar.style.left = left + 'px';
+  }
+  document.addEventListener('focusin', function(e){
+    var ed = e.target.closest && e.target.closest('[data-dj-edit]');
+    if(ed){ djActive = ed; if(ed._dj && ed._dj.onFocus) ed._dj.onFocus(ed); djPositionBar(); }
+  });
+  document.addEventListener('focusout', function(e){
+    setTimeout(function(){ var a = document.activeElement; if(djBar && (djBar.contains(a) || (a && a.closest && a.closest('[data-dj-edit]')))) return; if(djBar){ djBar.hidden = true; djBar.querySelector('.dj-fieldmenu').hidden = true; } var was = djActive; djActive = null; if(was && was._dj && was._dj.onBlur) was._dj.onBlur(was); }, 120);
+  });
+  document.addEventListener('selectionchange', function(){ if(djActive) djPositionBar(); });
+  window.addEventListener('scroll', function(){ if(djActive) djPositionBar(); }, true);
+  document.addEventListener('input', function(e){ var ed = e.target.closest && e.target.closest('[data-dj-edit]'); if(ed) djFire(ed); });
+  // Paste as plain text, so outside formatting and scripts never come in.
+  document.addEventListener('paste', function(e){
+    var ed = e.target.closest && e.target.closest('[data-dj-edit]'); if(!ed) return;
+    e.preventDefault();
+    var t = (e.clipboardData || window.clipboardData).getData('text/plain') || '';
+    if(ed._dj && ed._dj.singleLine) t = t.replace(/\s*\n\s*/g, ' ');
+    document.execCommand('insertText', false, t);
+  });
+
+  // ---- Assist sidebar: one box that searches the clause library and drafts with AI.
+  var userClauses = { letter: null, claim: null };
+  async function loadUserClauses(scope){
+    if(userClauses[scope]) return userClauses[scope];
+    var r = await sb.from('clause_library').select('id, scope, category, label, body').eq('org_id', currentOrg.id).eq('scope', scope).order('label');
+    userClauses[scope] = r.error ? [] : (r.data || []);
+    if(r.error) userClauses[scope].unavailable = true;
+    return userClauses[scope];
+  }
+  async function saveUserClause(scope, text, suggested){
+    var label = window.prompt('Name this clause, so you can find it again:', suggested || '');
+    if(!label) return;
+    var r = await sb.from('clause_library').insert({ org_id: currentOrg.id, scope: scope, label: label.slice(0, 80), body: String(text).slice(0, 4000) }).select('id, scope, category, label, body').maybeSingle();
+    if(r.error){ toast('Could not save the clause: ' + r.error.message); return; }
+    (userClauses[scope] = userClauses[scope] || []).push(r.data); toast('Saved to Your clauses.');
+  }
+  function djScore(c, words){
+    if(!words.length) return 1;
+    var hay = (c.label + ' ' + c.text + ' ' + c.cat).toLowerCase(), s = 0;
+    words.forEach(function(w){ if(hay.indexOf(w) >= 0) s += (c.label.toLowerCase().indexOf(w) >= 0 ? 3 : 1); });
+    return s;
+  }
+  // A = { scope, builtins:[{cat,key,label,text,intent}], aiPurpose, canAi(), aiPayload(), insert(text,{clause,label}), preview(text), note }
+  function renderAssist(box, A){
+    A.st = A.st || { q: '', cat: '', draft: null, busy: false, err: '' };
+    var S = A.st, mine = userClauses[A.scope] || [];
+    var all = mine.map(function(u){ return { cat: 'Your clauses', key: 'u:' + u.id, label: u.label, text: u.body, mine: u.id }; }).concat(A.builtins);
+    var words = S.q.toLowerCase().split(/[^a-z0-9']+/).filter(function(w){ return w.length > 2; });
+    var list = all.map(function(c){ return { c: c, s: djScore(c, words) }; }).filter(function(x){ return x.s > 0 && (!S.cat || x.c.cat === S.cat); });
+    if(words.length) list.sort(function(a, b){ return b.s - a.s; });
+    var cats = []; all.forEach(function(c){ if(cats.indexOf(c.cat) < 0) cats.push(c.cat); });
+    var draft = S.draft;
+    box.innerHTML = '<div class="as-ask"><label class="as-label" for="asQ-'+A.scope+'">What do you want to say?</label>'
+      + '<textarea id="asQ-'+A.scope+'" class="as-q" rows="2" maxlength="600" placeholder="'+escapeHtml(A.placeholder || 'e.g. offer a payment plan over 3 months')+'">'+escapeHtml(S.q)+'</textarea>'
+      + '<div class="as-ask-row"><span class="muted small">'+(words.length ? list.length + ' matching clause' + (list.length === 1 ? '' : 's') : 'Type to search the clause library')+'</span>'
+      + '<button type="button" class="btn sm as-ai" data-as="ai"'+(S.busy || !S.q.trim() ? ' disabled' : '')+'>'+(S.busy ? 'Drafting…' : '✨ Draft with AI')+'</button></div>'
+      + (A.canAi && !A.canAi() ? '<div class="fine">Choose a case to draft with AI.</div>' : '')
+      + '</div>'
+      + (S.err ? '<div class="ai-flag caution">'+escapeHtml(S.err)+'</div>' : '')
+      + (draft ? '<div class="as-draft"><div class="as-draft-h"><span class="as-badge">AI draft</span><span class="muted small">Check it, then insert it. Nothing is added until you do.</span></div>'
+          + '<div class="as-draft-body">'+(A.preview ? A.preview(draft.text) : djRich(draft.text, {}, 'html'))+'</div>'
+          + (draft.note ? '<div class="fine">'+escapeHtml(draft.note)+'</div>' : '')
+          + '<div class="as-acts"><button type="button" class="btn sm primary" data-as="draft-insert">Insert</button><button type="button" class="btn sm" data-as="ai">Try again</button><button type="button" class="btn sm ghost" data-as="draft-save">Save as clause</button><button type="button" class="btn sm ghost" data-as="draft-drop">Discard</button></div></div>' : '')
+      + '<div class="as-cats"><button type="button" class="as-chip'+(!S.cat ? ' on' : '')+'" data-ascat="">All</button>'+cats.map(function(c){ return '<button type="button" class="as-chip'+(S.cat === c ? ' on' : '')+'" data-ascat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>'; }).join('')+'</div>'
+      + '<div class="as-list">' + (list.length ? list.slice(0, 40).map(function(x){ var c = x.c;
+          return '<div class="as-clause"><button type="button" class="as-clause-main" data-asins="'+escapeHtml(c.key)+'" title="Insert after the paragraph you were on"><span class="as-clause-h">'+escapeHtml(c.label)+(c.intent ? ' <span class="ld-intent" title="States an intended action. Only use it if the decision is made.">intent</span>' : '')+'<span class="as-cat">'+escapeHtml(c.cat)+'</span></span>'
+            + '<span class="as-clause-t">'+(A.preview ? A.preview(c.text) : escapeHtml(c.text))+'</span></button>'
+            + (c.mine ? '<button type="button" class="as-del" data-asdel="'+c.mine+'" title="Remove from Your clauses">✕</button>' : '') + '</div>';
+        }).join('') : '<div class="empty-note">No clause matches. Try other words, or draft one with AI.</div>') + '</div>'
+      + (mine.unavailable ? '<div class="fine">Saved clauses aren’t available yet.</div>' : '');
+    if(!box._asWired){
+      box._asWired = true;
+      box.addEventListener('input', function(e){ if(!e.target.classList.contains('as-q')) return; var A2 = box._A; A2.st.q = e.target.value; var pos = e.target.selectionStart; renderAssist(box, A2); var q = box.querySelector('.as-q'); q.focus(); q.selectionStart = q.selectionEnd = pos; });
+      box.addEventListener('keydown', function(e){ if(e.target.classList.contains('as-q') && e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); var b = box.querySelector('[data-as="ai"]'); if(b && !b.disabled) b.click(); } });
+      box.addEventListener('click', async function(e){
+        var A2 = box._A, S2 = A2.st, t = e.target.closest('button'); if(!t) return;
+        if(t.hasAttribute('data-ascat')){ S2.cat = t.getAttribute('data-ascat'); renderAssist(box, A2); return; }
+        if(t.hasAttribute('data-asins')){
+          var k = t.getAttribute('data-asins'), c = (userClauses[A2.scope] || []).map(function(u){ return { key: 'u:' + u.id, label: u.label, text: u.body }; }).concat(A2.builtins).filter(function(x){ return x.key === k; })[0];
+          if(c){ A2.insert(c.text, { clause: k.indexOf('u:') === 0 ? null : k, label: c.label }); toast('Added “' + c.label + '”.'); }
+          return;
+        }
+        if(t.hasAttribute('data-asdel')){
+          if(!confirm('Remove this clause from Your clauses?')) return;
+          var id = t.getAttribute('data-asdel'), r = await sb.from('clause_library').delete().eq('id', id);
+          if(r.error){ toast(r.error.message); return; }
+          userClauses[A2.scope] = (userClauses[A2.scope] || []).filter(function(u){ return u.id !== id; }); renderAssist(box, A2); return;
+        }
+        var act = t.getAttribute('data-as');
+        if(act === 'ai'){
+          if(A2.canAi && !A2.canAi()){ toast('Choose a case first.'); return; }
+          S2.busy = true; S2.err = ''; renderAssist(box, A2);
+          var res = await invokeFn('draft-correspondence', Object.assign({ kind: 'paragraph', purpose: A2.aiPurpose, instruction: S2.q }, A2.aiPayload ? A2.aiPayload() : {}));
+          S2.busy = false;
+          if(res && res.ok && res.draft && res.draft.text){ S2.draft = { text: res.draft.text, note: res.draft.note || '' }; }
+          else S2.err = (res && res.error) || 'The draft didn’t come back. Please try again.';
+          renderAssist(box, A2); return;
+        }
+        if(act === 'draft-insert' && S2.draft){ A2.insert(S2.draft.text, { label: 'AI draft', ai: true }); S2.draft = null; renderAssist(box, A2); toast('Draft inserted. Edit it on the page.'); return; }
+        if(act === 'draft-save' && S2.draft){ await saveUserClause(A2.scope, S2.draft.text, S2.q.slice(0, 60)); renderAssist(box, A2); return; }
+        if(act === 'draft-drop'){ S2.draft = null; renderAssist(box, A2); return; }
+      });
+    }
+    box._A = A;
+    if(!userClauses[A.scope] && currentOrg){ loadUserClauses(A.scope).then(function(){ if(box._A === A) renderAssist(box, A); }); }
+  }
+
+  // Claim details: facts-only starters for tribunal and court applications. {{fields}} fill from the case when inserted; [brackets] are gaps to complete.
+  var CLAIM_CLAUSES = [
+    { cat:'What happened', key:'c_supply', label:'What we supplied', text:'Between [start date] and [end date], we supplied [goods or services] to {{debtor_name}} at their request.' },
+    { cat:'What happened', key:'c_agree', label:'The agreement', text:'{{debtor_name}} accepted our [quote / terms of trade] dated [date]. The terms require payment within [number] days of the invoice date.' },
+    { cat:'What happened', key:'c_invoices', label:'Invoices issued', text:'We issued invoices {{invoice_list}}. The earliest fell due on {{due_date}}.' },
+    { cat:'What happened', key:'c_delivered', label:'Work completed', text:'The work was completed on [date] and {{debtor_name}} did not raise any problem with it at the time.' },
+    { cat:'Payment and demands', key:'c_unpaid', label:'Still unpaid', text:'As at {{today}}, {{principal}} remains unpaid.' },
+    { cat:'Payment and demands', key:'c_part', label:'Part payment', text:'{{debtor_name}} paid [amount] on [date], which we applied to [invoice number]. The balance remains unpaid.' },
+    { cat:'Payment and demands', key:'c_reminders', label:'Reminders sent', text:'We sent payment reminders by [email / post] on [dates].' },
+    { cat:'Payment and demands', key:'c_demand', label:'Letter of demand', text:'We sent a letter of demand on {{last_letter_date}} asking for payment by [date]. We did not receive payment or a proposal to pay.' },
+    { cat:'Payment and demands', key:'c_contact', label:'Other contact', text:'We also contacted {{contact_name}} by [phone / email] on [dates] about the overdue amount.' },
+    { cat:'Disputes', key:'c_nodispute', label:'No dispute raised', text:'{{debtor_name}} has not disputed the goods or services supplied or the amounts invoiced.' },
+    { cat:'Disputes', key:'c_dispute', label:'Their dispute and our answer', text:'{{debtor_name}} says [their reason]. We do not agree because [our reason], as shown in [document].' },
+    { cat:'Amount claimed', key:'c_total', label:'Amount claimed', text:'We claim {{total_owing}}, made up of {{principal}} in unpaid invoices{{charges_phrase}}.' },
+    { cat:'Amount claimed', key:'c_interest', label:'Interest under terms', text:'Our terms of trade allow interest on overdue amounts at {{interest_rate}} per year. We claim interest of {{interest}} to {{today}}.' },
+    { cat:'Amount claimed', key:'c_costs', label:'Filing and service costs', text:'We also ask for the filing fee and the cost of serving the application.' }
+  ];
+
+  /* =====================================================================
      LETTERS OF DEMAND v2
      A letter = subject + ordered blocks (paragraphs, headings, amounts table,
      pay-by box, payment details, divider) + settings, drawn in the shared
@@ -2125,6 +2527,7 @@
     ['pay_by_date','Pay-by date'], ['payment_reference','Payment reference'], ['last_letter_date','Last letter date'], ['disputed_list','Disputed invoices'],
     ['business_name','Your business name'], ['our_contact','Your contact details'], ['today','Today’s date']
   ];
+  LETTER_VARS.forEach(function(v){ DJ_FIELD_LABEL[v[0]] = v[1]; }); DJ_FIELD_LABEL.charges_phrase = 'Interest and fees (phrase)';
   var LD_DEFAULT_SETTINGS = { design_source: 'default', overrides: {}, pay_days: 7, salutation: 'dear_contact', table: 'per_invoice', show_interest: true, show_fees: true,
     show_ref: true, show_abn: true, private_conf: false, spacing: 'normal', sign_name: '', sign_title: 'Accounts team', our_contact: '', signature: null };
   var B = function(t, extra){ return Object.assign({ type: t }, extra || {}); };
@@ -2228,17 +2631,18 @@
   }
   // Text: escape, then fill {{fields}}, then **bold** and *italic*. Unknown fields stay visible (and get flagged).
   function fillLetterText(text, vars, plain){
-    var s = plain ? String(text || '') : escapeHtml(text || '');
+    if(!plain) return String(text || '').split('\n').map(function(l){ return djInline(l, vars, 'html'); }).join('<br>');
+    var s = String(text || '');
     s = s.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, function(m, k){
       if(!Object.prototype.hasOwnProperty.call(vars, k) || /^\{\{/.test(vars[k])) return plain ? m : '<span class="ld-missing">' + m + '</span>';
       return plain ? vars[k] : escapeHtml(vars[k]);
     });
     if(!plain) s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1<i>$2</i>').replace(/\n/g, '<br>');
-    else s = s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1$2');
+    else s = s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/__(.+?)__/g, '$1').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1$2');
     return s;
   }
 
-  function renderLetterDoc(m, tpl, st, design){
+  function renderLetterDoc(m, tpl, st, design, edit){
     var t = design, c = t.colors, S = '.ld';
     var pad = { compact: '4px 7px', regular: '6px 9px', roomy: '9px 11px' }[t.density];
     var gap = { compact: '8px', normal: '12px', relaxed: '17px' }[st.spacing] || '12px';
@@ -2259,7 +2663,7 @@
       + S+' .ld-to{line-height:1.5;}'+S+' .ld-meta{text-align:right;font-size:.92em;line-height:1.6;}'
       + S+' .ld-pc{font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.78em;color:'+c.accent+';margin-bottom:6px;}'
       + S+' .ld-subj{font-weight:700;font-size:1.08em;margin:0 0 '+gap+';padding-bottom:6px;border-bottom:2px solid '+c.accent+';}'
-      + S+' p{margin:0 0 '+gap+';}'+S+' h3{font-size:1.02em;margin:18px 0 8px;}'
+      + S+' p{margin:0 0 '+gap+';}'+S+' ul,'+S+' ol{margin:0 0 '+gap+';padding-left:1.4em;}'+S+' li{margin:0 0 2px;}'+S+' h3{font-size:1.02em;margin:18px 0 8px;}'
       + S+' table.ld-t{width:100%;border-collapse:collapse;margin:4px 0 '+gap+';table-layout:auto;}'+S+' .ld-t th{white-space:normal;vertical-align:bottom;}'+S+' .ld-t td{word-break:normal;}'
       + S+' .ld-t th{background:'+(t.table_style === 'minimal' ? 'transparent' : c.th_bg)+';color:'+c.th_text+';text-align:left;font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding:'+pad+';}'
       + S+' .ld-t td{padding:'+pad+';color:'+c.text+';background:transparent;}'+S+' .ld-t .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}'+S+' .nw{white-space:nowrap;}'+S+' .ld-t th.num{white-space:normal;}'+S+' table.ld-t{font-size:.92em;}'
@@ -2329,20 +2733,33 @@
       if(P.show_bpay && P.bpay_biller_code) blocks.push('<div><div class="k">BPAY</div><dl><dt>Biller code</dt><dd>'+escapeHtml(P.bpay_biller_code)+'</dd><dt>Ref</dt><dd>'+escapeHtml(V.payment_reference)+'</dd></dl></div>');
       return (blocks.length ? '<div class="ld-bank">'+blocks.join('')+'</div>' : '') + (P.instructions ? '<p class="ld-muted">'+escapeHtml(P.instructions)+'</p>' : '');
     };
-    var body = tpl.blocks.filter(function(b){ return !b.off; }).map(function(b){
-      if(b.type === 'text') return (b.text || '').trim() ? '<p>'+fillLetterText(b.text, V)+'</p>' : '';
-      if(b.type === 'heading') return '<h3>'+fillLetterText(b.text || '', V)+'</h3>';
+    var body = tpl.blocks.map(function(b, bi){
+      if(b.off && !edit) return '';
+      var inner = blockHtml(b, bi);
+      if(!edit) return inner;
+      var clause = b.clause && CLAUSE_BY_KEY[b.clause], title = BLOCK_LABEL[b.type] + (clause ? ' · ' + clause.label : '');
+      var ctl = '<div class="dj-ctl" contenteditable="false"><label class="ld-switch" title="'+(b.off ? 'Left out of the letter' : 'In the letter')+'"><input type="checkbox" data-ldon="'+bi+'"'+(b.off ? '' : ' checked')+' aria-label="Include '+escapeHtml(title)+'" /><span aria-hidden="true"></span></label>'
+        + '<span class="dj-tag">'+escapeHtml(title)+(clause && clause.intent ? ' · intent' : '')+'</span>'
+        + '<button type="button" data-ldmove="-1" data-i="'+bi+'" title="Move up"'+(bi === 0 ? ' disabled' : '')+'>↑</button><button type="button" data-ldmove="1" data-i="'+bi+'" title="Move down"'+(bi === tpl.blocks.length - 1 ? ' disabled' : '')+'>↓</button>'
+        + (b.type === 'text' ? '<button type="button" data-ldsaveclause="'+bi+'" title="Save to Your clauses">☆</button>' : '')
+        + '<button type="button" data-lddel="'+bi+'" title="Remove">✕</button></div>';
+      if(b.off) return '<div class="dj-b off" data-bi="'+bi+'">'+ctl+'<div class="dj-offnote">'+escapeHtml(title)+' · left out of the letter</div></div>';
+      return '<div class="dj-b'+(ldCur === bi ? ' cur' : '')+'" data-bi="'+bi+'">'+ctl+inner+'</div>';
+    }).join('') + (edit ? '<div class="dj-add" contenteditable="false"><span>Add</span><button type="button" data-ldadd="text">Paragraph</button><button type="button" data-ldadd="heading">Heading</button><button type="button" data-ldadd="table">Amounts table</button><button type="button" data-ldadd="paybox">Pay-by box</button><button type="button" data-ldadd="payment">Payment details</button><button type="button" data-ldadd="divider">Divider</button></div>' : '');
+    function blockHtml(b, bi){
+      if(b.type === 'text') return edit ? '<div class="dj-txt" data-ldb="'+bi+'">'+djRich(b.text, V, 'edit')+'</div>' : ((b.text || '').trim() ? djRich(b.text, V, 'html') : '');
+      if(b.type === 'heading') return edit ? '<h3 class="dj-txt" data-ldb="'+bi+'" data-heading="1">'+djInline(b.text || '', V, 'edit')+'</h3>' : '<h3>'+fillLetterText(b.text || '', V)+'</h3>';
       if(b.type === 'table') return table();
       if(b.type === 'paybox') return '<div class="ld-pay"><div><div class="k">Amount due</div><div class="v">'+money(T.total)+'</div></div><div><div class="k">Pay by</div><div class="v">'+escapeHtml(V.pay_by_date)+'</div></div><div><div class="k">Reference</div><div style="font-weight:700;">'+escapeHtml(V.payment_reference)+'</div></div></div>';
       if(b.type === 'payment') return payment();
       if(b.type === 'divider') return '<hr>';
       return '';
-    }).join('');
+    }
     var sign = '<div class="ld-sign">Yours sincerely,'+(st.signature ? '<img class="ld-sig" src="'+st.signature+'" alt="" />' : '<br><br>')
       + (st.sign_name ? '<b>'+escapeHtml(st.sign_name)+'</b><br>' : '') + escapeHtml(st.sign_title || t.sign_off || 'Accounts team') + '<br>' + escapeHtml(currentOrg.name) + '</div>';
     var foot = t.footer ? '<div class="ld-foot">'+escapeHtml(t.footer)+'</div>' : '';
     return css + '<div class="ld">' + head + '<div class="ld-top">' + to + meta + '</div>'
-      + '<div class="ld-subj">'+fillLetterText(tpl.subject || '', V)+'</div>' + (sal ? '<p>'+escapeHtml(sal)+'</p>' : '') + body + sign + foot + '</div>';
+      + (edit ? '<div class="ld-subj dj-subj" data-ldsubj="1">'+djInline(tpl.subject || '', V, 'edit')+'</div>' : '<div class="ld-subj">'+fillLetterText(tpl.subject || '', V)+'</div>') + (sal ? '<p>'+escapeHtml(sal)+'</p>' : '') + body + sign + foot + '</div>';
   }
 
   // ---- Compliance and content checks shown above the preview.
@@ -2410,10 +2827,52 @@
     var design = letterDesign(st);
     ensureFont(design.font); ensureFont(design.heading_font);
     var m = buildLetterModel(c, st);
-    paper.innerHTML = renderLetterDoc(m, ldTpl, st, design);
+    if(paper.contains(document.activeElement) && document.activeElement.closest('[data-dj-edit]')){ ldPreviewPending = true; renderFlags(document.getElementById('letterFlags'), (letterFlags || []).concat(letterChecks(m, ldTpl, st))); return; }
+    ldPreviewPending = false;
+    paper.innerHTML = renderLetterDoc(m, ldTpl, st, design, true);
+    ldAssistVars = m.vars;
+    attachLetterEditors(paper, m.vars);
     renderFlags(document.getElementById('letterFlags'), (letterFlags || []).concat(letterChecks(m, ldTpl, st)));
     ['ldSendBtn','ldPrintBtn'].forEach(function(id){ document.getElementById(id).disabled = !m.totals.total; });
   }
+  var ldCur = null, ldPreviewPending = false, ldAssistVars = {};
+  function letterFields(){ return LETTER_VARS.map(function(v){ return [v[0], v[1]]; }); }
+  function attachLetterEditors(paper, vars){
+    paper.querySelectorAll('[data-ldb]').forEach(function(el){
+      var i = Number(el.getAttribute('data-ldb')), b = ldTpl.blocks[i];
+      djAttach(el, { vars: vars, fields: letterFields(), heading: true, singleLine: b.type === 'heading',
+        onChange: function(md){ b.text = b.type === 'heading' ? md.replace(/\n+/g, ' ') : md; if(b.clause && CLAUSE_BY_KEY[b.clause] && b.text !== CLAUSE_BY_KEY[b.clause].text) b.edited = true; ldDirty = true; renderLetterTemplateSelect(); },
+        onFocus: function(){ ldCur = i; paper.querySelectorAll('.dj-b.cur').forEach(function(x){ x.classList.remove('cur'); }); var w = el.closest('.dj-b'); if(w) w.classList.add('cur'); },
+        onBlur: function(){ if(ldPreviewPending) scheduleLetterPreview(); },
+        onHeading: function(){ b.type = b.type === 'heading' ? 'text' : 'heading'; if(b.type === 'heading') b.text = String(b.text || '').split('\n')[0].replace(/^\s*([-•]|\d+[.)])\s+/, ''); ldDirty = true; ldPreviewPending = false; document.activeElement.blur(); renderLetterPreview(); renderLetterTemplateSelect(); }
+      });
+    });
+    var sj = paper.querySelector('[data-ldsubj]');
+    if(sj) djAttach(sj, { vars: vars, fields: letterFields(), singleLine: true, onChange: function(md){ ldTpl.subject = md.replace(/\n+/g, ' '); ldDirty = true; renderLetterTemplateSelect(); }, onBlur: function(){ if(ldPreviewPending) scheduleLetterPreview(); } });
+  }
+  // The letter exactly as it will be printed, saved or sent: no editing controls.
+  function letterCleanHtml(){
+    if(ldViewing) return ldViewing.html;
+    var c = currentLetterCase(); if(!c || !ldTpl) return '';
+    var st = ldSettings(), design = letterDesign(st);
+    return renderLetterDoc(buildLetterModel(c, st), ldTpl, st, design);
+  }
+  function letterCleanPaper(){ var d = document.createElement('div'); d.className = 'letter-paper'; d.innerHTML = letterCleanHtml(); return d; }
+  function ldInsertBlock(nb){
+    if(ldTpl.blocks.length >= 60){ toast('A letter can have up to 60 blocks.'); return; }
+    var at = ldCur != null && ldCur < ldTpl.blocks.length ? ldCur + 1 : ldTpl.blocks.length;
+    ldTpl.blocks.splice(at, 0, nb); ldCur = at;
+    ldDirty = true; renderLetterTemplateSelect(); ldPreviewPending = false;
+    if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    renderLetterPreview();
+    var el = document.querySelector('#letterPaper [data-bi="'+at+'"]'); if(el){ el.scrollIntoView({ block: 'center', behavior: 'smooth' }); var ed = el.querySelector('[data-dj-edit]'); if(ed && !nb.text) ed.focus(); }
+  }
+  var LD_ASSIST = { scope: 'letter', aiPurpose: 'letter', builtins: CLAUSES, placeholder: 'e.g. thank them for the part payment and ask for the rest by the 30th',
+    canAi: function(){ return !!currentLetterCase(); },
+    aiPayload: function(){ var c = currentLetterCase(); return { case_id: c && c.id, template_type: ldTpl && ldTpl.stage, context_text: ldTpl ? ldTpl.blocks.filter(function(b){ return !b.off && (b.type === 'text' || b.type === 'heading'); }).map(function(b){ return djPlain(b.text); }).join('\n\n').slice(0, 3000) : '' }; },
+    preview: function(t){ return djRich(t, ldAssistVars, 'html'); },
+    insert: function(text, meta){ ldInsertBlock({ type: 'text', text: text, clause: meta && meta.clause && CLAUSE_BY_KEY[meta.clause] ? meta.clause : undefined }); }
+  };
   function markLetterDirty(){ ldDirty = true; renderLetterTemplateSelect(); scheduleLetterPreview(); }
 
   // ---- Editor (Content / Design / Settings tabs)
@@ -2424,6 +2883,9 @@
     var box = document.getElementById('ldEditor'); if(!ldTpl){ box.innerHTML = ''; return; }
     var st = ldSettings();
     if(ldTab === 'content'){
+      box.innerHTML = '<div class="as-intro">Write straight on the letter: click any paragraph to edit it, and select text for formatting. Use the switch on a paragraph to leave it out.</div><div id="ldAssist" class="as"></div>';
+      renderAssist(document.getElementById('ldAssist'), LD_ASSIST);
+    } else if(ldTab === 'content-old'){
       var nOn = ldTpl.blocks.filter(function(b){ return !b.off; }).length;
       var fixedHint = function(b){ return b.type === 'table' ? 'Uses the “Amounts table” choice on Settings: ' + ({ per_invoice: 'one row per invoice', summary: 'totals only', none: 'hidden' }[st.table]) + '.'
         : b.type === 'payment' ? 'Bank, PayID and BPAY details from the Payment Portal.' : b.type === 'paybox' ? 'Highlighted amount due, pay-by date and reference.' : b.type === 'divider' ? 'A line across the page.' : ''; };
@@ -2505,6 +2967,22 @@
     }).join('');
     lib.hidden = false;
   }
+  (function wireLetterPaper(){
+    var paper = document.getElementById('letterPaper');
+    paper.addEventListener('change', function(e){
+      var on = e.target.getAttribute && e.target.getAttribute('data-ldon'); if(on == null) return;
+      var b = ldTpl.blocks[Number(on)]; if(!b) return;
+      if(e.target.checked) delete b.off; else b.off = true;
+      ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview();
+    });
+    paper.addEventListener('click', async function(e){
+      var t = e.target.closest('button'); if(!t || !ldTpl) return;
+      if(t.hasAttribute('data-ldmove')){ var i = Number(t.getAttribute('data-i')), j = i + Number(t.getAttribute('data-ldmove')), bl = ldTpl.blocks; if(j < 0 || j >= bl.length) return; var tmp = bl[i]; bl[i] = bl[j]; bl[j] = tmp; ldCur = j; ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); return; }
+      if(t.hasAttribute('data-lddel')){ var k = Number(t.getAttribute('data-lddel')), bb = ldTpl.blocks[k]; if(bb && (bb.type === 'text' || bb.type === 'heading') && (bb.text || '').trim().length > 60 && !confirm('Remove this ' + (bb.type === 'heading' ? 'heading' : 'paragraph') + '? You can also switch it off to keep it for later.')) return; ldTpl.blocks.splice(k, 1); ldCur = null; ldDirty = true; renderLetterTemplateSelect(); renderLetterPreview(); return; }
+      if(t.hasAttribute('data-ldsaveclause')){ var sb3 = ldTpl.blocks[Number(t.getAttribute('data-ldsaveclause'))]; if(sb3 && (sb3.text || '').trim()) { await saveUserClause('letter', sb3.text, sb3.clause && CLAUSE_BY_KEY[sb3.clause] ? CLAUSE_BY_KEY[sb3.clause].label : ''); if(ldTab === 'content') renderLetterEditor(); } return; }
+      if(t.hasAttribute('data-ldadd')){ var kind = t.getAttribute('data-ldadd'); ldInsertBlock(kind === 'text' || kind === 'heading' ? { type: kind, text: '' } : { type: kind }); return; }
+    });
+  })();
   (function wireLetterEditor(){
     var box = document.getElementById('ldEditor');
     box.addEventListener('focusin', function(e){ if(e.target.matches('textarea[data-ldb], input[data-ld="subject"]')) ldFocusEl = e.target; });
@@ -2642,7 +3120,7 @@
     var sendVia = document.getElementById('sendVia').value;
     var subject = fillLetterText(ldTpl.subject || '', m.vars, true);
     var bodyText = ldTpl.blocks.filter(function(b){ return !b.off && (b.type === 'text' || b.type === 'heading'); }).map(function(b){ return fillLetterText(b.text || '', m.vars, true); }).join('\n\n');
-    var html = document.getElementById('letterPaper').innerHTML;
+    var html = letterCleanHtml();
     var r = await sb.from('letters').insert({ org_id: currentOrg.id, case_id: c.id, template_id: ldKey && ldKey.indexOf('builtin:') !== 0 ? ldKey : null, template_key: ldKey,
       type: ldTpl.stage || 'other', subject: subject, body: bodyText, amount_at_send: m.totals.principal, interest_at_send: m.totals.interest, send_via: sendVia, status: 'sent', sent_at: new Date().toISOString(), created_by: session.user.id,
       snapshot: { html: html, ref: m.ref, totals: m.totals, template_name: ldTpl.name, ai: ldAi } });
@@ -3788,7 +4266,7 @@
     var paper = document.getElementById('statementPaper'), lpaper = document.getElementById('letterPaper');
     var onStatements = !document.querySelector('.view[data-view="statements"]').hidden;
     var onLetters = !document.querySelector('.view[data-view="letters"]').hidden;
-    var src = onStatements && paper.querySelector('.sd, table') ? paper : (onLetters && lpaper.querySelector('.ld') ? lpaper : null);
+    var src = onStatements && paper.querySelector('.sd, table') ? paper : (onLetters && lpaper.querySelector('.ld') ? letterCleanPaper() : null);
     var ok = !!src;
     document.getElementById('printRoot').innerHTML = ok ? src.outerHTML.replace(/id="(statementPaper|letterPaper)"/, '') : '';
     var recBox = document.getElementById('recPrint');
@@ -4722,7 +5200,7 @@
     document.getElementById('pdfModalTitle').textContent = 'PDF preview · ' + name.replace(/\.pdf$/, '');
     stage.innerHTML = '<div class="pdf-loading">Building PDF…</div>';
     openModal('pdfModal');
-    var src = paper.cloneNode(true); src.removeAttribute('id'); src.classList.add('pdf-src');
+    var src = kind === 'letter' ? letterCleanPaper() : paper.cloneNode(true); src.removeAttribute('id'); src.classList.add('pdf-src');
     try {
       var h2p = await loadHtml2Pdf();
       var blob = await h2p().set({
@@ -4922,7 +5400,7 @@
     var panel = t === 'letter' || t === 'templates' ? 'work' : t;
     Array.prototype.forEach.call(document.querySelectorAll('[data-ltab-panel]'), function(p){ p.hidden = p.getAttribute('data-ltab-panel') !== panel; });
     if(t === 'letter'){ ldTab = 'content'; renderLetterEditor(); }
-    if(t === 'templates'){ if(ldTab === 'content') ldTab = 'design'; renderLetterEditor(); }
+    if(t === 'templates'){ renderLetterEditor(); }
     if(t === 'audit'){
       var h = document.getElementById('hist-letters'); if(!h.open) h.open = true;
       var c = currentLetterCase();
@@ -5459,6 +5937,51 @@
     return ev.filter(function(e){ return e.at; }).sort(function(a, b){ return String(a.at).localeCompare(String(b.at)); });
   }
 
+  var REC_SECTION_PRESETS = [['chronology', 'Chronology'], ['orders', 'Orders you ask for'], ['response', 'Their position and your answer'], ['other', 'Other information'], ['custom', 'Blank section']];
+  var recSecSeq = 0, recRichCur = null, recAssistCtx = null;
+  function recSectionHtml(x, id){
+    return '<div class="rec-sec" data-secid="'+id+'"><div class="rec-sec-h"><input class="rec-sec-title" data-rf="sec.'+id+'.title" maxlength="120" placeholder="Section heading" value="'+escapeHtml(x.title || '')+'" />'
+      + '<span class="rec-sec-acts"><button type="button" data-rsec="up" title="Move up">↑</button><button type="button" data-rsec="down" title="Move down">↓</button><button type="button" data-rsec="del" title="Remove section">✕</button></span></div>'
+      + '<textarea hidden data-rf="sec.'+id+'.text">'+escapeHtml(x.text || '')+'</textarea><div class="rec-rich" data-rich-for="sec.'+id+'.text">'+djRich(x.text || '', {}, 'edit')+'</div></div>';
+  }
+  function recSectionPreset(kind, c, cl){
+    var R = cl.rules, T = recTerms(R), name = letterAddresseeName(c.debtor), dd = demandDates[c.id] || {};
+    if(kind === 'chronology'){
+      var ev = [];
+      cl.items.forEach(function(i){ if(i.issued_date) ev.push([i.issued_date, 'We issued invoice ' + i.invoice_number + ' for ' + money(i.amount) + ', due ' + fmt(i.due_date) + '.']); });
+      if(dd.first) ev.push([dd.first, 'We sent a letter of demand.']);
+      if(dd.final && dd.final !== dd.first) ev.push([dd.final, 'We sent a final letter of demand.']);
+      ev.sort(function(a, b){ return a[0] < b[0] ? -1 : 1; });
+      return { title: 'Chronology', text: ev.map(function(e){ return '- ' + fmt(e[0]) + ': ' + e[1]; }).join('\n') || '- [date]: [what happened]' };
+    }
+    if(kind === 'orders') return { title: 'Orders you ask for', text: '- That ' + name + ' pay ' + money(cl.total) + '.' + (cl.filingFee != null ? '\n- That ' + name + ' pay the filing fee of ' + money(cl.filingFee) + ' and the cost of service.' : '') };
+    if(kind === 'response') return { title: 'Their position and your answer', text: cap1(T[1]) + ' says [what they have said].\n\nWe do not agree because [your reason], as shown in [document].' };
+    if(kind === 'other') return { title: 'Other information', text: '' };
+    return { title: '', text: '' };
+  }
+  function attachRecRich(root){
+    root.querySelectorAll('.rec-rich').forEach(function(el){
+      if(el._dj) return;
+      var ta = root.querySelector('[data-rf="'+el.getAttribute('data-rich-for')+'"]');
+      djAttach(el, { onChange: function(md){ if(ta) ta.value = md; }, onFocus: function(){ recRichCur = el; } });
+    });
+  }
+  function recInsertParagraph(text){
+    var root = document.getElementById('recRoot');
+    var el = recRichCur && root.contains(recRichCur) ? recRichCur : root.querySelector('.rec-rich[data-rich-for="details"]');
+    if(!el){ toast('Open the Claim tab to add to the application details.'); return; }
+    var cur = djSerialize(el), md = (cur ? cur + '\n\n' : '') + text;
+    el.innerHTML = djRich(md, {}, 'edit'); djFire(el);
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el.classList.add('flash'); setTimeout(function(){ el.classList.remove('flash'); }, 900);
+  }
+  var REC_ASSIST = { scope: 'claim', aiPurpose: 'claim_details', builtins: CLAIM_CLAUSES, placeholder: 'e.g. explain they accepted our quote by email on 3 June',
+    vars: function(){ if(!recAssistCtx) return {}; var V = Object.assign({}, buildLetterModel(recAssistCtx.c, { pay_days: 7 }).vars); V.debtor_name = letterAddresseeName(recAssistCtx.c.debtor); V.total_owing = money(recAssistCtx.cl.total); V.principal = money(recAssistCtx.cl.principal); V.interest = money(recAssistCtx.cl.interest); return V; },
+    canAi: function(){ return !!recAssistCtx; },
+    aiPayload: function(){ var el = document.querySelector('#recRoot .rec-rich[data-rich-for="details"]'); return { case_id: recAssistCtx && recAssistCtx.c.id, context_text: el ? djPlain(djSerialize(el)).slice(0, 3000) : '' }; },
+    preview: function(t){ return djRich(fillLetterText(t, REC_ASSIST.vars(), true), {}, 'html'); },
+    insert: function(text){ recInsertParagraph(fillLetterText(text, REC_ASSIST.vars(), true)); }
+  };
   function recField(label, key, val, opts){
     opts = opts || {};
     var inner = opts.textarea ? '<textarea data-rf="'+key+'" rows="'+(opts.rows || 3)+'">'+escapeHtml(val || '')+'</textarea>'
@@ -5525,7 +6048,9 @@
         '<p class="muted small">Information for '+escapeHtml(R.form)+', prepared from your records. Check every detail. You copy it into '+escapeHtml(R.copyTarget)+', sign it and lodge it yourself.</p>'
         + '<div class="rec-cols"><div><h4>'+cap1(recTerms(R)[0])+' (you)</h4>' + recField('Name', 'a.name', A.name) + recField('ABN', 'a.abn', A.abn) + recField('Address', 'a.address', A.address, { textarea: true, rows: 3 }) + recField('Phone', 'a.phone', A.phone) + recField('Email', 'a.email', A.email, { type: 'email' }) + '</div>'
         + '<div><h4>'+cap1(recTerms(R)[1])+'</h4>' + recField('Legal name', 'p.name', P.name, { hint: 'The entity’s legal name from the ABN or ASIC register.' }) + recField('Trading as', 'p.trading', P.trading) + '<div class="rec-2">' + recField('ABN', 'p.abn', P.abn) + recField('ACN', 'p.acn', P.acn) + '</div>' + recField('Address for service', 'p.address', P.address, { textarea: true, rows: 3 }) + recField('Contact person', 'p.contact', P.contact) + '<div class="rec-2">' + recField('Email', 'p.email', P.email) + recField('Phone', 'p.phone', P.phone) + '</div></div></div>'
-        + recField('Details of the claim', 'details', details, { textarea: true, rows: 9, wide: true, hint: 'Facts only: what was supplied, the invoices, dates, demands and what is unpaid. Edit freely.' })
+        + '<div class="rec-f wide"><span>Details of the claim</span><textarea hidden data-rf="details">'+escapeHtml(details)+'</textarea><div class="rec-rich" data-rich-for="details">'+djRich(details, {}, 'edit')+'</div><em>Facts only: what was supplied, the invoices, dates, demands and what is unpaid. Select text to format it; use the panel on the right to add paragraphs.</em></div>'
+        + '<div id="recSecs">' + (snap.sections || []).map(function(x, i){ return recSectionHtml(x, 's' + i); }).join('') + '</div>'
+        + '<div class="rec-addsec"><span>Add a section</span>' + REC_SECTION_PRESETS.map(function(x){ return '<button type="button" data-raddsec="'+x[0]+'">'+escapeHtml(x[1])+'</button>'; }).join('') + '</div>'
         + '<div class="rec-acts"><button class="btn primary" type="button" data-ract="save-app">Save application details</button><button class="btn" type="button" data-ract="regen">Rebuild details from records</button><button class="btn" type="button" data-ract="copy-app">Copy all</button><button class="btn" type="button" data-ract="print-app">Print / PDF</button>'
         + '<a class="btn ghost" href="'+R.links.guide+'" target="_blank" rel="noopener">'+escapeHtml(R.applyLabel)+' ↗</a><a class="btn ghost" href="'+R.links.form+'" target="_blank" rel="noopener">'+escapeHtml(R.formLabel)+' ↗</a></div>');
       // 4. Evidence pack
@@ -5584,7 +6109,12 @@
       lodge: m ? P2.s5 + P2.s6 + nxt('outcome', 'Next: Outcome') : needFile,
       outcome: m ? P2.s7 : needFile
     }[tab];
+    var showAssist = tab === 'claim' && m;
+    if(showAssist) side = '<div class="card rec-assist"><div class="card-head"><h3>Write the claim</h3></div><div class="card-body"><div class="as-intro">Search starter paragraphs or describe what you need. Paragraphs go into the box you last clicked. Facts only: DebtJet doesn’t give legal advice.</div><div id="recAssist" class="as"></div></div></div>' + side;
     root.innerHTML = '<div class="rec-shell"><div class="rec-main">'+html+'</div><aside class="rec-side">'+side+'</aside></div>';
+    recRichCur = null; recAssistCtx = showAssist ? { c: c, cl: cl } : null;
+    attachRecRich(root);
+    if(showAssist) renderAssist(document.getElementById('recAssist'), REC_ASSIST);
     renderRecTabBadges({ st: st, m: m, stops: checks.filter(function(x){ return x.level === 'stop'; }).length, openDisputes: recState.disputes.filter(function(x){ return !x.approved_at; }).length });
   }
 
@@ -5753,11 +6283,12 @@
     if(!m) return;
     var f = readRecFields();
     if(act === 'save-app' || act === 'regen'){
-      if(act === 'regen'){ var t = document.querySelector('#recRoot [data-rf="details"]'); if(t){ t.value = recDefaultDetails(c, cl); } toast('Details rebuilt from your records. Save to keep them.'); return; }
+      if(act === 'regen'){ var t = document.querySelector('#recRoot [data-rf="details"]'); if(t){ t.value = recDefaultDetails(c, cl); var rr = document.querySelector('#recRoot .rec-rich[data-rich-for="details"]'); if(rr) rr.innerHTML = djRich(t.value, {}, 'edit'); } toast('Details rebuilt from your records. Save to keep them.'); return; }
       var A = { entity: recEntity(m) }, P = {}; Object.keys(f).forEach(function(k){ if(k.indexOf('a.') === 0) A[k.slice(2)] = f[k].slice(0, 500); if(k.indexOf('p.') === 0) P[k.slice(2)] = f[k].slice(0, 500); });
       var ck = Object.assign({}, m.checklist || {}, { options: cl.opt, application_saved: true });
       var patch = { applicant: A, respondent: P, checklist: ck, claim_snapshot: Object.assign({}, m.claim_snapshot || {}, { details: String(f.details || '').slice(0, 8000) }) };
       if(m.status === 'preparing') Object.assign(patch, { principal: cl.principal, interest: cl.interest, fees: cl.fees, total_claimed: cl.total, filing_fee: cl.filingFee, claim_snapshot: snapshotFor(c, cl, String(f.details || '').slice(0, 8000)) });
+      patch.claim_snapshot.sections = recSectionsFromForm(f);
       await saveMatter(patch, 'Application details saved.'); return;
     }
     if(act === 'copy-app'){
@@ -5807,6 +6338,10 @@
   }
 
   /* ---------- Printing ---------- */
+  function recSectionsFromForm(f){
+    return Array.prototype.map.call(document.querySelectorAll('#recRoot .rec-sec'), function(el){ var id = el.getAttribute('data-secid'); return { title: String(f['sec.' + id + '.title'] || '').slice(0, 120), text: String(f['sec.' + id + '.text'] || '').slice(0, 6000) }; })
+      .filter(function(x){ return x.title.trim() || x.text.trim(); }).slice(0, 12);
+  }
   function recApplicationText(c, m, cl, f){
     var g = function(k){ return (f[k] || '').trim(); };
     return [
@@ -5814,17 +6349,18 @@
       recTerms(cl.rules)[0].toUpperCase(), g('a.name'), g('a.abn') ? 'ABN ' + g('a.abn') : '', g('a.address'), g('a.phone'), g('a.email'), '',
       recTerms(cl.rules)[1].toUpperCase(), g('p.name') + (g('p.trading') ? ' (trading as ' + g('p.trading') + ')' : ''), g('p.abn') ? 'ABN ' + g('p.abn') : '', g('p.acn') ? 'ACN ' + g('p.acn') : '', g('p.address'), g('p.contact') ? 'Contact: ' + g('p.contact') : '', g('p.email'), g('p.phone'), '',
       'AMOUNT CLAIMED', 'Unpaid invoices: ' + money(cl.principal), 'Interest: ' + money(cl.interest), 'Fees: ' + money(cl.fees), 'Total: ' + money(cl.total), '',
-      'DETAILS OF THE CLAIM', g('details')
-    ].filter(function(x, i, a){ return x !== '' || (a[i - 1] !== ''); }).join('\n');
+      'DETAILS OF THE CLAIM', djPlain(g('details'))
+    ].concat([].concat.apply([], recSectionsFromForm(f).map(function(x){ return ['', (x.title || 'Section').toUpperCase(), djPlain(x.text.trim())]; }))).filter(function(x, i, a){ return x !== '' || (a[i - 1] !== ''); }).join('\n');
   }
-  var REC_PRINT_CSS = '<style>.rp{font-family:Inter,system-ui,sans-serif;color:#1b2433;font-size:12px;line-height:1.55;}.rp h1{font-size:20px;margin:0 0 4px;}.rp h2{font-size:14px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid #1f3a8a;}.rp .muted{color:#5b6474;}.rp table{width:100%;border-collapse:collapse;margin:6px 0;}.rp th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;background:#eef2f8;color:#14213d;padding:6px 7px;border-radius:0;}.rp td{padding:6px 7px;border-bottom:1px solid #e3e8ef;vertical-align:top;}.rp .num{text-align:right;white-space:nowrap;}.rp .box{border:1px solid #d9e0ea;border-radius:8px;padding:10px 12px;margin:8px 0;white-space:pre-line;}.rp .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.rp .pb{page-break-before:always;}.rp .cover{padding:30px 0 10px;}.rp .tot td{font-weight:700;border-top:2px solid #1f3a8a;}.rp .warn{background:#fff6e5;border:1px solid #f0d49b;border-radius:8px;padding:8px 10px;margin:8px 0;}</style>';
+  var REC_PRINT_CSS = '<style>.rp{font-family:Inter,system-ui,sans-serif;color:#1b2433;font-size:12px;line-height:1.55;}.rp h1{font-size:20px;margin:0 0 4px;}.rp h2{font-size:14px;margin:22px 0 8px;padding-bottom:4px;border-bottom:2px solid #1f3a8a;}.rp .muted{color:#5b6474;}.rp table{width:100%;border-collapse:collapse;margin:6px 0;}.rp th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;background:#eef2f8;color:#14213d;padding:6px 7px;border-radius:0;}.rp td{padding:6px 7px;border-bottom:1px solid #e3e8ef;vertical-align:top;}.rp .num{text-align:right;white-space:nowrap;}.rp .box{border:1px solid #d9e0ea;border-radius:8px;padding:10px 12px;margin:8px 0;white-space:pre-line;}.rp .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.rp .pb{page-break-before:always;}.rp .cover{padding:30px 0 10px;}.rp .tot td{font-weight:700;border-top:2px solid #1f3a8a;}.rp .warn{background:#fff6e5;border:1px solid #f0d49b;border-radius:8px;padding:8px 10px;margin:8px 0;}.rp .box.rich{white-space:normal;}.rp .box.rich p,.rp .box.rich ul,.rp .box.rich ol{margin:0 0 8px;}.rp .box.rich ul,.rp .box.rich ol{padding-left:1.3em;}.rp .box.rich > :last-child{margin-bottom:0;}</style>';
   function recApplicationHtml(c, m, cl, f){
     var g = function(k){ return escapeHtml((f[k] || '').trim()); };
     return REC_PRINT_CSS + '<div class="rp"><h1>Information for '+escapeHtml(cl.rules.short)+': '+escapeHtml(cl.rules.form)+'</h1><div class="muted">Prepared '+fmt(new Date())+' from '+escapeHtml(currentOrg.name)+'’s records. Copy into '+escapeHtml(cl.rules.copyTarget)+', check, sign and lodge.</div>'
       + '<div class="two"><div><h2>'+cap1(recTerms(cl.rules)[0])+'</h2><div class="box">'+[g('a.name'), g('a.abn') ? 'ABN ' + g('a.abn') : '', g('a.address'), g('a.phone'), g('a.email')].filter(Boolean).join('\n')+'</div></div>'
       + '<div><h2>'+cap1(recTerms(cl.rules)[1])+'</h2><div class="box">'+[g('p.name') + (g('p.trading') ? ' (trading as ' + g('p.trading') + ')' : ''), g('p.abn') ? 'ABN ' + g('p.abn') : '', g('p.acn') ? 'ACN ' + g('p.acn') : '', g('p.address'), g('p.contact') ? 'Contact: ' + g('p.contact') : '', g('p.email'), g('p.phone')].filter(Boolean).join('\n')+'</div></div></div>'
       + '<h2>Amount claimed</h2>' + recAmountTable(cl)
-      + '<h2>Details of the claim</h2><div class="box">'+g('details')+'</div>'
+      + '<h2>Details of the claim</h2><div class="box rich">'+djRich((f.details || '').trim(), {}, 'html')+'</div>'
+      + recSectionsFromForm(f).map(function(x){ return '<h2>'+escapeHtml(x.title || 'Section')+'</h2><div class="box rich">'+djRich(x.text.trim(), {}, 'html')+'</div>'; }).join('')
       + '<h2>Before you lodge</h2><ul><li>Check every detail above against your records.</li><li>Attach or bring your evidence (see the evidence pack).</li><li>Pay the filing fee when you lodge (estimated '+(cl.filingFee != null ? money(cl.filingFee) : '—')+'; check '+escapeHtml(cl.rules.short)+'’s current fees).</li><li>'+(cl.rules.tribunalServes ? escapeHtml(cl.rules.short)+' serves the application by post unless you choose to serve it. Record the service date in DebtJet. ' : 'After lodging, serve a copy on the respondent and record the date in DebtJet. ')+escapeHtml(cl.rules.responseNote)+'</li></ul></div>';
   }
   function recAmountTable(cl){
@@ -5942,6 +6478,24 @@
   document.getElementById('recRoot').addEventListener('click', function(e){
     var b = e.target.closest('[data-ract]'); if(b){ recoveryAction(b.getAttribute('data-ract'), b); return; }
     if(e.target.id === 'recStartBtn'){ recoveryAction('start', e.target); return; }
+    var addSec = e.target.closest('[data-raddsec]');
+    if(addSec){
+      var c0 = recCase(), box = document.getElementById('recSecs'); if(!c0 || !box) return;
+      if(box.children.length >= 12){ toast('Up to 12 extra sections.'); return; }
+      var cl0 = recClaim(c0, recMatter());
+      box.insertAdjacentHTML('beforeend', recSectionHtml(recSectionPreset(addSec.getAttribute('data-raddsec'), c0, cl0), 'n' + (++recSecSeq)));
+      attachRecRich(document.getElementById('recRoot'));
+      var last = box.lastElementChild; last.scrollIntoView({ block: 'center', behavior: 'smooth' }); (last.querySelector('.rec-sec-title').value ? last.querySelector('.rec-rich') : last.querySelector('.rec-sec-title')).focus();
+      return;
+    }
+    var sa = e.target.closest('[data-rsec]');
+    if(sa){
+      var sec = sa.closest('.rec-sec'), how = sa.getAttribute('data-rsec');
+      if(how === 'del'){ if(djSerialize(sec.querySelector('.rec-rich')).length > 40 && !confirm('Remove this section?')) return; sec.remove(); }
+      if(how === 'up' && sec.previousElementSibling) sec.parentNode.insertBefore(sec, sec.previousElementSibling);
+      if(how === 'down' && sec.nextElementSibling) sec.parentNode.insertBefore(sec.nextElementSibling, sec);
+      return;
+    }
     var d = e.target.closest('[data-dact]'); if(d && d.getAttribute('data-dact') !== 'approve'){ disputeAction(d.getAttribute('data-dact'), d); }
   });
   document.getElementById('recRoot').addEventListener('change', function(e){

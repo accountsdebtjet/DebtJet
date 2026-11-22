@@ -1,7 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-// Drafts a letter of demand (kind: "letter") or statement notes (kind: "statement")
+// Drafts a letter of demand (kind: "letter"), statement notes (kind: "statement") or one
+// paragraph for the editor (kind: "paragraph", for a letter or a tribunal claim)
 // from what DebtJet knows: invoices, payments, letters already sent and the email
 // notes pushed in by the Chrome extension. Facts and flags (disputes, promises,
 // hardship, payment claims) are worked out here in code; Claude only writes the
@@ -35,6 +36,9 @@ Deno.serve(async (req: Request) => {
 
     const p = await req.json();
     const kind = p.kind === "statement" ? "statement" : "letter";
+    const para = p.kind === "paragraph";
+    const instruction = String(p.instruction || "").trim().slice(0, 600);
+    if (para && !instruction) return json({ error: "Say what the paragraph should cover." }, 400);
 
     // ---------- Load facts (row-level security limits everything to the user's org) ----------
     let orgId: string, debtorIds: string[], caseRow: any = null;
@@ -199,7 +203,23 @@ Deno.serve(async (req: Request) => {
       "Write plain text, Australian English, no markdown.";
 
     let schema: any, task: string;
-    if (kind === "letter") {
+    if (para) {
+      const forClaim = p.purpose === "claim_details";
+      const context = String(p.context_text || "").slice(0, 3000);
+      const FIELDS = ["debtor_name", "contact_name", "invoice_list", "due_date", "days_overdue", "principal", "interest", "fees", "total_owing",
+        "interest_rate", "pay_days", "pay_by_date", "payment_reference", "last_letter_date", "disputed_list", "business_name", "our_contact", "today"];
+      task = forClaim
+        ? "Write ONE paragraph for the 'details of the claim' section of a small claims or tribunal application that the business (the applicant) completes and lodges itself. " +
+          "State facts only, in the first person plural ('We supplied...'), in date order where relevant: what was supplied, invoices, due dates, demands sent, payments and what remains unpaid. " +
+          "No legal argument, no predictions about the outcome, no opinions about the respondent. Use exact figures and dates from FACTS; if something the user asks for is not in FACTS, leave a short bracketed gap like [date of quote] for the user to fill in. Under 140 words."
+        : "Write ONE paragraph (or a short bulleted list, each bullet on its own line starting with '- ') for a collection letter. " +
+          "The letter is a reusable template, so use these placeholders instead of literal figures where they fit: " + FIELDS.map((f) => "{{" + f + "}}").join(", ") +
+          ". Do not add a greeting or sign-off. Under 90 words. Only state a next step (such as legal action or referral to a collector) if the user's request says the business has decided on it.";
+      task += " What the user wants the paragraph to say: " + JSON.stringify(instruction) +
+        (context ? " The rest of the document, for tone and to avoid repeating it: " + JSON.stringify(context) : "") +
+        " Return JSON: text (the paragraph); note (one short sentence for the user: anything to check, or empty string).";
+      schema = { type: "object", additionalProperties: false, properties: { text: { type: "string" }, note: { type: "string" } }, required: ["text", "note"] };
+    } else if (kind === "letter") {
       const STAGES = ["reminder", "second_reminder", "first_demand", "final_demand", "pre_legal", "plan", "dispute", "other"];
       const tplType = STAGES.includes(p.template_type) ? p.template_type : "reminder";
       // The app sends the template's own wording (for tone and structure); fall back to a saved template.
@@ -256,7 +276,7 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false, error: "The AI reply couldn't be read. Please try again.", flags, lines, totals }, 502);
     }
 
-    return json({ ok: true, kind, model, flags, lines, totals, draft: out });
+    return json({ ok: true, kind: para ? "paragraph" : kind, model, flags, lines, totals, draft: out });
   } catch (e) {
     console.error("draft-correspondence error", e);
     return json({ error: String((e as Error).message || e) }, 500);
