@@ -1,5 +1,5 @@
 <title>DebtJet</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Sora:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
 <style>
   :root{
@@ -887,63 +887,137 @@
     .view{padding:16px 14px 50px;}
   }
   /* =====================================================================
-     PAPER & INK — DebtJet's own look (Nov 2026)
-     Warm paper, ink-navy text and sidebar, a serif for titles, and Signal Yellow
-     used like a highlighter pen (never as text on light backgrounds).
+     LEDGER & MARKER — DebtJet's own look (direction C, 22 Nov 2026)
+     Google Sans throughout. No boxed cards: sections sit under a heavy ink rule.
+     Ruled ledger tables, square buttons, and Signal Yellow used only as a
+     highlighter (never as text on light backgrounds).
      ===================================================================== */
+  :root{ --ink:#0B2A5B; --paper:#FFFFFF; --hl:rgba(255,199,44,.72); --rule:3px; --gs:"Google Sans","Google Sans Text",system-ui,-apple-system,"Segoe UI",sans-serif; }
   @media not (prefers-color-scheme: dark){ :root:not([data-theme="dark"]){
-    --bg:#F6F2E9; --surface:#FFFDF8; --surface-alt:#F1EBDD; --border:#E6DECD; --border-strong:#D3C7AF;
-    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#7A8496;
-    --accent:#1E6FD9; --accent-strong:#1554B8; --accent-soft:#E3ECF8;
-    --warm-soft:#FFF4CF;
-    --sidebar-bg:#0B2A5B; --sidebar-text:#E9E2D0; --sidebar-text-dim:#93A5C4; --sidebar-active:rgba(255,199,44,.13); --sidebar-active-text:#FFFDF8;
-    --sidebar-hover:rgba(255,253,248,.07); --sidebar-strong:#FFFDF8; --sidebar-jet:#FFC72C; --sidebar-line:rgba(255,253,248,.12);
-    --topbar-bg:#F6F2E9; --topbar-text:#0B2A5B; --topbar-sub:#3F5170; --topbar-border:#E6DECD;
-    --shadow:0 1px 0 rgba(70,52,20,.04), 0 3px 12px rgba(70,52,20,.05);
-    --radius:10px;
-    --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55);
+    --bg:#FBFBF8; --surface:#FFFFFF; --surface-alt:#F3F4F1; --border:#E3E5E9; --border-strong:#C9CDD4;
+    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#5F6B7D;
+    --accent:#1E6FD9; --accent-strong:#1554B8; --accent-soft:#E6EEFA; --warm-soft:#FFF4CF;
+    --sidebar-bg:#FBFBF8; --sidebar-text:#3F5170; --sidebar-text-dim:#5F6B7D; --sidebar-active:transparent; --sidebar-active-text:#0B2A5B;
+    --sidebar-hover:#F1F2EE; --sidebar-strong:#0B2A5B; --sidebar-jet:#1E6FD9; --sidebar-line:#E3E5E9;
+    --topbar-bg:#FBFBF8; --topbar-text:#0B2A5B; --topbar-sub:#3F5170; --topbar-border:#E3E5E9;
+    --shadow:none; --radius:0px;
   } }
   :root[data-theme="light"]{
-    --bg:#F6F2E9; --surface:#FFFDF8; --surface-alt:#F1EBDD; --border:#E6DECD; --border-strong:#D3C7AF;
-    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#7A8496;
-    --accent:#1E6FD9; --accent-strong:#1554B8; --accent-soft:#E3ECF8;
-    --warm-soft:#FFF4CF;
-    --sidebar-bg:#0B2A5B; --sidebar-text:#E9E2D0; --sidebar-text-dim:#93A5C4; --sidebar-active:rgba(255,199,44,.13); --sidebar-active-text:#FFFDF8;
-    --sidebar-hover:rgba(255,253,248,.07); --sidebar-strong:#FFFDF8; --sidebar-jet:#FFC72C; --sidebar-line:rgba(255,253,248,.12);
-    --topbar-bg:#F6F2E9; --topbar-text:#0B2A5B; --topbar-sub:#3F5170; --topbar-border:#E6DECD;
-    --shadow:0 1px 0 rgba(70,52,20,.04), 0 3px 12px rgba(70,52,20,.05);
-    --radius:10px;
-    --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55);
+    --bg:#FBFBF8; --surface:#FFFFFF; --surface-alt:#F3F4F1; --border:#E3E5E9; --border-strong:#C9CDD4;
+    --text:#0B2A5B; --text-muted:#3F5170; --text-faint:#5F6B7D;
+    --sidebar-bg:#FBFBF8; --sidebar-text:#3F5170; --sidebar-text-dim:#5F6B7D; --sidebar-active:transparent; --sidebar-active-text:#0B2A5B;
+    --sidebar-hover:#F1F2EE; --sidebar-strong:#0B2A5B; --sidebar-jet:#1E6FD9; --sidebar-line:#E3E5E9;
+    --topbar-bg:#FBFBF8; --topbar-border:#E3E5E9; --shadow:none; --radius:0px;
   }
-  :root{ --ink:#0B2A5B; --paper:#FFFDF8; --hl:rgba(255,199,44,.55); }
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --hl:rgba(255,211,92,.3); --ink:#E7EDF9; --paper:#122142; } }
-  :root[data-theme="dark"]{ --hl:rgba(255,211,92,.3); --ink:#E7EDF9; --paper:#122142; }
-  .serif, .topbar h1, .card-head h3, .stab-title, h2.page{font-family:"Newsreader", Georgia, "Times New Roman", serif;letter-spacing:-0.01em;}
-  .topbar h1{font-size:26px;font-weight:600;line-height:1.15;display:inline;padding:0 3px;margin-left:-3px;
-    background:linear-gradient(100deg, transparent 0 1%, var(--hl) 2% 97%, transparent 98%) no-repeat 0 88% / 100% 38%;}
-  .topbar{border-bottom:1px solid var(--topbar-border);backdrop-filter:saturate(1.1) blur(6px);background:color-mix(in srgb, var(--topbar-bg) 92%, transparent);}
-  .card-head h3{font-size:18px;font-weight:600;}
-  .card{box-shadow:var(--shadow);}
-  .card-head{border-bottom:1px solid color-mix(in srgb, var(--border) 70%, transparent);padding-bottom:12px;margin-bottom:4px;}
-  /* Sidebar: ink with a highlighter on the current page */
-  .nav-btn{color:var(--sidebar-text);}
-  .nav-btn.active{background:var(--sidebar-active);color:var(--sidebar-active-text);box-shadow:inset 3px 0 0 #FFC72C;border-radius:4px 8px 8px 4px;}
-  .nav-btn.active .ic{color:#FFC72C;opacity:1;}
-  /* Buttons and tabs: ink first, blue for links */
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ink:#E7EDF9; --paper:#0E1C33; --hl:rgba(255,211,92,.38); --radius:0px; } }
+  :root[data-theme="dark"]{ --ink:#E7EDF9; --paper:#0E1C33; --hl:rgba(255,211,92,.38); --radius:0px; }
+
+  body, button, input, select, textarea{font-family:var(--gs);}
+  h1,h2,h3,.display,.brand-name,.kpi .value{font-family:var(--gs);letter-spacing:-0.02em;}
+  .brand-name{font-weight:700;font-size:21px;}
+  .hl{background:linear-gradient(100deg,transparent 1%,var(--hl) 3% 96%,transparent 98%) no-repeat 0 85%/100% 45%;padding:0 2px;}
+
+  /* Shell */
+  .sidebar{border-right:1px solid var(--sidebar-line);}
+  .nav-btn{border-radius:0;font-size:14px;padding:8px 10px;}
+  .nav-btn.active{font-weight:700;background:linear-gradient(100deg,transparent 1%,var(--hl) 3% 96%,transparent 98%) no-repeat 36px 70%/calc(100% - 46px) 46%;}
+  .nav-btn.active .ic{opacity:1;}
+  .topbar{border-bottom:1px solid var(--topbar-border);}
+  .topbar h1{font-size:30px;font-weight:700;line-height:1.1;}
+
+  /* Sections: no boxes, a heavy ink rule on top */
+  .card{background:transparent;border:0;border-top:var(--rule) solid var(--ink);border-radius:0;box-shadow:none;}
+  .card > .card-head{padding:12px 0 8px;border-bottom:0;}
+  .card > .card-body{padding-left:0;padding-right:0;}
+  .card-head h3{font-size:20px;font-weight:700;}
+  .kpi{border-radius:0;box-shadow:none;background:transparent;border:0;border-top:var(--rule) solid var(--ink);padding-left:0;}
+  .kpi .value{font-weight:700;}
+
+  /* Tables: ruled ledger (documents on paper keep their own design) */
+  .view table:not(.ld-t) th:not(.letter-paper *):not(#statementPaper *):not(.sd *){background:transparent !important;color:var(--ink) !important;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--ink) !important;border-radius:0 !important;}
+  .view table:not(.ld-t) td:not(.letter-paper *):not(#statementPaper *):not(.sd *){border-bottom:1px solid var(--border);}
+  .view table tr.tot td:not(.letter-paper *):not(#statementPaper *):not(.sd *){border-top:var(--rule) solid var(--ink);border-bottom:var(--rule) solid var(--ink);font-weight:800;}
+
+  /* Controls */
+  .btn{border-radius:0;}
   .btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper);}
   .btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .stmt-tabs button.active,.seg-btn.active{background:var(--ink);color:var(--paper);box-shadow:inset 0 -3px 0 #FFC72C;}
-  .stmt-tabs{background:var(--surface);}
-  .stmt-tabs button.active .rtab-b.ok{background:rgba(255,199,44,.25);color:#FFC72C;}
-  /* Top bar "Connect" button sits on paper now */
-  .tb-src-add{background:var(--surface);border-color:var(--border-strong);}
-  .tb-src-add:hover{background:var(--warm-soft);}
-  /* Tables: ruled like a ledger */
-  .rec-table th, table th{letter-spacing:.05em;}
-  /* Letters and recovery: paper sheets sit on the desk */
-  .letter-paper{box-shadow:0 1px 0 rgba(70,52,20,.05), 0 10px 30px -12px rgba(70,52,20,.25);border-color:#E9E2D2;}
-  /* Highlighter utility */
-  .hl{background:linear-gradient(transparent 58%, var(--hl) 58% 92%, transparent 92%);padding:0 2px;}
+  input,select,textarea{border-radius:2px;}
+  .pill{border-radius:2px;}
+  .ai-flag{border-radius:0;}
+  .tb-src-add{border-radius:0;background:var(--surface);border-color:var(--border-strong);}
+  .stmt-tabs{background:transparent;border:0;border-bottom:1px solid var(--border);border-radius:0;box-shadow:none;padding:0;gap:18px;width:auto;}
+  .stmt-tabs button{border-radius:0;padding:10px 2px;border-bottom:3px solid transparent;margin-bottom:-1px;background:transparent;}
+  .stmt-tabs button:hover{background:transparent;color:var(--text);}
+  .stmt-tabs button.active{background:transparent;color:var(--ink);font-weight:700;border-bottom-color:#FFC72C;box-shadow:none;}
+  .stmt-tabs button.active .rtab-b.ok{background:#DDF3E6;color:#14703D;}
+  .seg{border-radius:0;}
+  .seg-btn.active{background:var(--ink);color:var(--paper);}
+  .letter-paper{border-radius:0;box-shadow:none;border-color:var(--border);}
+
+  /* Assist pieces, flattened */
+  .as-chip{border-radius:2px;}
+  .as-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .as-clause{border:0;border-top:1px solid var(--border);border-radius:0;background:transparent;}
+  .as-clause:hover{border-color:var(--border);box-shadow:none;background:var(--surface-alt);}
+  .as-draft{border-radius:0;}
+  .rec-rich{border-radius:2px;}
+
+  /* ---------- Insert panel (right) and Style dock (bottom) ---------- */
+  .ins-panel{flex:0 0 300px;width:300px;border-left:var(--rule) solid var(--ink);background:var(--surface);position:sticky;top:0;height:100dvh;overflow:auto;padding:18px 18px 90px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;}
+  .ins-panel[hidden]{display:none !important;}
+  .ins-panel.peek{position:fixed;right:0;top:0;z-index:60;box-shadow:-18px 0 40px -20px rgba(11,20,40,.45);}
+  .ins-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .ins-head h2{margin:0;font-size:22px;font-weight:700;}
+  .ins-pin{border:1px solid var(--border-strong);background:transparent;color:var(--text);padding:5px 8px;cursor:pointer;border-radius:0;display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:12px;}
+  .ins-pin[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .ins-tabs{display:flex;gap:14px;border-bottom:1px solid var(--border);}
+  .ins-tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:6px 0;margin-bottom:-1px;font:inherit;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;}
+  .ins-tabs button.on{color:var(--ink);border-bottom-color:#FFC72C;}
+  .ins-tabs button:disabled{opacity:.4;cursor:not-allowed;}
+  .ins-target{font-size:12px;color:var(--text-muted);background:var(--surface-alt);padding:6px 9px;}
+  .ins-target b{color:var(--text);}
+  .ins-off{font-size:12px;color:var(--text-faint);border-top:1px solid var(--border);padding-top:10px;}
+  .ins-fields{display:flex;flex-direction:column;}
+  .ins-fields button{text-align:left;background:none;border:0;border-top:1px solid var(--border);padding:8px 2px;font:inherit;font-size:13px;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;gap:8px;}
+  .ins-fields button:hover{background:var(--surface-alt);}
+  .ins-fields code{font-size:11px;color:var(--text-faint);}
+  .edge-hot{position:fixed;z-index:55;}
+  .edge-hot.r{right:0;top:0;width:10px;height:100dvh;}
+  .edge-hot.b{left:0;right:0;bottom:0;height:10px;}
+  .edge-hot[hidden]{display:none;}
+  .tb-toggle{border:1px solid var(--border-strong);background:transparent;color:var(--text);padding:7px 11px;font:inherit;font-size:13px;font-weight:600;border-radius:0;cursor:pointer;}
+  .tb-toggle[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .tb-toggle[hidden]{display:none;}
+  .style-dock{position:sticky;bottom:0;z-index:40;background:var(--ink);color:var(--paper);display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 28px;font-size:13px;}
+  .style-dock[hidden]{display:none !important;}
+  .style-dock.peek{position:fixed;left:0;right:0;}
+  .style-dock .sd-k{font-weight:700;color:#FFC72C;}
+  .style-dock label{display:inline-flex;align-items:center;gap:6px;color:inherit;}
+  .style-dock select,.style-dock input[type=number]{background:transparent;color:inherit;border:1px solid rgba(255,255,255,.35);padding:4px 6px;font:inherit;font-size:12.5px;border-radius:0;}
+  .style-dock select option{color:#0B2A5B;}
+  .style-dock .sw{width:22px;height:22px;border:2px solid transparent;outline:1px solid rgba(255,255,255,.45);outline-offset:-1px;cursor:pointer;padding:0;}
+  .topbar{flex-wrap:wrap;row-gap:10px;}
+  .topbar .search{flex:1 1 180px;min-width:160px;max-width:380px;}
+  .topbar h1{font-size:26px;white-space:nowrap;}
+  .topbar .sub{max-width:460px;}
+  .main{min-height:100dvh;}
+  .style-dock{margin-top:auto;}
+  .rec-total{grid-template-columns:repeat(auto-fit,minmax(130px,1fr)) !important;}
+  .rec-table td{white-space:nowrap;}
+  /* With the Insert panel open there is less room: put the recovery summary under the steps */
+  .app:has(.ins-panel:not([hidden]):not(.peek)) .rec-shell{grid-template-columns:minmax(0,1fr);}
+  @media (min-width:1600px){ .app:has(.ins-panel:not([hidden]):not(.peek)) .rec-shell{grid-template-columns:minmax(0,1fr) 280px;} }
+  .topbar > div:first-child{flex:1 1 260px;min-width:0;}
+  .style-dock .sw.on{border-color:#FFC72C;}
+  .style-dock input[type=color]{width:26px;height:24px;padding:0;border:1px solid rgba(255,255,255,.35);background:none;}
+  .style-dock .sd-more{margin-left:auto;color:inherit;background:none;border:1px solid rgba(255,255,255,.35);padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer;}
+  .style-dock .sd-x{background:none;border:0;color:inherit;cursor:pointer;font-size:16px;padding:2px 6px;}
+  :root[data-theme="dark"] .style-dock select option{color:#0B2A5B;}
+  @media (max-width:1100px){ .ins-panel{position:fixed;right:0;top:0;z-index:60;box-shadow:-18px 0 40px -20px rgba(11,20,40,.45);} }
+  /* Letters: the Insert panel replaces the in-page sidebar on the Letter tab */
+  .view[data-view="letters"][data-ltab="letter"] .ld-shell{grid-template-columns:minmax(0,1fr) !important;}
+  .view[data-view="letters"][data-ltab="letter"] .ld-shell > .ld-side{display:none;}
 </style>
 
 <!-- AUTH -->
@@ -1022,6 +1096,8 @@
       </div>
       <div class="tb-sources" aria-label="Connected apps"><div class="tb-src-logos" id="tbSrcLogos"></div><button type="button" class="tb-src-add" id="tbSrcAdd" data-src-open>+ Connect or import</button></div>
       <div class="search"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M16 16l-3.5-3.5"/></svg><input placeholder="Search debtors, invoices, ABNs…" /></div>
+      <button type="button" class="tb-toggle" id="tbIns" aria-pressed="false" hidden title="Show or hide the Insert panel">Insert</button>
+      <button type="button" class="tb-toggle" id="tbStyle" aria-pressed="false" hidden title="Show or hide the Style dock">Style</button>
       <button class="btn primary" id="refreshBtn">↻ Refresh</button>
     </div>
 
@@ -1105,7 +1181,7 @@
         <div class="ld-shell">
           <div class="card ld-side">
             <div class="seg ld-tabs ld-tpl-only" role="tablist">
-              <button type="button" class="seg-btn" data-ldtab="content">Write</button>
+              <button type="button" class="seg-btn" data-ldtab="content" hidden>Write</button>
               <button type="button" class="seg-btn active" data-ldtab="design">Design</button>
               <button type="button" class="seg-btn" data-ldtab="settings">Settings</button>
             </div>
@@ -1526,8 +1602,11 @@
     <section class="view" data-view="integrations" hidden>
       <div class="int-grid" id="integrationsGrid"></div>
     </section>
+    <div class="style-dock" id="styleDock" role="toolbar" aria-label="Style" hidden></div>
   </div>
+  <aside class="ins-panel" id="insPanel" aria-label="Insert" hidden></aside>
 </div>
+<div class="edge-hot r" id="edgeR" hidden aria-hidden="true"></div><div class="edge-hot b" id="edgeB" hidden aria-hidden="true"></div>
 
 <div class="toast" id="toast"></div>
 <div id="printRoot"></div>
@@ -2180,6 +2259,7 @@
     window.scrollTo(0,0);
     if(name === 'recovery'){ renderRecoveryCaseOptions(); selectRecoveryCase(recState.caseId); }
     if(name === 'settings') renderSettings();
+    curView = name; shellRefresh();
   }
   function setActiveNav(name){ Array.prototype.forEach.call(document.querySelectorAll('.nav-btn'), function(b){ b.classList.toggle('active', b.getAttribute('data-view')===name); }); }
   Array.prototype.forEach.call(document.querySelectorAll('.nav-btn[data-view]'), function(btn){ btn.addEventListener('click', function(){ var v=this.getAttribute('data-view'); showView(v); setActiveNav(v); }); });
@@ -2406,7 +2486,8 @@
     box.innerHTML = '<div class="as-ask"><label class="as-label" for="asQ-'+A.scope+'">What do you want to say?</label>'
       + '<textarea id="asQ-'+A.scope+'" class="as-q" rows="2" maxlength="600" placeholder="'+escapeHtml(A.placeholder || 'e.g. offer a payment plan over 3 months')+'">'+escapeHtml(S.q)+'</textarea>'
       + '<div class="as-ask-row"><span class="muted small">'+(words.length ? list.length + ' matching clause' + (list.length === 1 ? '' : 's') : 'Type to search the clause library')+'</span>'
-      + '<button type="button" class="btn sm as-ai" data-as="ai"'+(S.busy || !S.q.trim() ? ' disabled' : '')+'>'+(S.busy ? 'Drafting…' : '✨ Draft with AI')+'</button></div>'
+      + (A.noAi ? '' : '<button type="button" class="btn sm as-ai" data-as="ai"'+(S.busy || !S.q.trim() ? ' disabled' : '')+'>'+(S.busy ? 'Drafting…' : '✨ Draft with AI')+'</button>') + '</div>'
+      + (A.noAi ? '<div class="fine">'+escapeHtml(A.noAi)+'</div>' : '')
       + (A.canAi && !A.canAi() ? '<div class="fine">Choose a case to draft with AI.</div>' : '')
       + '</div>'
       + (S.err ? '<div class="ai-flag caution">'+escapeHtml(S.err)+'</div>' : '')
@@ -2475,6 +2556,189 @@
     { cat:'Amount claimed', key:'c_interest', label:'Interest under terms', text:'Our terms of trade allow interest on overdue amounts at {{interest_rate}} per year. We claim interest of {{interest}} to {{today}}.' },
     { cat:'Amount claimed', key:'c_costs', label:'Filing and service costs', text:'We also ask for the filing fee and the cost of serving the application.' }
   ];
+
+  /* =====================================================================
+     APP SHELL: one Insert panel (right) and one Style dock (bottom)
+     Each section turns on what it needs. Open by default where you write;
+     elsewhere, peek from the screen edge or use the top-bar buttons.
+     The pin is remembered per section.
+     ===================================================================== */
+  var SHELL = { cases: { ins: 'notes' }, detail: { ins: 'notes' }, interest: { ins: 'terms' }, statements: { ins: 'statement', dock: true }, letters: { ins: 'letter', dock: true }, recovery: { ins: 'claim' } };
+  var curView = 'dashboard', insTab = 'clauses', insTarget = null, insLastDj = null;
+  var shellPins = (function(){ try { return JSON.parse(localStorage.getItem('dj.pins') || '{}') || {}; } catch(e){ return {}; } })();
+  function pinOf(kind, view){ var k = kind + ':' + view; if(Object.prototype.hasOwnProperty.call(shellPins, k)) return !!shellPins[k]; return kind === 'ins' ? /^(letters|statements|recovery)$/.test(view) : /^(letters|statements)$/.test(view); }
+  function setPin(kind, view, on){ shellPins[kind + ':' + view] = !!on; try { localStorage.setItem('dj.pins', JSON.stringify(shellPins)); } catch(e){} }
+  var PIN_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 2h4l-1 4 3 3H4l3-3z"/><path d="M8 9v5"/></svg>';
+  var STMT_CLAUSES = [
+    { cat:'Cover message', key:'s_asat', label:'Account as at today', text:'Here is your account as at today. Thank you for your business.' },
+    { cat:'Cover message', key:'s_overdue', label:'Some invoices overdue', text:'Some of the invoices below are now overdue. Please arrange payment at your earliest convenience.' },
+    { cat:'Cover message', key:'s_paid', label:'Already paid?', text:'If you have paid in the last few days, thank you. Please send the remittance so we can match it.' },
+    { cat:'Cover message', key:'s_plan', label:'Payment plan offer', text:'If you can’t pay the full amount now, contact us and we can talk about a payment arrangement.' },
+    { cat:'Cover message', key:'s_bank', label:'Bank details warning', text:'We will never change our bank details by email. If you receive a message saying otherwise, call us before paying.' },
+    { cat:'Notes under invoices', key:'s_dispute', label:'Disputed: on hold', text:'Under review, so no payment is requested for this invoice while we look into it.' },
+    { cat:'Notes under invoices', key:'s_promise', label:'Promise noted', text:'Thanks for confirming payment by [date].' },
+    { cat:'Notes under invoices', key:'s_remit', label:'Remittance please', text:'Thanks for letting us know this was paid. Please send the remittance so we can match it.' }
+  ];
+  var TERMS_CLAUSES = [
+    { cat:'Terms of trade', key:'t_terms', label:'Payment terms', text:'Invoices are payable within [14] days of the invoice date.' },
+    { cat:'Terms of trade', key:'t_interest', label:'Interest on overdue amounts', text:'Overdue amounts attract interest at [10]% per year, calculated daily from the due date until paid.' },
+    { cat:'Terms of trade', key:'t_latefee', label:'Late payment fee', text:'A late payment fee of $[amount] applies to each invoice not paid within [7] days after the due date.' },
+    { cat:'Terms of trade', key:'t_costs', label:'Recovery costs', text:'The customer agrees to pay reasonable costs we incur in recovering overdue amounts, including collection and legal costs.' },
+    { cat:'Terms of trade', key:'t_dishonour', label:'Dishonoured payment fee', text:'A fee of $[amount] applies to any payment that is dishonoured or reversed.' },
+    { cat:'Terms of trade', key:'t_suspend', label:'Suspending credit', text:'We may suspend further supply on credit while any amount is overdue.' },
+    { cat:'Terms of trade', key:'t_apply', label:'How payments are applied', text:'Payments are applied first to interest and fees, then to the oldest unpaid invoice.' }
+  ];
+  var NOTE_CLAUSES = [
+    { cat:'Call notes', key:'n_noanswer', label:'No answer', text:'Called [name] on [phone]. No answer; left a voicemail asking them to call back about the overdue invoices.' },
+    { cat:'Call notes', key:'n_promise', label:'Promise to pay', text:'Spoke to [name]. They will pay $[amount] by [date] for [invoice].' },
+    { cat:'Call notes', key:'n_paid', label:'Says paid', text:'[name] says they paid [invoice] on [date]. Asked for the remittance.' },
+    { cat:'Call notes', key:'n_dispute', label:'Dispute raised', text:'[name] disputes [invoice] because [reason]. Told them we will review it and hold off asking for payment of it.' },
+    { cat:'Call notes', key:'n_plan', label:'Asked for a plan', text:'[name] asked to pay by instalments: $[amount] every [week / fortnight] from [date].' },
+    { cat:'Call notes', key:'n_contact', label:'New contact details', text:'Accounts contact is now [name], [email], [phone].' }
+  ];
+  function insertIntoTarget(text, fallbackEl){
+    var el = insTarget && document.body.contains(insTarget) && insTarget.offsetParent ? insTarget : (fallbackEl && fallbackEl.offsetParent ? fallbackEl : null);
+    if(!el){
+      var t0 = djPlain(text);
+      try { navigator.clipboard.writeText(t0).then(function(){ toast('Copied. Paste it where you need it, or click a box first to insert straight into it.'); }, function(){ toast('Click a box first, then choose the wording.'); }); } catch(e){ toast('Click a box first, then choose the wording.'); }
+      return;
+    }
+    if(el.hasAttribute('data-dj-edit')){ var cur = djSerialize(el); el.innerHTML = djRich((cur ? cur + '\n\n' : '') + text, (el._dj && el._dj.vars) || {}, 'edit'); djFire(el); return; }
+    var t = djPlain(text), v = el.value || '', a = el.selectionStart != null ? el.selectionStart : v.length, b = el.selectionEnd != null ? el.selectionEnd : a;
+    var pre = v.slice(0, a), sep = pre && !/\s$/.test(pre) ? (el.tagName === 'TEXTAREA' ? '\n' : ' ') : '';
+    el.value = pre + sep + t + v.slice(b); el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.focus(); el.selectionStart = el.selectionEnd = (pre + sep + t).length;
+    toast('Added to ' + insTargetLabel(el) + '.');
+  }
+  var STMT_ASSIST = { scope: 'statement', builtins: STMT_CLAUSES, noAi: 'AI notes for statements: use “Draft notes with AI” on the Statement tab.', placeholder: 'e.g. thank them, or note a promise', insert: function(t){ insertIntoTarget(t, document.getElementById('stmtNotes')); } };
+  var TERMS_ASSIST = { scope: 'letter', builtins: TERMS_CLAUSES, noAi: 'Wording to adapt for your own terms of trade. Check it with your adviser.', placeholder: 'e.g. interest on overdue invoices', insert: function(t){ insertIntoTarget(t); } };
+  var NOTES_ASSIST = { scope: 'letter', builtins: NOTE_CLAUSES, noAi: 'Click a notes box first, then a note to add it.', placeholder: 'e.g. promise to pay', insert: function(t){ insertIntoTarget(t); } };
+  var INS_KINDS = {
+    letter: { assist: function(){ return LD_ASSIST; }, fields: true, off: { evidence: 'Debt Recovery' }, where: function(){ return 'Adds to: <b>the letter</b>, after the paragraph you’re on'; } },
+    claim: { assist: function(){ return recAssistCtx ? REC_ASSIST : null; }, evidence: true, off: { fields: 'Letters of Demand' }, empty: 'Open a case’s Claim tab and start a recovery file, then write the claim from here.' },
+    statement: { assist: function(){ return STMT_ASSIST; }, off: { fields: 'Letters of Demand', evidence: 'Debt Recovery' } },
+    terms: { assist: function(){ return TERMS_ASSIST; }, off: { fields: 'Letters of Demand', evidence: 'Debt Recovery' } },
+    notes: { assist: function(){ return NOTES_ASSIST; }, off: { fields: 'Letters of Demand', evidence: 'Debt Recovery' } }
+  };
+  function insTargetLabel(el){
+    el = el || insTarget; if(!el || !document.body.contains(el) || !el.offsetParent) return '';
+    if(el.closest('#letterPaper')) return 'the letter';
+    if(el.classList.contains('rec-rich')){ var sec = el.closest('.rec-sec'); return sec ? ((sec.querySelector('.rec-sec-title') || {}).value || 'Section') : 'Details of the claim'; }
+    if(el.getAttribute('data-ins-label')) return el.getAttribute('data-ins-label');
+    var lab = el.closest('label'); if(lab){ var txt = Array.prototype.filter.call(lab.childNodes, function(n){ return n.nodeType === 3; }).map(function(n){ return n.nodeValue; }).join(' ').trim(); if(txt) return txt.slice(0, 50); }
+    var rf = el.closest('.rec-f'); if(rf && rf.querySelector('span')) return rf.querySelector('span').textContent.slice(0, 50);
+    return (el.getAttribute('placeholder') || 'the box you last clicked').slice(0, 50);
+  }
+  function updateInsTarget(){
+    var box = document.querySelector('#insPanel .ins-target'); if(!box) return;
+    var cfg = SHELL[curView] || {}, K = INS_KINDS[cfg.ins] || {};
+    if(K.where){ box.innerHTML = K.where(); return; }
+    var l = insTargetLabel();
+    box.innerHTML = l ? 'Adds to: <b>' + escapeHtml(l) + '</b>' : (cfg.ins === 'statement' ? 'Adds to: <b>Cover message</b>, or click another box first' : 'Click a box first. Otherwise wording is copied for you to paste.');
+  }
+  function renderInsPanel(){
+    var cfg = SHELL[curView]; if(!cfg || !cfg.ins) return;
+    var K = INS_KINDS[cfg.ins], p = document.getElementById('insPanel'), pinned = pinOf('ins', curView);
+    var avail = { clauses: true, fields: !!K.fields, evidence: !!K.evidence };
+    if(!avail[insTab]) insTab = 'clauses';
+    var tabs = [['clauses', 'Clauses & AI'], ['fields', 'Fields'], ['evidence', 'Evidence']];
+    p.innerHTML = '<div class="ins-head"><h2>Insert</h2><button type="button" class="ins-pin" data-ins="pin" aria-pressed="'+pinned+'" title="'+(pinned ? 'Unpin: open from the right edge instead' : 'Keep this panel open in ' + escapeHtml(TITLES[curView][0]))+'">'+PIN_SVG+(pinned ? 'Pinned' : 'Pin')+'</button></div>'
+      + '<div class="ins-tabs" role="tablist">' + tabs.map(function(t){ return '<button type="button" role="tab" data-instab="'+t[0]+'" class="'+(insTab === t[0] ? 'on' : '')+'" aria-selected="'+(insTab === t[0])+'"'+(avail[t[0]] ? '' : ' disabled title="Used in '+escapeHtml((K.off || {})[t[0]] || 'another section')+'"')+'>'+t[1]+'</button>'; }).join('') + '</div>'
+      + '<div class="ins-target"></div><div id="insBody"></div>'
+      + (Object.keys(K.off || {}).length ? '<div class="ins-off">'+Object.keys(K.off).map(function(k){ return escapeHtml(k === 'fields' ? 'Fields' : 'Evidence') + ' are used in ' + escapeHtml(K.off[k]); }).join('. ')+'.</div>' : '');
+    updateInsTarget();
+    var body = document.getElementById('insBody');
+    if(insTab === 'fields'){
+      body.innerHTML = '<div class="ins-fields">' + LETTER_VARS.map(function(v){ return '<button type="button" data-insfield="'+v[0]+'"><span>'+escapeHtml(v[1])+'</span><code>{{'+v[0]+'}}</code></button>'; }).join('') + '</div><div class="fine">Click into a paragraph on the letter first. The field goes where your cursor is and fills in from the case.</div>';
+      return;
+    }
+    if(insTab === 'evidence'){
+      body.innerHTML = '<p class="muted small">The evidence pack is built from your invoices, letters, payments and notes.</p><div style="display:flex;flex-direction:column;gap:6px;"><button type="button" class="btn sm" data-ins="go-evidence">Open the evidence pack</button><button type="button" class="btn sm" data-ins="go-disputes">Disputed facts</button></div>';
+      return;
+    }
+    var A = K.assist();
+    if(!A){ body.innerHTML = '<div class="empty-note">'+escapeHtml(K.empty || '')+'</div>'; return; }
+    renderAssist(body, A);
+  }
+  var DOCK = {
+    letters: { scope: 'this letter template', spacing: [['compact','Compact'],['normal','Normal'],['relaxed','Relaxed']],
+      ok: function(){ return !!ldTpl; },
+      get: function(k){ var st = ldSettings(), o = st.overrides || {}, base = normaliseTpl(brandSettings(st.design_source)); if(k === 'spacing') return st.spacing; if(k === 'colors.accent') return (o.colors && o.colors.accent) || base.colors.accent; return o[k] != null && o[k] !== '' ? o[k] : base[k]; },
+      set: function(k, v){ var st = ldTpl.settings = ldTpl.settings || {}; st.overrides = st.overrides || {}; if(k === 'spacing') st.spacing = v; else if(k === 'colors.accent'){ st.overrides.colors = st.overrides.colors || {}; st.overrides.colors.accent = v; } else st.overrides[k] = v; if(k === 'font') ensureFont(v); markLetterDirty(); if(ldTab === 'design' && ldPane === 'templates') renderLetterEditor(); },
+      more: function(){ ldTab = 'design'; setLetterTab('templates'); } },
+    statements: { scope: 'this statement template', spacing: [['compact','Compact'],['regular','Regular'],['roomy','Roomy']],
+      ok: function(){ return !!stmtTplSettings; },
+      get: function(k){ return getPath(stmtTplSettings, k === 'spacing' ? 'density' : k); },
+      set: function(k, v){ setPath(stmtTplSettings, k === 'spacing' ? 'density' : k, v); if(k === 'font') ensureFont(v); renderDesigner(); markTplDirty(); },
+      more: function(){ setStmtTab('templates'); } }
+  };
+  function renderStyleDock(){
+    var D = DOCK[curView], el = document.getElementById('styleDock'); if(!D || el.hidden) return;
+    if(!D.ok()){ el.innerHTML = '<span class="sd-k">Style</span><span>Choose a template first.</span>'; return; }
+    if(el.contains(document.activeElement) && document.activeElement.tagName === 'SELECT') return;
+    var g = D.get, font = g('font'), size = Number(g('font_size')) || 11.5, acc = String(g('colors.accent') || '#0B2A5B');
+    var SW = ['#0B2A5B', '#1E6FD9', '#3F5170', '#111111', '#14703D', '#8A1C2C'];
+    var opt = function(list, cur){ return list.map(function(x){ return '<option value="'+escapeHtml(String(x[0]))+'"'+(String(x[0]) === String(cur) ? ' selected' : '')+'>'+escapeHtml(x[1])+'</option>'; }).join(''); };
+    el.innerHTML = '<span class="sd-k">Style</span>'
+      + '<label>Font <select data-dock="font">'+opt(FONT_OPTIONS.map(function(o){ return [o.name, o.name]; }), font)+'</select></label>'
+      + '<label>Size <select data-dock="font_size">'+opt([10,10.5,11,11.5,12,12.5,13,14,15].map(function(n){ return [n, n + ' px']; }), size)+'</select></label>'
+      + '<span style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Accent colour">' + SW.map(function(c){ return '<button type="button" class="sw'+(c.toLowerCase() === acc.toLowerCase() ? ' on' : '')+'" data-docksw="'+c+'" style="background:'+c+'" aria-label="Accent colour '+c+'"></button>'; }).join('')
+      + '<input type="color" data-dock="colors.accent" value="'+escapeHtml(/^#[0-9a-f]{6}$/i.test(acc) ? acc : '#0B2A5B')+'" aria-label="Custom accent colour"></span>'
+      + '<label>Table <select data-dock="table_style">'+opt([['lined','Ruled'],['striped','Striped'],['boxed','Boxed'],['minimal','Minimal']], g('table_style'))+'</select></label>'
+      + '<label>Spacing <select data-dock="spacing">'+opt(D.spacing, g('spacing'))+'</select></label>'
+      + '<label>Logo <select data-dock="logo_position">'+opt([['left','Left'],['right','Right']], g('logo_position'))+'</select></label>'
+      + '<button type="button" class="sd-more" data-dock-more>All design options</button><span style="opacity:.8;font-size:12px;">Applies to '+escapeHtml(D.scope)+'</span>'
+      + '<button type="button" class="sd-x" data-dock-close aria-label="Hide the style dock" title="Hide (open again from the bottom edge or the Style button)">×</button>';
+  }
+  var peekTimer = null;
+  function shellRefresh(){
+    var cfg = SHELL[curView] || {}, panel = document.getElementById('insPanel'), dock = document.getElementById('styleDock');
+    var insOn = !!cfg.ins && pinOf('ins', curView), dockOn = !!cfg.dock && pinOf('dock', curView);
+    panel.classList.remove('peek'); dock.classList.remove('peek');
+    panel.hidden = !insOn; dock.hidden = !dockOn;
+    var ti = document.getElementById('tbIns'), ts = document.getElementById('tbStyle');
+    ti.hidden = !cfg.ins; ts.hidden = !cfg.dock; ti.setAttribute('aria-pressed', String(insOn)); ts.setAttribute('aria-pressed', String(dockOn));
+    document.getElementById('edgeR').hidden = !cfg.ins || insOn; document.getElementById('edgeB').hidden = !cfg.dock || dockOn;
+    if(insOn) renderInsPanel(); if(dockOn) renderStyleDock();
+  }
+  function shellPeek(kind, show){
+    var el = document.getElementById(kind === 'ins' ? 'insPanel' : 'styleDock');
+    if(show){ if(!el.hidden) return; el.hidden = false; el.classList.add('peek'); if(kind === 'ins') renderInsPanel(); else renderStyleDock(); }
+    else if(el.classList.contains('peek') && !el.contains(document.activeElement)){ el.classList.remove('peek'); el.hidden = true; }
+  }
+  (function wireShell(){
+    var panel = document.getElementById('insPanel'), dock = document.getElementById('styleDock');
+    [['edgeR', 'ins'], ['edgeB', 'dock']].forEach(function(p){
+      var h = document.getElementById(p[0]);
+      h.addEventListener('mouseenter', function(){ clearTimeout(peekTimer); peekTimer = setTimeout(function(){ shellPeek(p[1], true); }, 280); });
+      h.addEventListener('mouseleave', function(){ clearTimeout(peekTimer); });
+    });
+    [[panel, 'ins'], [dock, 'dock']].forEach(function(p){ p[0].addEventListener('mouseleave', function(){ if(p[0].classList.contains('peek')) setTimeout(function(){ if(!p[0].matches(':hover')) shellPeek(p[1], false); }, 450); }); });
+    document.getElementById('tbIns').addEventListener('click', function(){ setPin('ins', curView, !pinOf('ins', curView)); shellRefresh(); });
+    document.getElementById('tbStyle').addEventListener('click', function(){ setPin('dock', curView, !pinOf('dock', curView)); shellRefresh(); });
+    panel.addEventListener('mousedown', function(e){ if(e.target.closest('[data-insfield]')) e.preventDefault(); });
+    panel.addEventListener('click', function(e){
+      var t = e.target.closest('button'); if(!t) return;
+      if(t.getAttribute('data-ins') === 'pin'){ setPin('ins', curView, !pinOf('ins', curView)); shellRefresh(); return; }
+      if(t.hasAttribute('data-instab')){ insTab = t.getAttribute('data-instab'); renderInsPanel(); return; }
+      if(t.hasAttribute('data-insfield')){ var ed = djActive || (insLastDj && document.body.contains(insLastDj) ? insLastDj : null); if(!ed){ toast('Click into a paragraph on the letter first.'); return; } djInsertField(ed, t.getAttribute('data-insfield')); return; }
+      if(t.getAttribute('data-ins') === 'go-evidence'){ setRecTab('evidence'); return; }
+      if(t.getAttribute('data-ins') === 'go-disputes'){ setRecTab('disputes'); return; }
+    });
+    dock.addEventListener('change', function(e){ var k = e.target.getAttribute('data-dock'), D = DOCK[curView]; if(!k || !D) return; D.set(k, k === 'font_size' ? Number(e.target.value) : e.target.value); renderStyleDock(); });
+    dock.addEventListener('click', function(e){
+      var D = DOCK[curView]; if(!D) return; var t = e.target.closest('button'); if(!t) return;
+      if(t.hasAttribute('data-docksw')){ D.set('colors.accent', t.getAttribute('data-docksw')); renderStyleDock(); return; }
+      if(t.hasAttribute('data-dock-more')){ D.more(); return; }
+      if(t.hasAttribute('data-dock-close')){ setPin('dock', curView, false); shellRefresh(); }
+    });
+    document.addEventListener('focusin', function(e){
+      var el = e.target; if(!el || !el.closest) return;
+      if(el.closest('#insPanel') || el.closest('#styleDock') || el.closest('.topbar') || el.closest('.dj-modal')) return;
+      if(el.hasAttribute('data-dj-edit')) insLastDj = el;
+      if(el.matches('textarea, [data-dj-edit], input[type="text"]:not(.as-q)') && !el.closest('[hidden]')){ insTarget = el; updateInsTarget(); }
+    });
+  })();
 
   /* =====================================================================
      LETTERS OF DEMAND v2
@@ -2883,8 +3147,7 @@
     var box = document.getElementById('ldEditor'); if(!ldTpl){ box.innerHTML = ''; return; }
     var st = ldSettings();
     if(ldTab === 'content'){
-      box.innerHTML = '<div class="as-intro">Write straight on the letter: click any paragraph to edit it, and select text for formatting. Use the switch on a paragraph to leave it out.</div><div id="ldAssist" class="as"></div>';
-      renderAssist(document.getElementById('ldAssist'), LD_ASSIST);
+      box.innerHTML = '<div class="as-intro">Write straight on the letter: click any paragraph to edit it, and select text for formatting. Clauses, fields and AI drafting are in the Insert panel on the right.</div>';
     } else if(ldTab === 'content-old'){
       var nOn = ldTpl.blocks.filter(function(b){ return !b.off; }).length;
       var fixedHint = function(b){ return b.type === 'table' ? 'Uses the “Amounts table” choice on Settings: ' + ({ per_invoice: 'one row per invoice', summary: 'totals only', none: 'hidden' }[st.table]) + '.'
@@ -3806,6 +4069,7 @@
   function getPath(o, path){ return path.split('.').reduce(function(a, k){ return a == null ? a : a[k]; }, o); }
   function setPath(o, path, v){ var ks = path.split('.'); var last = ks.pop(); ks.reduce(function(a, k){ return a[k]; }, o)[last] = v; }
   function renderDesigner(){
+    if(curView === 'statements') setTimeout(renderStyleDock, 0);
     var t = stmtTplSettings, open = {};
     Array.prototype.forEach.call(document.querySelectorAll('#stmtDesigner details'), function(d){ open[d.getAttribute('data-g')] = d.open; });
     document.getElementById('stmtDesigner').innerHTML = DESIGN_GROUPS.map(function(g, gi){
@@ -5400,7 +5664,8 @@
     var panel = t === 'letter' || t === 'templates' ? 'work' : t;
     Array.prototype.forEach.call(document.querySelectorAll('[data-ltab-panel]'), function(p){ p.hidden = p.getAttribute('data-ltab-panel') !== panel; });
     if(t === 'letter'){ ldTab = 'content'; renderLetterEditor(); }
-    if(t === 'templates'){ renderLetterEditor(); }
+    if(t === 'templates'){ if(ldTab === 'content') ldTab = 'design'; renderLetterEditor(); }
+    if(curView === 'letters') renderStyleDock();
     if(t === 'audit'){
       var h = document.getElementById('hist-letters'); if(!h.open) h.open = true;
       var c = currentLetterCase();
@@ -6110,11 +6375,10 @@
       outcome: m ? P2.s7 : needFile
     }[tab];
     var showAssist = tab === 'claim' && m;
-    if(showAssist) side = '<div class="card rec-assist"><div class="card-head"><h3>Write the claim</h3></div><div class="card-body"><div class="as-intro">Search starter paragraphs or describe what you need. Paragraphs go into the box you last clicked. Facts only: DebtJet doesn’t give legal advice.</div><div id="recAssist" class="as"></div></div></div>' + side;
     root.innerHTML = '<div class="rec-shell"><div class="rec-main">'+html+'</div><aside class="rec-side">'+side+'</aside></div>';
     recRichCur = null; recAssistCtx = showAssist ? { c: c, cl: cl } : null;
     attachRecRich(root);
-    if(showAssist) renderAssist(document.getElementById('recAssist'), REC_ASSIST);
+    if(curView === 'recovery' && !document.getElementById('insPanel').hidden) renderInsPanel();
     renderRecTabBadges({ st: st, m: m, stops: checks.filter(function(x){ return x.level === 'stop'; }).length, openDisputes: recState.disputes.filter(function(x){ return !x.approved_at; }).length });
   }
 
