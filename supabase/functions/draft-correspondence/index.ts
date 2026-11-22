@@ -239,10 +239,13 @@ Deno.serve(async (req: Request) => {
       }, required: ["subject", "body", "demanded_invoice_numbers", "recommendation"] };
     } else {
       task = "Write notes for an account statement. The statement is a table with one row per invoice, and each note is printed " +
-        "directly under its invoice row, so keep each note to ONE short sentence (max 25 words) about that invoice only: " +
-        "a promise and its date, a payment the debtor says they made (ask for remittance), a dispute under review (say no payment is " +
-        "requested for it while the review continues), a payment arrangement on offer, or a plain reminder that it is overdue. " +
-        "Use an empty note for invoices with nothing to say beyond the figures already shown. Do not repeat the amount or due date. " +
+        "directly under its invoice row, so keep each note to ONE short sentence (max 25 words) about that invoice only. " +
+        "Lead with WHAT THE INVOICE WAS FOR: the work done or goods supplied, taken from the invoice description and from what the " +
+        "email notes say about the job (for example 'Stage 2 kitchen cabinetry, installed 14 Oct' or 'Monthly bookkeeping, October'). " +
+        "Then, only if there is something specific, add it briefly: a promise and its date, a payment the debtor says they made (ask for " +
+        "remittance), a dispute under review (no payment requested while it is reviewed), or a payment arrangement on offer. " +
+        "NEVER write a generic sentence that the invoice is overdue or unpaid: the table already shows the status, amount, due date and days overdue. " +
+        "If nothing is known about the work and there is nothing specific to add, use an empty note. Do not repeat the amount or due date. " +
         "Also write an optional cover message of 1-2 sentences printed above the table (empty string if not needed).";
       task += " Return JSON: line_notes (one entry per invoice in FACTS, with invoice_number and note); message; " +
         "internal_summary (one or two sentences for staff only, never printed).";
