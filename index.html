@@ -354,6 +354,7 @@
   .note-callout{display:flex;gap:9px;align-items:flex-start;background:var(--info-soft);color:var(--info);border-radius:9px;padding:11px 13px;font-size:12px;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto;}
 
   /* STATEMENTS */
+  .cc-form [hidden]{display:none !important;}
   /* Debt Recovery tabs */
   .rec-tabs button{padding:8px 13px;}
   .rtab-b{font-size:10.5px;font-weight:700;border-radius:999px;padding:0 6px;line-height:17px;min-width:17px;text-align:center;}
@@ -1651,6 +1652,35 @@
     cancelled:   { label: 'ABN cancelled', cls: 'crit', icon: '✕' }
   };
   var AU_STATES = ['', 'ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+  // Debtor type: a business entity (ABN) or a person who owes money in their own name (no ABN).
+  var DEBTOR_KINDS = [
+    ['company', 'Company (Pty Ltd or Ltd)'], ['sole_trader', 'Sole trader'], ['partnership', 'Partnership'], ['trust', 'Trust'],
+    ['association', 'Incorporated association or co-op'], ['government', 'Government body'], ['individual', 'Individual (no ABN, owes in their own name)']
+  ];
+  var DEBTOR_KIND_LABEL = {}; DEBTOR_KINDS.forEach(function(k){ DEBTOR_KIND_LABEL[k[0]] = k[1]; });
+  function isPerson(d){ return !!d && d.debtor_kind === 'individual'; }
+  // Map the ABN register's entity type to a debtor type.
+  function kindFromAbr(t){
+    t = String(t || '');
+    if(/sole trader|individual/i.test(t)) return 'sole_trader';
+    if(/partnership/i.test(t)) return 'partnership';
+    if(/trust/i.test(t)) return 'trust';
+    if(/government|council|commonwealth|state entity/i.test(t)) return 'government';
+    if(/company/i.test(t)) return 'company';
+    if(/association|incorporated|co-operative|cooperative/i.test(t)) return 'association';
+    return null;
+  }
+  function kindFromCsv(v){
+    v = String(v || '').trim().toLowerCase(); if(!v) return null;
+    if(/^(individual|person|personal|consumer)/.test(v)) return 'individual';
+    if(/sole/.test(v)) return 'sole_trader';
+    if(/partner/.test(v)) return 'partnership';
+    if(/trust/.test(v)) return 'trust';
+    if(/assoc|co-?op|incorporated/.test(v)) return 'association';
+    if(/gov|council/.test(v)) return 'government';
+    if(/company|pty|ltd|limited/.test(v)) return 'company';
+    return null;
+  }
   function fmtAbn(a){ a = String(a || '').replace(/\D/g, ''); return a.length === 11 ? a.slice(0,2)+' '+a.slice(2,5)+' '+a.slice(5,8)+' '+a.slice(8) : (a || '—'); }
   function fmtAcn(a){ a = String(a || '').replace(/\D/g, ''); return a.length === 9 ? a.slice(0,3)+' '+a.slice(3,6)+' '+a.slice(6) : (a || '—'); }
   function validAbnClient(abn){ abn = String(abn || '').replace(/\D/g, ''); if(!/^\d{11}$/.test(abn)) return false; var w = [10,1,3,5,7,9,11,13,15,17,19], d = abn.split('').map(Number); d[0] -= 1; return d.reduce(function(s, x, i){ return s + x * w.at(i); }, 0) % 89 === 0; }
@@ -1683,25 +1713,29 @@
       warn = '<div class="ai-flag '+(d.name_check === 'different' ? 'stop' : 'caution')+'">The name on file, “'+escapeHtml(d.name)+'”, '+(d.name_check === 'different' ? "doesn't match" : 'is close to but not the same as')+' the registered entity “'+escapeHtml(d.legal_name || '')+'”. A letter of demand should name the legal entity: <b>'+escapeHtml(letterAddresseeName(d))+'</b>. Confirm the ABN is the right business before sending.</div>';
     else if(d.name_check === 'cancelled') warn = '<div class="ai-flag stop">This ABN is <b>'+escapeHtml(d.abn_status || 'not active')+'</b>'+(d.abn_status_from ? ' since '+escapeHtml(fmt(d.abn_status_from)) : '')+'. The business may have closed or been deregistered. Check ASIC before taking recovery action.</div>';
     else if(d.name_check === 'invalid_abn' || d.name_check === 'not_found') warn = '<div class="ai-flag stop">The ABN on file '+(d.name_check === 'invalid_abn' ? "isn't a valid ABN" : "wasn't found on the register")+'. Edit it or use “Find ABN”.</div>';
+    else if(isPerson(d)) warn = '<div class="ai-flag info">An individual who owes money in their own name: no ABN is needed. Use their full legal name (first and last name) and home address on letters and claims.</div>';
+    else if(!d.debtor_kind) warn = '<div class="ai-flag info">Set the debtor type (business or individual) with “Edit details”, so DebtJet knows whether an ABN is needed.' + (d.abn ? '' : ' If this is a business, use “Find ABN”.') + '</div>';
     else if(!d.abn) warn = '<div class="ai-flag info">No ABN on file. Use “Find ABN” to search the register by name, then confirm it is the right business.</div>';
+    if(d.debtor_kind === 'sole_trader' && !isPerson(d)) warn += '<div class="ai-flag info">A sole trader’s debts are the person’s own. Name them as “Full Name trading as Business Name” on letters and claims.</div>';
     var contacts = ccContacts[d.id] || [];
     var people = (d.contact_name || d.email || d.phone ? [{ name: d.contact_name || 'Main contact', role: 'From '+(d.xero_contact_id ? 'Xero' : 'import'), email: d.email, phone: d.phone, primary: true, fixed: true }] : [])
       .concat(contacts.map(function(x){ return { id: x.id, name: x.name, role: x.role, email: x.email, phone: x.phone, primary: x.is_primary, notes: x.notes }; }));
     var postal = postalLines(d);
-    box.innerHTML = '<div class="card cc-card"><div class="card-head"><div><h3>Contact card</h3><div class="cc-sub">'+nameCheckBadge(d)+(d.abr_checked_at ? ' <span class="hint-r">Register checked '+escapeHtml(fmtDateTime(d.abr_checked_at))+'</span>' : '')+'</div></div>'
+    box.innerHTML = '<div class="card cc-card"><div class="card-head"><div><h3>Contact card</h3><div class="cc-sub">'+(isPerson(d) ? '' : nameCheckBadge(d))+(d.abr_checked_at ? ' <span class="hint-r">Register checked '+escapeHtml(fmtDateTime(d.abr_checked_at))+'</span>' : '')+'</div></div>'
       + '<div class="action-row"><button class="btn sm" type="button" data-cc="edit">Edit details</button>'
-      + (d.abn ? '<button class="btn sm" type="button" data-cc="check">Re-check ABN</button>' : '<button class="btn sm primary" type="button" data-cc="find">Find ABN</button>')
-      + '<a class="btn sm ghost" href="https://connectonline.asic.gov.au/" target="_blank" rel="noopener" title="Free ASIC search: company status and registered office suburb. Paid extracts show the full address and directors.">ASIC search ↗</a></div></div>'
+      + (isPerson(d) ? '' : d.abn ? '<button class="btn sm" type="button" data-cc="check">Re-check ABN</button>' : '<button class="btn sm primary" type="button" data-cc="find">Find ABN</button>')
+      + (isPerson(d) ? '' : '<a class="btn sm ghost" href="https://connectonline.asic.gov.au/" target="_blank" rel="noopener" title="Free ASIC search: company status and registered office suburb. Paid extracts show the full address and directors.">ASIC search ↗</a>')+'</div></div>'
       + '<div class="card-body">' + warn
       + (ccSearch ? renderAbnSearch() : '')
       + '<div class="cc-grid">'
-      +   '<div><h4>Business</h4>' + dl([
-            ['Name on file', escapeHtml(d.name)],
+      +   '<div><h4>' + (isPerson(d) ? 'Person' : 'Business') + '</h4>' + dl([
+            ['Debtor type', d.debtor_kind ? escapeHtml(DEBTOR_KIND_LABEL[d.debtor_kind] || d.debtor_kind) : '<span class="hint-r">Not set</span>'],
+            [isPerson(d) ? 'Full name' : 'Name on file', escapeHtml(d.name)],
             ['Legal name', escapeHtml(d.legal_name || '')],
             ['Business names', escapeHtml((d.business_names || []).join(', '))],
             ['ABN', abnLink + (d.abn_status ? ' <span class="hint-r">'+escapeHtml(d.abn_status)+(d.abn_status_from ? ' from '+escapeHtml(fmt(d.abn_status_from)) : '')+'</span>' : '')],
             ['ACN', d.acn ? escapeHtml(fmtAcn(d.acn)) : ''],
-            ['Entity type', escapeHtml(d.entity_type || '')],
+            ['Register entity type', escapeHtml(d.entity_type || '')],
             ['GST', d.abr_checked_at ? (d.gst_from ? 'Registered from '+escapeHtml(fmt(d.gst_from)) : 'Not registered') : ''],
             ['Register location', escapeHtml([d.abr_state, d.abr_postcode].filter(Boolean).join(' '))]
           ]) + '</div>'
@@ -1715,16 +1749,18 @@
       +   '<div><h4>Postal address</h4>' + (postal.length ? '<div class="cc-addr">'+postal.map(escapeHtml).join('<br>')+'</div>' : '<div class="empty-note">No postal address. Letters of demand need one.</div>')
       +     (d.website ? '<h4>Website</h4><div><a href="'+escapeHtml(/^https?:/i.test(d.website) ? d.website : 'https://'+d.website)+'" target="_blank" rel="noopener">'+escapeHtml(d.website)+'</a></div>' : '')
       +     (d.notes ? '<h4>Notes</h4><div class="cc-notes">'+escapeHtml(d.notes)+'</div>' : '')
-      +     '<h4>On letters of demand</h4><div class="cc-addr">'+escapeHtml(letterAddresseeName(d))+(d.abn ? '<br>ABN '+escapeHtml(fmtAbn(d.abn)) : '')+(postal.length ? '<br>'+postal.map(escapeHtml).join('<br>') : '')+'</div>'
+      +     '<h4>On letters of demand</h4><div class="cc-addr">'+escapeHtml(letterAddresseeName(d))+(d.abn && !isPerson(d) ? '<br>ABN '+escapeHtml(fmtAbn(d.abn)) : '')+(postal.length ? '<br>'+postal.map(escapeHtml).join('<br>') : '')+'</div>'
       +   '</div>'
       + '</div></div></div>';
   }
   function renderContactEdit(d){
     var f = function(k, label, extra){ return '<label'+(extra && extra.wide ? ' class="span2"' : '')+'>'+label+'<input data-ce="'+k+'" value="'+escapeHtml(d[k] || '')+'"'+(extra && extra.attrs ? ' '+extra.attrs : '')+' /></label>'; };
     return '<div class="card cc-card"><div class="card-head"><h3>Edit contact card</h3></div><div class="card-body"><div class="form-grid cc-form">'
-      + f('name', 'Name on file (as in Xero)', { wide: true })
-      + f('abn', 'ABN', { attrs: 'inputmode="numeric" maxlength="14"' }) + f('website', 'Website')
-      + f('contact_name', 'Main contact') + f('email', 'Email', { attrs: 'type="email"' })
+      + '<label class="span2">Debtor type<select data-ce="debtor_kind"><option value="">Choose…</option>' + DEBTOR_KINDS.map(function(k){ return '<option value="'+k[0]+'"'+(d.debtor_kind === k[0] ? ' selected' : '')+'>'+escapeHtml(k[1])+'</option>'; }).join('') + '</select>'
+      +   '<span class="fine">Businesses need an ABN. An individual owes money in their own name and has no ABN.</span></label>'
+      + f('name', isPerson(d) ? 'Full name (as in Xero)' : 'Name on file (as in Xero)', { wide: true })
+      + '<label class="cc-abn"'+(isPerson(d) ? ' hidden' : '')+'>ABN<input data-ce="abn" value="'+escapeHtml(d.abn || '')+'" inputmode="numeric" maxlength="14" /></label>' + f('website', 'Website')
+      + f('contact_name', isPerson(d) ? 'Preferred name' : 'Main contact') + f('email', 'Email', { attrs: 'type="email"' })
       + f('phone', 'Phone') + '<span></span>'
       + f('address_line1', 'Address line 1', { wide: true }) + f('address_line2', 'Address line 2', { wide: true })
       + f('suburb', 'Suburb') + '<label>State<select data-ce="state">'+AU_STATES.map(function(s){ return '<option'+(s === (d.state || '') ? ' selected' : '')+'>'+s+'</option>'; }).join('')+'</select></label>'
@@ -1746,7 +1782,11 @@
   async function abnCheck(c, abn){
     var d = await invokeFn('abn-lookup', { abn: abn || c.debtor.abn, debtor_id: c.debtor.id, save: true });
     if(!d.ok){ toast(d.error || 'ABN check failed.'); }
-    else toast('ABN checked: ' + ((NAME_CHECK[d.name_check] || {}).label || 'done') + '.');
+    else {
+      toast('ABN checked: ' + ((NAME_CHECK[d.name_check] || {}).label || 'done') + '.');
+      var k = kindFromAbr((d.details && d.details.entity_type) || d.entity_type);
+      if(k && !c.debtor.debtor_kind) await sb.from('debtors').update({ debtor_kind: k }).eq('id', c.debtor.id);
+    }
     await refreshDebtorOnCase(c);
     return d;
   }
@@ -1790,19 +1830,26 @@
       }
       if(act === 'save'){
         var v = function(k){ var el = box.querySelector('[data-ce="'+k+'"]'); var x = el.value.trim(); return x === '' ? null : x; };
-        var abn = (v('abn') || '').replace(/\D/g, '') || null;
+        var kind = v('debtor_kind');
+        var abn = kind === 'individual' ? null : ((v('abn') || '').replace(/\D/g, '') || null);
         if(abn && !validAbnClient(abn)){ toast("That ABN isn't valid. Check it for typos."); return; }
+        if(kind === 'individual' && c.debtor.abn && !confirm('Individuals have no ABN. Remove the ABN on file for ' + c.debtor.name + '?')) return;
         if(v('postcode') && !/^\d{4}$/.test(v('postcode'))){ toast('Postcode should be 4 digits.'); return; }
-        var row = { name: v('name') || c.debtor.name, abn: abn, website: v('website'), contact_name: v('contact_name'), email: v('email'), phone: v('phone'),
+        var row = { name: v('name') || c.debtor.name, abn: abn, debtor_kind: kind, website: v('website'), contact_name: v('contact_name'), email: v('email'), phone: v('phone'),
           address_line1: v('address_line1'), address_line2: v('address_line2'), suburb: v('suburb'), state: v('state'), postcode: v('postcode'), country: v('country'), notes: v('notes') };
         var abnChanged = abn !== (c.debtor.abn || null) || row.name !== c.debtor.name;
         if(abnChanged) Object.assign(row, { name_check: null, abr_checked_at: null });
+        if(kind === 'individual' && c.debtor.abn) Object.assign(row, { name_check: null, abr_checked_at: null, legal_name: null, acn: null, abn_status: null, entity_type: null });
         var up = await sb.from('debtors').update(row).eq('id', c.debtor.id);
         if(up.error){ toast('Could not save: ' + up.error.message); return; }
         ccEditing = false;
         if(abn && abnChanged) await abnCheck(c, abn); else await refreshDebtorOnCase(c);
         toast('Contact card saved.');
       }
+    });
+    box.addEventListener('change', function(e){
+      if(e.target.getAttribute('data-ce') !== 'debtor_kind') return;
+      var abnLab = box.querySelector('.cc-abn'); if(abnLab) abnLab.hidden = e.target.value === 'individual';
     });
     box.addEventListener('keydown', function(e){ if(e.key === 'Enter' && e.target.id === 'ccSearchName'){ e.preventDefault(); box.querySelector('[data-cc="dosearch"]').click(); } });
   }
@@ -5301,11 +5348,14 @@
     var dd = demandDates[c.id] || {};
     if(!dd.first) add('caution', 'No letter of demand recorded', R.resolveFirst + ' Send a letter of demand from Letters of Demand and record it as sent.');
     else add('ok', 'Letter of demand sent', (dd.final ? 'Final demand sent ' + fmt(dd.final) : 'First demand sent ' + fmt(dd.first)) + '.');
-    if(!d.legal_name) add('caution', 'Legal name not confirmed', 'Name the ' + T[1] + ' by its legal entity name, not just a trading name. Check the ABN on the debtor’s contact card.');
+    if(isPerson(d)) add(/\s/.test(String(d.name || '').trim()) ? 'ok' : 'caution', cap1(T[1]) + ' is an individual: ' + (d.name || ''), 'Use the person’s full legal name (first and last name) and their home address. No ABN is needed.');
+    else if(!d.debtor_kind) add('caution', 'Debtor type not set', 'Set whether the ' + T[1] + ' is a business or an individual on the contact card, so the right name and details are used.');
+    if(isPerson(d)){}
+    else if(!d.legal_name) add('caution', 'Legal name not confirmed', 'Name the ' + T[1] + ' by its legal entity name, not just a trading name. Check the ABN on the debtor’s contact card.');
     else add('ok', cap1(T[1]) + ': ' + letterAddresseeName(d), (d.abn ? 'ABN ' + fmtAbn(d.abn) : '') + (d.acn ? ' · ACN ' + fmtAcn(d.acn) : ''));
     if(d.abn_status && !/active/i.test(d.abn_status)) add('caution', 'ABN is ' + d.abn_status.toLowerCase(), 'The business may have closed or the company may be deregistered. Check ASIC before applying.');
     if(d.name_check && /mismatch|differ|problem/i.test(d.name_check)) add('caution', 'Name check needs attention', 'The name on file doesn’t match the ABN register. Fix it on the contact card.');
-    if(d.acn || /company|pty/i.test((d.entity_type || '') + ' ' + (d.legal_name || ''))) add('info', 'Company ' + T[1], 'Consider a company search (ASIC extract) to confirm the company’s exact name and registered office.' + (R.recoverable ? ' The search fee is a cost you can ask ' + R.short + ' to award.' : ''));
+    if(!isPerson(d) && (d.acn || d.debtor_kind === 'company' || /company|pty/i.test((d.entity_type || '') + ' ' + (d.legal_name || '')))) add('info', 'Company ' + T[1], 'Consider a company search (ASIC extract) to confirm the company’s exact name and registered office.' + (R.recoverable ? ' The search fee is a cost you can ask ' + R.short + ' to award.' : ''));
     if(!postalLines(d).length) add('stop', cap1(T[1]) + ' address missing', 'You need the ' + T[1] + '’s full contact details on the ' + (R.docNoun || 'application') + ' and an address to serve it. Add it on the contact card.');
     if(R.checks) R.checks(c, cl, add, d, cl.entity);
     if(cl.disputedItems.length) add(cl.opt.include_disputed ? 'caution' : 'info', cl.disputedItems.length + ' disputed invoice' + (cl.disputedItems.length > 1 ? 's' : ''),
@@ -5918,8 +5968,9 @@
   document.getElementById('stmtSearch').addEventListener('input', function(){ stmtSearch = this.value; renderStatementContacts(); });
   document.getElementById('stmtClearSel').addEventListener('click', function(){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; renderStatementContacts(); });
   document.getElementById('stmtCsvTemplate').addEventListener('click', function(){
-    var csv = 'debtor_name,abn,contact_name,email,phone,invoice_number,description,amount,issued_date,due_date\n'
-      + 'Example Pty Ltd,12345678901,Jane Citizen,accounts@example.com,0412345678,INV-1001,Website build,1650.00,2026-10-01,2026-10-31\n';
+    var csv = 'debtor_name,debtor_type,abn,contact_name,email,phone,invoice_number,description,amount,issued_date,due_date\n'
+      + 'Example Pty Ltd,company,12345678901,Jane Citizen,accounts@example.com,0412345678,INV-1001,Website build,1650.00,2026-10-01,2026-10-31\n'
+      + 'Jordan Citizen,individual,,Jordan,jordan@example.com,0412345679,INV-1002,Bathroom repair,880.00,2026-10-05,2026-11-04\n';
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = 'debtjet-invoice-import-template.csv'; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   });
@@ -5950,7 +6001,7 @@
     var header = rows[0].map(function(h){ return h.trim().toLowerCase(); });
     var dataRows = rows.slice(1).filter(function(r){ return r.some(function(c){ return c && c.trim(); }); });
     var idx = function(name){ return header.indexOf(name); };
-    var iName = idx('debtor_name'), iAbn = idx('abn'), iContact = idx('contact_name'), iEmail = idx('email'), iPhone = idx('phone'),
+    var iName = idx('debtor_name'), iKind = idx('debtor_type'), iAbn = idx('abn'), iContact = idx('contact_name'), iEmail = idx('email'), iPhone = idx('phone'),
         iInvNum = idx('invoice_number'), iDesc = idx('description'), iAmount = idx('amount'), iIssued = idx('issued_date'), iDue = idx('due_date');
     if(iName < 0 || iAmount < 0 || iDue < 0){ toast('CSV needs at least debtor_name, amount and due_date columns.'); this.value=''; return; }
     var imported = 0, failed = 0;
@@ -5963,7 +6014,8 @@
         var existing = await sb.from('debtors').select('id').eq('org_id', currentOrg.id).ilike('name', name).limit(1).maybeSingle();
         if(existing.data){ debtorId = existing.data.id; }
         else {
-          var insD = await sb.from('debtors').insert({ org_id: currentOrg.id, name: name, abn: iAbn>=0?(row[iAbn]||null):null, contact_name: iContact>=0?(row[iContact]||null):null, email: iEmail>=0?(row[iEmail]||null):null, phone: iPhone>=0?(row[iPhone]||null):null }).select('id').single();
+          var csvKind = iKind>=0 ? kindFromCsv(row[iKind]) : null;
+          var insD = await sb.from('debtors').insert({ org_id: currentOrg.id, name: name, debtor_kind: csvKind, abn: (iAbn>=0 && csvKind !== 'individual') ? ((row[iAbn]||'').replace(/\D/g,'')||null) : null, contact_name: iContact>=0?(row[iContact]||null):null, email: iEmail>=0?(row[iEmail]||null):null, phone: iPhone>=0?(row[iPhone]||null):null }).select('id').single();
           if(insD.error) throw insD.error;
           debtorId = insD.data.id;
         }
