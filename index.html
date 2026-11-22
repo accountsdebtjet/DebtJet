@@ -978,8 +978,10 @@
   .paper-acts{display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
   .ins-panel .as-ask-row{flex-direction:column;align-items:stretch;}
   .ins-panel .as-ai{justify-content:center;}
-  .txt-secs-head{font-size:13px;font-weight:700;margin:12px 0 4px;}
-  .txt-secs-head span{font-weight:400;color:var(--text-muted);display:block;font-size:12px;}
+  .txt-secs-head{font-size:13px;font-weight:700;margin:12px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;}
+  .txt-secs-head .tsh-sub{grid-column:2;font-weight:400;color:var(--text-muted);font-size:12px;}
+  #stmtTxtSecs[hidden]{display:none;}
+  .txt-sec-h .ln-clear{margin-left:auto;}
   .txt-sec{border-top:1px solid var(--border);padding:8px 0;display:flex;flex-direction:column;gap:6px;}
   .txt-sec-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;}
   .txt-sec:not(.on) .txt-sec-h span{color:var(--text-muted);font-weight:500;}
@@ -997,6 +999,17 @@
   .flag-x{background:none;border:0;color:inherit;opacity:.65;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;margin:-2px -4px 0 0;}
   .flag-x:hover{opacity:1;}
   .stmt-more{margin:8px 0 2px;width:100%;}
+  .stmt-list-tools{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:8px 0 4px;font-size:12.5px;}
+  .stmt-list-tools label{display:inline-flex;gap:6px;align-items:center;font-weight:600;color:var(--text-muted);}
+  .slt-btns{display:inline-flex;gap:6px;}
+  .ci-tools{display:flex;gap:12px;justify-content:flex-end;padding:4px 2px;font-size:12px;}
+  .debt-row.outside{opacity:1;}
+  .out-tag{font-size:11px;background:var(--surface-alt);color:var(--text-muted);padding:0 5px;}
+  .grp-block{margin:10px 0 4px;}
+  .grp-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding:4px 0;margin-bottom:6px;font-size:13px;}
+  .grp-head .linkbtn{font-size:12px;}
+  .grp-n{color:var(--text-muted);font-size:12px;margin-right:auto;}
+  .grp-x{font-size:10.5px;font-weight:700;background:#13B5EA22;color:#0b6f8f;padding:0 5px;}
   /* DebtJet dialog */
   .dj-ask-wrap{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:transparent;}
   .dj-ask{width:min(440px,calc(100vw - 32px));background:var(--surface);color:var(--text);border-top:4px solid var(--ink);box-shadow:0 24px 60px -18px rgba(11,20,40,.45),0 0 0 1px var(--border);padding:18px 20px 16px;animation:djAskIn .14s ease-out;}
@@ -1004,7 +1017,9 @@
   .dj-ask-brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
   .dj-ask-t{font-size:16px;font-weight:700;line-height:1.35;}
   .dj-ask-b{font-size:13.5px;color:var(--text-muted);margin-top:8px;white-space:pre-line;line-height:1.5;}
-  .dj-ask-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .dj-ask-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .dj-ask-in{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-top:12px;}
+  .dj-ask-in input{font-size:14px;padding:8px 10px;}
   .btn.primary.danger{background:#B42318;border-color:#B42318;color:#fff;}
   .toast-undo{background:none;border:0;color:#FFC72C;font:inherit;font-weight:700;cursor:pointer;margin-left:8px;text-decoration:underline;}
   /* DebtJet AI buttons */
@@ -1073,6 +1088,17 @@
   .style-dock .sw.on{border-color:#FFC72C;}
   .style-dock input[type=color]{width:26px;height:24px;padding:0;border:1px solid rgba(255,255,255,.35);background:none;}
   .style-dock .sd-more{margin-left:auto;color:inherit;background:none;border:1px solid rgba(255,255,255,.35);padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer;}
+  .sch-wrap{position:relative;}
+  .sch-menu{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--surface);color:var(--text);border:1px solid var(--border);border-top:3px solid var(--ink);box-shadow:0 18px 40px -16px rgba(11,20,40,.45);width:340px;max-height:60vh;overflow:auto;z-index:70;padding:4px;}
+  .sch-menu button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--border);padding:8px;cursor:pointer;color:inherit;font:inherit;}
+  .sch-menu button:first-child{border-top:0;}
+  .sch-menu button:hover{background:var(--surface-alt);}
+  .sch-sws{display:inline-flex;}
+  .sch-sw{width:16px;height:22px;display:inline-block;outline:1px solid rgba(0,0,0,.08);}
+  .sch-t{display:flex;flex-direction:column;font-size:12.5px;}
+  .sch-t span{color:var(--text-muted);font-size:11.5px;}
+  .style-dock .cpick-btn{background:transparent;color:inherit;border:1px solid rgba(255,255,255,.35);}
+  .style-dock .cpick-hex{color:inherit;}
   .style-dock .sd-x{background:none;border:0;color:inherit;cursor:pointer;font-size:16px;padding:2px 6px;}
   :root[data-theme="dark"] .style-dock select option{color:#0B2A5B;}
   @media (max-width:1100px){ .ins-panel{z-index:60;box-shadow:-18px 0 40px -20px rgba(11,20,40,.45);} .app.ins-open > .main > :not(.topbar):not(.style-dock){margin-right:0;} }
@@ -1298,6 +1324,10 @@
                 <select id="stmtFilter" aria-label="Filter contacts"></select>
                 <input type="search" id="stmtSearch" placeholder="Search name, ABN or invoice…" aria-label="Search contacts" />
               </div>
+              <div class="stmt-list-tools">
+                <label>Show <select id="stmtShowMode" aria-label="Which contacts to show"><option value="all">All contacts</option><option value="groups">By contact group</option><option value="ticked">Ticked only</option><option value="none">None until I search</option></select></label>
+                <span class="slt-btns"><button type="button" class="btn sm" id="stmtTickAllInv" title="Tick every unpaid invoice of the ticked contacts">Tick all invoices</button><button type="button" class="btn sm" id="stmtUntickAllInv" title="Untick every invoice of the ticked contacts">Untick all</button></span>
+              </div>
               <div class="stmt-filter-meta"><span id="stmtFilterCount"></span><button type="button" class="linkbtn" id="stmtClearSel">Clear selection</button></div>
               <div class="contact-list" id="stmtContactList"></div>
               <div class="stmt-selection-summary" id="stmtSelectionSummary"></div>
@@ -1322,11 +1352,13 @@
                 </div>
                 <div class="draft-fields">
                   <button class="btn sm ai-btn" id="stmtAiNotesBtn" type="button" disabled><svg class="dj-mark" width="16" height="14" viewBox="0 0 26 22" aria-hidden="true"><path d="M1 12 25 1 15 21 12 13Z" fill="#1E6FD9"/><path d="M1 12 25 1 12 13Z" fill="#FFC72C"/><path d="M12 13 15 21 13.5 14.2Z" fill="#0B2A5B"/></svg>Draft notes with DebtJet AI</button>
-                  <div class="txt-secs-head">Text on this statement <span>Switch a section on to add your own words. The Insert panel adds to the box you last clicked.</span></div>
-                  <div class="txt-sec" data-txt-sec="cover"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="cover" aria-label="Include: Message above the invoices" /><span aria-hidden="true"></span></label><span>Message above the invoices</span></div><textarea id="stmtNotes" data-ins-label="Message above the invoices" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today." hidden></textarea></div>
-                  <div class="txt-sec" data-txt-sec="after_totals"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="after_totals" aria-label="Include: Message after the totals" /><span aria-hidden="true"></span></label><span>Message after the totals</span></div><textarea id="stmtTxt-after_totals" data-ts="after_totals" data-ins-label="Message after the totals" rows="2" maxlength="1000" placeholder="e.g. Please pay the overdue amount by 30 November." hidden></textarea></div>
-                  <div class="txt-sec" data-txt-sec="pay_note"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="pay_note" aria-label="Include: Note under “How to pay”" /><span aria-hidden="true"></span></label><span>Note under “How to pay”</span></div><textarea id="stmtTxt-pay_note" data-ts="pay_note" data-ins-label="Note under How to pay" rows="2" maxlength="600" placeholder="e.g. Please use the statement number as your reference." hidden></textarea></div>
-                  <div class="txt-sec" data-txt-sec="closing"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="closing" aria-label="Include: Closing message (before the sign-off)" /><span aria-hidden="true"></span></label><span>Closing message (before the sign-off)</span></div><textarea id="stmtTxt-closing" data-ts="closing" data-ins-label="Closing message" rows="2" maxlength="600" placeholder="e.g. If you have any questions about this statement, call us on 07 5550 1234." hidden></textarea></div>
+                  <div class="txt-secs-head"><label class="ld-switch"><input type="checkbox" id="stmtTxtMaster" checked aria-label="Show text on this statement" /><span aria-hidden="true"></span></label><span class="tsh-t">Text on this statement</span><span class="tsh-sub">Switch a section on to add your own words. The Insert panel adds to the box you last clicked.</span></div>
+                  <div id="stmtTxtSecs">
+                  <div class="txt-sec" data-txt-sec="cover"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="cover" aria-label="Include: Message above the invoices" /><span aria-hidden="true"></span></label><span>Message above the invoices</span><button type="button" class="ln-clear" data-ts-clear="cover" hidden>Remove</button></div><textarea id="stmtNotes" data-ins-label="Message above the invoices" rows="2" maxlength="1000" placeholder="e.g. Thanks for your business. Here is your account as at today." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="after_totals"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="after_totals" aria-label="Include: Message after the totals" /><span aria-hidden="true"></span></label><span>Message after the totals</span><button type="button" class="ln-clear" data-ts-clear="after_totals" hidden>Remove</button></div><textarea id="stmtTxt-after_totals" data-ts="after_totals" data-ins-label="Message after the totals" rows="2" maxlength="1000" placeholder="e.g. Please pay the overdue amount by 30 November." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="pay_note"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="pay_note" aria-label="Include: Note under “How to pay”" /><span aria-hidden="true"></span></label><span>Note under “How to pay”</span><button type="button" class="ln-clear" data-ts-clear="pay_note" hidden>Remove</button></div><textarea id="stmtTxt-pay_note" data-ts="pay_note" data-ins-label="Note under How to pay" rows="2" maxlength="600" placeholder="e.g. Please use the statement number as your reference." hidden></textarea></div>
+                  <div class="txt-sec" data-txt-sec="closing"><div class="txt-sec-h"><label class="ld-switch"><input type="checkbox" data-ts-on="closing" aria-label="Include: Closing message (before the sign-off)" /><span aria-hidden="true"></span></label><span>Closing message (before the sign-off)</span><button type="button" class="ln-clear" data-ts-clear="closing" hidden>Remove</button></div><textarea id="stmtTxt-closing" data-ts="closing" data-ins-label="Closing message" rows="2" maxlength="600" placeholder="e.g. If you have any questions about this statement, call us on 07 5550 1234." hidden></textarea></div>
+                  </div>
                   <div class="line-notes-head">Notes on each invoice <span>printed under that invoice's line. Long descriptions can be shortened here.</span></div>
                   <div class="line-notes" id="stmtLineNotesBox"><div class="empty-note">Select invoices to add notes.</div></div>
                 </div>
@@ -1707,7 +1739,7 @@
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   var session = null, currentOrg = null, cases = [], letterTemplates = [];
-  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtShowAll = false, stmtNotesByInvoice = {}, stmtFilter = 'open', stmtSearch = '';
+  var stmtInvoices = [], stmtDebtors = [], stmtSelectedDebtors = {}, stmtInvoiceOverride = {}, savedStatements = [], integrationRows = [], xeroConnected = false, stmtShowAll = false, stmtShowMode = 'all', stmtGroups = [], stmtGroupsOf = {}, stmtNotesByInvoice = {}, stmtFilter = 'open', stmtSearch = '';
   var orgPayment = null, orgCharges = null, paymentChanges = [], stmtTemplates = [], stmtTplKey = null, stmtTplSettings = null, stmtTplDirty = false, stmtLineNotes = {}, stmtPayLinks = {}, stmtPayLinksAsked = {}, lastLineNoteKey = '';
   var STATUS_LABEL = {new:'New',letter_sent:'Letter sent',awaiting_response:'Awaiting response',payment_plan:'Payment plan',escalated:'Escalated',debt_recovery:'Debt recovery',tribunal:'Tribunal',resolved:'Resolved'};
   var NOTE_CATEGORY_LABEL = {promise_to_pay:'Promise to pay',dispute:'Dispute raised',payment_plan_request:'Payment plan request',payment_made:'Says payment made',hardship:'Hardship',reminder_ack:'Acknowledged reminder',contact_change:'Contact details changed',other:'Note'};
@@ -2390,14 +2422,20 @@
         + '<div class="dj-ask-brand">' + AI_MARK + '<span>DebtJet</span></div>'
         + '<div class="dj-ask-t" id="djAskT">' + escapeHtml(parts[0]) + '</div>'
         + (parts.length > 1 ? '<div class="dj-ask-b" id="djAskB">' + escapeHtml(parts.slice(1).join('\n\n')) + '</div>' : '<span id="djAskB" hidden></span>')
+        + (opts.input != null ? '<label class="dj-ask-in">' + escapeHtml(opts.inputLabel || '') + '<input type="text" maxlength="' + (opts.maxlength || 80) + '" value="' + escapeHtml(opts.input) + '" /></label>' : '')
         + '<div class="dj-ask-acts"><button type="button" class="btn" data-ask="no">' + escapeHtml(opts.cancel || 'Cancel') + '</button>'
-        + '<button type="button" class="btn primary' + (danger ? ' danger' : '') + '" data-ask="yes">' + escapeHtml(okLabel) + '</button></div></div>';
+        + (opts.choices ? opts.choices.map(function(c, i){ return '<button type="button" class="btn' + (i === opts.choices.length - 1 ? ' primary' : '') + '" data-ask="c' + i + '">' + escapeHtml(c.label) + '</button>'; }).join('')
+           : '<button type="button" class="btn primary' + (danger ? ' danger' : '') + '" data-ask="yes">' + escapeHtml(okLabel) + '</button>') + '</div></div>';
       document.body.appendChild(wrap);
       var done = function(v){ document.removeEventListener('keydown', key, true); wrap.remove(); if(prev && prev.focus) try { prev.focus(); } catch(e){} resolve(v); };
-      var key = function(e){ if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); done(false); } if(e.key === 'Tab'){ var b = wrap.querySelectorAll('button'); if(e.shiftKey && document.activeElement === b[0]){ e.preventDefault(); b[b.length - 1].focus(); } else if(!e.shiftKey && document.activeElement === b[b.length - 1]){ e.preventDefault(); b[0].focus(); } } };
+      if(opts.input != null || opts.choices) var escVal = null;
+      var key = function(e){ if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); done(opts.input != null || opts.choices ? null : false); } if(e.key === 'Tab'){ var b = wrap.querySelectorAll('button'); if(e.shiftKey && document.activeElement === b[0]){ e.preventDefault(); b[b.length - 1].focus(); } else if(!e.shiftKey && document.activeElement === b[b.length - 1]){ e.preventDefault(); b[0].focus(); } } };
       document.addEventListener('keydown', key, true);
-      wrap.addEventListener('click', function(e){ var b = e.target.closest('[data-ask]'); if(b) done(b.getAttribute('data-ask') === 'yes'); });
-      wrap.querySelector('[data-ask="' + (danger ? 'no' : 'yes') + '"]').focus();
+      var inp = wrap.querySelector('.dj-ask-in input');
+      var answer = function(a){ if(a === 'no') return opts.input != null || opts.choices ? null : false; if(opts.choices) return opts.choices[Number(a.slice(1))].value; if(opts.input != null) return inp.value.trim() || null; return true; };
+      wrap.addEventListener('click', function(e){ var b = e.target.closest('[data-ask]'); if(b) done(answer(b.getAttribute('data-ask'))); });
+      if(inp){ inp.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); done(answer('yes')); } }); inp.focus(); inp.select(); }
+      else wrap.querySelector(opts.choices ? '[data-ask="c' + (opts.choices.length - 1) + '"]' : '[data-ask="' + (danger ? 'no' : 'yes') + '"]').focus();
     });
   }
   // Remove straight away, with an Undo button on the message.
@@ -2685,11 +2723,19 @@
   function setPin(kind, view, on){ shellPins[kind + ':' + view] = !!on; try { localStorage.setItem('dj.pins', JSON.stringify(shellPins)); } catch(e){} }
   var PIN_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 2h4l-1 4 3 3H4l3-3z"/><path d="M8 9v5"/></svg>';
   var STMT_CLAUSES = [
-    { cat:'Cover message', key:'s_asat', label:'Account as at today', text:'Here is your account as at today. Thank you for your business.' },
-    { cat:'Cover message', key:'s_overdue', label:'Some invoices overdue', text:'Some of the invoices below are now overdue. Please arrange payment at your earliest convenience.' },
-    { cat:'Cover message', key:'s_paid', label:'Already paid?', text:'If you have paid in the last few days, thank you. Please send the remittance so we can match it.' },
-    { cat:'Cover message', key:'s_plan', label:'Payment plan offer', text:'If you can’t pay the full amount now, contact us and we can talk about a payment arrangement.' },
-    { cat:'Cover message', key:'s_bank', label:'Bank details warning', text:'We will never change our bank details by email. If you receive a message saying otherwise, call us before paying.' },
+    { cat:'Above the invoices', key:'s_greet', label:'Greeting with contact name', text:'Dear [name], please find your current account statement below. If you have any questions about an item, or have already made a payment, please let us know.' },
+    { cat:'Above the invoices', key:'s_asat', label:'Account as at today', text:'Here is your account as at today. Thank you for your business.' },
+    { cat:'Above the invoices', key:'s_overdue', label:'Some invoices overdue', text:'Some of the invoices below are now overdue. Please arrange payment at your earliest convenience.' },
+    { cat:'Above the invoices', key:'s_monthly', label:'Monthly statement', text:'This is your monthly statement. It lists every invoice that is unpaid, including any not yet due.' },
+    { cat:'After the totals', key:'s_paynow', label:'Pay the overdue amount', text:'Please pay the amount shown under “Pay now” by [date]. Invoices not yet due can be paid by their own due dates.' },
+    { cat:'After the totals', key:'s_paid', label:'Already paid?', text:'If you have paid in the last few days, thank you. Please send the remittance so we can match it.' },
+    { cat:'After the totals', key:'s_plan', label:'Payment plan offer', text:'If you can’t pay the full amount now, contact us and we can talk about a payment arrangement.' },
+    { cat:'After the totals', key:'s_query', label:'Query an invoice', text:'If you think anything on this statement is wrong, tell us which invoice and why, and we will look into it.' },
+    { cat:'How to pay', key:'s_ref', label:'Use the reference', text:'Please use the statement number as your payment reference so we can match your payment quickly.' },
+    { cat:'How to pay', key:'s_remit', label:'Send remittance', text:'Please email your remittance advice to [email] when you pay.' },
+    { cat:'How to pay', key:'s_bank', label:'Bank details warning', text:'We will never change our bank details by email. If you receive a message saying otherwise, call us before paying.' },
+    { cat:'Closing message', key:'s_thanks', label:'Thanks', text:'Thank you for your business. We appreciate prompt payment.' },
+    { cat:'Closing message', key:'s_contact', label:'Questions? Call us', text:'If you have any questions about this statement, call [name] on [phone].' },
     { cat:'Notes under invoices', key:'s_dispute', label:'Disputed: on hold', text:'Under review, so no payment is requested for this invoice while we look into it.' },
     { cat:'Notes under invoices', key:'s_promise', label:'Promise noted', text:'Thanks for confirming payment by [date].' },
     { cat:'Notes under invoices', key:'s_remit', label:'Remittance please', text:'Thanks for letting us know this was paid. Please send the remittance so we can match it.' }
@@ -2744,12 +2790,17 @@
     var rf = el.closest('.rec-f'); if(rf && rf.querySelector('span')) return rf.querySelector('span').textContent.slice(0, 50);
     return (el.getAttribute('placeholder') || 'the box you last clicked').slice(0, 50);
   }
+  var STMT_TARGET_CAT = { stmtNotes: 'Above the invoices', 'stmtTxt-after_totals': 'After the totals', 'stmtTxt-pay_note': 'How to pay', 'stmtTxt-closing': 'Closing message' };
   function updateInsTarget(){
+    if(curView === 'statements' && insTarget && STMT_ASSIST.st){
+      var want = STMT_TARGET_CAT[insTarget.id] || (insTarget.hasAttribute('data-line-note') ? 'Notes under invoices' : '');
+      if(want && STMT_ASSIST.st.cat !== want){ STMT_ASSIST.st.cat = want; var bx = document.getElementById('insBody'); if(bx && bx._A === STMT_ASSIST) renderAssist(bx, STMT_ASSIST); }
+    }
     var box = document.querySelector('#insPanel .ins-target'); if(!box) return;
     var cfg = SHELL[curView] || {}, K = INS_KINDS[cfg.ins] || {};
     if(K.where){ box.innerHTML = K.where(); return; }
     var l = insTargetLabel();
-    box.innerHTML = l ? 'Adds to: <b>' + escapeHtml(l) + '</b>' : (cfg.ins === 'statement' ? 'Adds to: <b>Cover message</b>, or click another box first' : 'Click a box first. Otherwise wording is copied for you to paste.');
+    box.innerHTML = l ? 'Adds to: <b>' + escapeHtml(l) + '</b>' : (cfg.ins === 'statement' ? 'Adds to: <b>Message above the invoices</b>, or click another box first' : 'Click a box first. Otherwise wording is copied for you to paste.');
   }
   function renderInsPanel(){
     var cfg = SHELL[curView]; if(!cfg || !cfg.ins) return;
@@ -2779,14 +2830,27 @@
     letters: { scope: 'this letter template', spacing: [['compact','Compact'],['normal','Normal'],['relaxed','Relaxed']],
       ok: function(){ return !!ldTpl; },
       get: function(k){ var st = ldSettings(), o = st.overrides || {}, base = normaliseTpl(brandSettings(st.design_source)); if(k === 'spacing') return st.spacing; if(k === 'colors.accent') return (o.colors && o.colors.accent) || base.colors.accent; return o[k] != null && o[k] !== '' ? o[k] : base[k]; },
-      set: function(k, v){ var st = ldTpl.settings = ldTpl.settings || {}; st.overrides = st.overrides || {}; if(k === 'spacing') st.spacing = v; else if(k === 'colors.accent'){ st.overrides.colors = st.overrides.colors || {}; st.overrides.colors.accent = v; } else st.overrides[k] = v; if(k === 'font') ensureFont(v); markLetterDirty(); if(ldTab === 'design' && ldPane === 'templates') renderLetterEditor(); },
+      set: function(k, v){ var st = ldTpl.settings = ldTpl.settings || {}; st.overrides = st.overrides || {}; if(k === 'spacing') st.spacing = v; else if(k === 'scheme'){ st.overrides.colors = Object.assign(st.overrides.colors || {}, { accent: v.accent, heading: v.heading, th_bg: v.th_bg, th_text: v.th_text, border: v.border }); } else if(/^colors\./.test(k)){ st.overrides.colors = st.overrides.colors || {}; st.overrides.colors[k.slice(7)] = v; } else st.overrides[k] = v; if(k === 'font') ensureFont(v); markLetterDirty(); if(ldTab === 'design' && ldPane === 'templates') renderLetterEditor(); },
       more: function(){ ldTab = 'design'; setLetterTab('templates'); } },
     statements: { scope: 'this statement template', spacing: [['compact','Compact'],['regular','Regular'],['roomy','Roomy']],
       ok: function(){ return !!stmtTplSettings; },
-      get: function(k){ return getPath(stmtTplSettings, k === 'spacing' ? 'density' : k); },
-      set: function(k, v){ setPath(stmtTplSettings, k === 'spacing' ? 'density' : k, v); if(k === 'font') ensureFont(v); renderDesigner(); markTplDirty(); },
+      get: function(k){ var v = getPath(stmtTplSettings, k === 'spacing' ? 'density' : k); return v == null && /^colors\./.test(k) ? TPL_BASE.colors[k.slice(7)] : v; },
+      set: function(k, v){ if(k === 'scheme'){ Object.keys(v).forEach(function(ck){ setPath(stmtTplSettings, 'colors.' + ck, v[ck]); }); } else setPath(stmtTplSettings, k === 'spacing' ? 'density' : k, v); if(k === 'font') ensureFont(v); renderDesigner(); markTplDirty(); },
       more: function(){ setStmtTab('templates'); } }
   };
+  // Ready-made colour schemes. Each says what its colours mean on the statement.
+  var COLOUR_SCHEMES = [
+    { name: 'DebtJet navy', note: 'Navy headings and lines · red overdue', c: { accent:'#0b2a5b', heading:'#0b2a5b', th_bg:'#eef2f8', th_text:'#0b2a5b', border:'#d9e0ea', stripe:'#f6f8fb', overdue:'#b42318', paid:'#1f7a45', disputed:'#9a5b00' } },
+    { name: 'Jet blue', note: 'Blue accent · red overdue · green paid', c: { accent:'#1e6fd9', heading:'#0b2a5b', th_bg:'#e6eefa', th_text:'#0b2a5b', border:'#d6e0ee', stripe:'#f4f8fe', overdue:'#b42318', paid:'#1f7a45', disputed:'#9a5b00' } },
+    { name: 'Charcoal', note: 'Black and grey, minimal · red overdue', c: { accent:'#111111', heading:'#111111', th_bg:'#f3f4f6', th_text:'#111111', border:'#e5e7eb', stripe:'#fafafa', overdue:'#b42318', paid:'#166534', disputed:'#92400e' } },
+    { name: 'Teal', note: 'Teal accent · orange overdue (softer than red)', c: { accent:'#0f766e', heading:'#0f172a', th_bg:'#e6f4f2', th_text:'#0f3f3a', border:'#d5e7e4', stripe:'#f0fdfa', overdue:'#c2410c', paid:'#166534', disputed:'#92400e' } },
+    { name: 'Burgundy', note: 'Burgundy accent · dark red overdue', c: { accent:'#7a1f2b', heading:'#2b2b2b', th_bg:'#f4ecec', th_text:'#7a1f2b', border:'#e3d6d6', stripe:'#fbf7f7', overdue:'#991b1b', paid:'#166534', disputed:'#92400e' } },
+    { name: 'Forest', note: 'Green accent · red overdue', c: { accent:'#2f6b3f', heading:'#1f3d27', th_bg:'#e8f3eb', th_text:'#1f3d27', border:'#d3e8da', stripe:'#f3faf5', overdue:'#b42318', paid:'#2f6b3f', disputed:'#92400e' } },
+    { name: 'High contrast', note: 'Black on white · bold red overdue (best for printing)', c: { accent:'#000000', heading:'#000000', th_bg:'#ffffff', th_text:'#000000', border:'#9ca3af', stripe:'#f3f4f6', overdue:'#c00000', paid:'#000000', disputed:'#000000' } },
+    { name: 'Calm', note: 'Slate accent · amber overdue (no red)', c: { accent:'#3f5170', heading:'#1e293b', th_bg:'#eef1f5', th_text:'#1e293b', border:'#dde3ea', stripe:'#f7f9fb', overdue:'#b45309', paid:'#166534', disputed:'#6b21a8' } }
+  ];
+  function schemeSw(c){ return ['accent', 'th_bg', 'overdue', 'paid'].map(function(k){ return '<span class="sch-sw" style="background:'+c[k]+'"></span>'; }).join(''); }
+  function currentSchemeName(get){ var a = String(get('colors.accent') || '').toLowerCase(), o = String(get('colors.overdue') || '').toLowerCase(); var m = COLOUR_SCHEMES.filter(function(x){ return x.c.accent === a && (!o || x.c.overdue === o); })[0]; return m ? m.name : 'Custom'; }
   function renderStyleDock(){
     var D = DOCK[curView], el = document.getElementById('styleDock'); if(!D || el.hidden) return;
     setTimeout(placeInsPanel, 0);
@@ -2798,8 +2862,10 @@
     el.innerHTML = '<span class="sd-k">Style</span>'
       + '<label>Font <select data-dock="font">'+opt(FONT_OPTIONS.map(function(o){ return [o.name, o.name]; }), font)+'</select></label>'
       + '<label>Size <select data-dock="font_size">'+opt([10,10.5,11,11.5,12,12.5,13,14,15].map(function(n){ return [n, n + ' px']; }), size)+'</select></label>'
-      + '<span style="display:inline-flex;gap:4px;align-items:center;" role="group" aria-label="Accent colour">' + SW.map(function(c){ return '<button type="button" class="sw'+(c.toLowerCase() === acc.toLowerCase() ? ' on' : '')+'" data-docksw="'+c+'" style="background:'+c+'" aria-label="Accent colour '+c+'"></button>'; }).join('')
-      + '<input type="color" data-dock="colors.accent" value="'+escapeHtml(/^#[0-9a-f]{6}$/i.test(acc) ? acc : '#0B2A5B')+'" aria-label="Custom accent colour"></span>'
+      + '<span class="sch-wrap"><button type="button" class="sd-more sch-btn" data-sch-open aria-haspopup="true">Colours: <b>'+escapeHtml(currentSchemeName(g))+'</b> ▾</button>'
+      + '<div class="sch-menu" hidden role="menu">' + COLOUR_SCHEMES.map(function(x, i){ return '<button type="button" role="menuitem" data-sch="'+i+'"><span class="sch-sws">'+schemeSw(x.c)+'</span><span class="sch-t"><b>'+escapeHtml(x.name)+'</b><span>'+escapeHtml(x.note)+'</span></span></button>'; }).join('') + '</div></span>'
+      + '<label>Accent ' + colourField('data-dock="colors.accent"', acc) + '</label>'
+      + (curView === 'statements' ? '<label>Overdue ' + colourField('data-dock="colors.overdue"', g('colors.overdue') || '#b42318') + '</label>' : '')
       + '<label>Table <select data-dock="table_style">'+opt([['lined','Ruled'],['striped','Striped'],['boxed','Boxed'],['minimal','Minimal']], g('table_style'))+'</select></label>'
       + '<label>Spacing <select data-dock="spacing">'+opt(D.spacing, g('spacing'))+'</select></label>'
       + '<label>Logo <select data-dock="logo_position">'+opt([['left','Left'],['right','Right']], g('logo_position'))+'</select></label>'
@@ -2855,10 +2921,11 @@
       if(t.getAttribute('data-ins') === 'go-evidence'){ setRecTab('evidence'); return; }
       if(t.getAttribute('data-ins') === 'go-disputes'){ setRecTab('disputes'); return; }
     });
-    dock.addEventListener('change', function(e){ var k = e.target.getAttribute('data-dock'), D = DOCK[curView]; if(!k || !D) return; D.set(k, k === 'font_size' ? Number(e.target.value) : e.target.value); renderStyleDock(); });
+    dock.addEventListener('change', function(e){ var k = e.target.getAttribute('data-dock'), D = DOCK[curView]; if(!k || !D) return; D.set(k, k === 'font_size' ? Number(e.target.value) : e.target.value); if(!e.target.classList.contains('cpick-val')) renderStyleDock(); else { var nb = dock.querySelector('.sch-btn b'); if(nb) nb.textContent = currentSchemeName(D.get); } });
     dock.addEventListener('click', function(e){
       var D = DOCK[curView]; if(!D) return; var t = e.target.closest('button'); if(!t) return;
-      if(t.hasAttribute('data-docksw')){ D.set('colors.accent', t.getAttribute('data-docksw')); renderStyleDock(); return; }
+      if(t.hasAttribute('data-sch-open')){ var mn = dock.querySelector('.sch-menu'); mn.hidden = !mn.hidden; return; }
+      if(t.hasAttribute('data-sch')){ D.set('scheme', COLOUR_SCHEMES[Number(t.getAttribute('data-sch'))].c); renderStyleDock(); toast('Colours: ' + COLOUR_SCHEMES[Number(t.getAttribute('data-sch'))].name + '.'); return; }
       if(t.hasAttribute('data-dock-more')){ D.more(); return; }
       if(t.hasAttribute('data-dock-close')){ setPin('dock', curView, false); shellRefresh(); }
     });
@@ -3693,7 +3760,7 @@
   /* ---------- account statements ---------- */
   async function loadStatementsData(){
     var r = await sb.from('invoices')
-      .select('id, debtor_id, case_id, invoice_number, description, amount, issued_date, due_date, status, source, external_id, pay_url, debtors(id,name,abn,contact_name,email,phone)')
+      .select('id, debtor_id, case_id, invoice_number, description, amount, issued_date, due_date, status, source, external_id, pay_url, debtors(id,name,abn,contact_name,email,phone,legal_name,debtor_kind,address_line1,address_line2,suburb,state,postcode)')
       .eq('org_id', currentOrg.id).neq('status', 'written_off').order('due_date', { ascending: true });
     var invs = r.data || [];
     var invIds = invs.map(function(i){ return i.id; });
@@ -3722,7 +3789,8 @@
     var dmap = {};
     stmtInvoices.forEach(function(i){
       if(!i.debtor_id) return;
-      if(!dmap[i.debtor_id]) dmap[i.debtor_id] = { id: i.debtor_id, name: i.debtor.name, abn: i.debtor.abn, contact_name: i.debtor.contact_name, email: i.debtor.email, invoices: [] };
+      if(!dmap[i.debtor_id]) dmap[i.debtor_id] = { id: i.debtor_id, name: i.debtor.name, abn: i.debtor.abn, contact_name: i.debtor.contact_name, email: i.debtor.email, legal_name: i.debtor.legal_name, debtor_kind: i.debtor.debtor_kind,
+        address: [i.debtor.address_line1, i.debtor.address_line2, [i.debtor.suburb, i.debtor.state, i.debtor.postcode].filter(Boolean).join(' ')].filter(function(x){ return x && String(x).trim(); }), invoices: [] };
       dmap[i.debtor_id].invoices.push(i);
     });
     // Collection stage per debtor: furthest letter sent on an open case, plus case status.
@@ -3742,6 +3810,7 @@
       if(!d.stage || LETTER_RANK[l.type] > LETTER_RANK[d.stage] || (l.type === d.stage && l.sent_at > d.stageAt)){ d.stage = l.type; d.stageAt = l.sent_at; }
     });
     stmtDebtors = Object.keys(dmap).map(function(k){ return dmap[k]; }).sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+    await loadContactGroups();
   }
 
   // Whole days an ISO date (YYYY-MM-DD) is past due, by the local calendar date. Negative = days until due.
@@ -3855,10 +3924,12 @@
     var selCount = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; }).length;
     document.getElementById('stmtFilterCount').textContent = 'Showing '+shown.length+' of '+stmtDebtors.length+' contacts'+(selCount ? ' · '+selCount+' selected' : '');
     document.getElementById('stmtClearSel').disabled = !selCount;
+    if(stmtShowMode === 'ticked') shown = shown.filter(function(d){ return stmtSelectedDebtors[d.id]; });
+    if(stmtShowMode === 'none' && !stmtSearch) shown = shown.filter(function(d){ return stmtSelectedDebtors[d.id]; });
     // Long lists start short: the first 12 plus anything ticked, with a button for the rest.
-    var allCount = shown.length, cut = !stmtShowAll && !stmtSearch && shown.length > 12;
+    var allCount = shown.length, cut = stmtShowMode === 'all' && !stmtShowAll && !stmtSearch && shown.length > 12;
     if(cut){ var first = shown.slice(0, 12); shown = first.concat(shown.slice(12).filter(function(d){ return stmtSelectedDebtors[d.id]; })); }
-    list.innerHTML = (shown.length ? shown.map(function(d){
+    var contactHtml = function(d){
       var totalOwing = d.invoices.filter(function(i){ return !i.fullyPaid; }).reduce(function(s,i){ return s+i.amount; }, 0);
       var matchTotal = invLevel ? d.invoices.filter(function(i){ return invoiceMatchesFilter(i, d, stmtFilter); }).reduce(function(s,i){ return s+i.amount; }, 0) : null;
       var stageTag = (d.caseStatus === 'debt_recovery' || d.caseStatus === 'tribunal') ? '<span class="stage-tag recovery">'+escapeHtml(STATUS_LABEL[d.caseStatus])+'</span>'
@@ -3872,26 +3943,53 @@
         var dim = invLevel && !invoiceMatchesFilter(inv, d, stmtFilter);
         var od = inv.daysOverdue;
         var when = inv.fullyPaid ? '' : od > 0 ? ' · <span class="od">'+od+' day'+(od===1?'':'s')+' overdue</span>' : od === 0 ? ' · <span class="od">Due today</span>' : od === -1 ? ' · Due tomorrow' : ' · due in '+(-od)+' days';
-        return '<label class="debt-row'+(dim?' dim':'')+'"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
+        return '<label class="debt-row'+(dim?' outside':'')+'"><input type="checkbox" class="inv-check" data-inv="'+inv.id+'" '+(chk?'checked':'')+' />'
           +'<span class="debt-main"><span class="debt-top"><b>'+escapeHtml(inv.invoice_number||'—')+'</b><span class="debt-desc">'+escapeHtml(inv.description||'')+'</span></span>'
-          +'<span class="debt-due">Due '+fmt(inv.due_date)+when+'</span>'+noteHtml+'</span>'
+          +'<span class="debt-due">Due '+fmt(inv.due_date)+when+(dim && !inv.fullyPaid ? ' · <span class="out-tag">outside this filter</span>' : '')+'</span>'+noteHtml+'</span>'
           +'<span class="debt-right"><span class="debt-amt">'+money(inv.amount)+'</span>'
           +'<span class="pill '+(inv.fullyPaid?'resolved':(inv.isLate?'escalated':'new'))+'">'+(inv.fullyPaid?'Paid':(inv.isLate?'Overdue':'Open'))+'</span></span></label>';
       }).join('');
       return '<div class="contact-group'+(checked?' sel':'')+'">'
         +'<label class="contact-head"><input type="checkbox" class="contact-check" data-debtor="'+d.id+'" '+(checked?'checked':'')+' />'
-        +'<span class="contact-name">'+escapeHtml(d.name)+stageTag+'<span class="sub">'+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+'</span></span>'
+        +'<span class="contact-name">'+escapeHtml(d.name)+stageTag+'<span class="sub">'+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+((stmtGroupsOf[d.id] || []).length && stmtShowMode !== 'groups' ? ' · '+(stmtGroupsOf[d.id] || []).map(function(gid){ var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; return g ? escapeHtml(g.name) : ''; }).filter(Boolean).join(', ') : '')+'</span></span>'
         +'<span class="contact-total">'+(matchTotal !== null ? money(matchTotal)+'<span class="sub">of '+money(totalOwing)+' owing</span>' : money(totalOwing))+'</span>'
         +'<button type="button" class="chev" data-toggle="'+d.id+'">'+(checked?'▴':'▾')+'</button></label>'
-        +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'>'+rows+'</div>'
+        +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'><div class="ci-tools"><button type="button" class="linkbtn" data-inv-all="'+d.id+'">Tick all</button><button type="button" class="linkbtn" data-inv-none="'+d.id+'">Untick all</button></div>'+rows+'</div>'
         +'</div>';
-    }).join('') + (cut ? '<button type="button" class="btn sm stmt-more" id="stmtShowAllBtn">Show all '+allCount+' contacts</button>' : (stmtShowAll && allCount > 12 && !stmtSearch ? '<button type="button" class="btn sm ghost stmt-more" id="stmtShowAllBtn" data-less="1">Show fewer</button>' : '')) : (stmtDebtors.length ? '<div class="empty-note">No contacts match this filter.</div>' : '<div class="empty-note">No debtors with invoices yet. Import data above, or add debtors under Debtors &amp; Cases, to get started.</div>'));
+    };
+    var body;
+    if(stmtShowMode === 'groups'){
+      var used = {};
+      body = stmtGroups.map(function(g){
+        var mem = shown.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(g.id) >= 0; }); if(!mem.length) return '';
+        mem.forEach(function(d){ used[d.id] = true; });
+        return '<div class="grp-block"><div class="grp-head"><b>'+escapeHtml(g.name)+'</b>'+(g.xero_group_id ? '<span class="grp-x" title="Contact group in Xero">Xero</span>' : '')+'<span class="grp-n">'+mem.length+' contact'+(mem.length === 1 ? '' : 's')+'</span>'
+          +'<button type="button" class="linkbtn" data-grp-tick="'+g.id+'">Tick group</button>'+(g.xero_group_id ? '' : '<button type="button" class="linkbtn" data-grp-rename="'+g.id+'">Rename</button><button type="button" class="linkbtn" data-grp-del="'+g.id+'">Delete</button>')+'</div>'
+          + mem.map(contactHtml).join('') + '</div>';
+      }).join('');
+      var rest = shown.filter(function(d){ return !used[d.id]; });
+      if(rest.length) body += '<div class="grp-block"><div class="grp-head"><b>Not in a group</b><span class="grp-n">'+rest.length+'</span></div>' + rest.map(contactHtml).join('') + '</div>';
+    } else body = shown.map(contactHtml).join('');
+    list.innerHTML = (shown.length ? body + (cut ? '<button type="button" class="btn sm stmt-more" id="stmtShowAllBtn">Show all '+allCount+' contacts</button>' : (stmtShowAll && allCount > 12 && !stmtSearch ? '<button type="button" class="btn sm ghost stmt-more" id="stmtShowAllBtn" data-less="1">Show fewer</button>' : '')) : (stmtDebtors.length ? '<div class="empty-note">No contacts match this filter.</div>' : '<div class="empty-note">No debtors with invoices yet. Import data above, or add debtors under Debtors &amp; Cases, to get started.</div>'));
+    if(!shown.length && stmtShowMode === 'none' && !stmtSearch && stmtDebtors.length) list.innerHTML = '<div class="empty-note">Search above for a contact, name or invoice number, or choose “By contact group”.</div>';
     var moreBtn = document.getElementById('stmtShowAllBtn');
     if(moreBtn) moreBtn.addEventListener('click', function(){ stmtShowAll = !this.hasAttribute('data-less'); renderStatementContacts(); });
     Array.prototype.forEach.call(list.querySelectorAll('.contact-check'), function(cb){
-      cb.addEventListener('change', function(){
-        var id = this.getAttribute('data-debtor');
-        stmtSelectedDebtors[id] = this.checked;
+      cb.addEventListener('change', async function(){
+        var id = this.getAttribute('data-debtor'), on = this.checked;
+        if(on){
+          var others = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k] && k !== id; });
+          var unrelated = others.filter(function(o){ return !contactsRelated(o, id); });
+          if(others.length && unrelated.length){
+            var nm = function(x){ var d = stmtDebtors.filter(function(y){ return y.id === x; })[0]; return d ? d.name : 'this contact'; };
+            var pick = await djAsk(nm(id) + ' isn’t grouped with ' + nm(unrelated[0]) + (unrelated.length > 1 ? ' and ' + (unrelated.length - 1) + ' other' + (unrelated.length > 2 ? 's' : '') : '') + '.\n\nOne statement should only combine contacts from the same business. Put them in a contact group to merge them, or start a new statement with ' + nm(id) + '.',
+              { choices: [{ label: 'Start a new statement', value: 'new' }, { label: 'Group them', value: 'group' }] });
+            if(!pick){ this.checked = false; return; }
+            if(pick === 'new'){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; }
+            if(pick === 'group'){ var ok = await groupContacts(others.concat([id])); if(!ok){ this.checked = false; return; } }
+          }
+        }
+        stmtSelectedDebtors[id] = on;
         renderStatementContacts();
       });
     });
@@ -3901,6 +3999,30 @@
         renderStatementPreview();
       });
     });
+    list.onclick = async function(e){
+      var t = e.target.closest('button'); if(!t) return;
+      var setAll = function(did, val){ var d = stmtDebtors.filter(function(x){ return x.id === did; })[0]; if(!d) return; d.invoices.forEach(function(i){ if(!i.fullyPaid) stmtInvoiceOverride[i.id] = val; }); };
+      if(t.hasAttribute('data-inv-all')){ e.preventDefault(); setAll(t.getAttribute('data-inv-all'), true); renderStatementContacts(); return; }
+      if(t.hasAttribute('data-inv-none')){ e.preventDefault(); setAll(t.getAttribute('data-inv-none'), false); renderStatementContacts(); return; }
+      if(t.hasAttribute('data-grp-tick')){
+        var gid = t.getAttribute('data-grp-tick'), mem = stmtDebtors.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(gid) >= 0; });
+        var others = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k] && !mem.some(function(d){ return d.id === k; }); });
+        if(others.length){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; }
+        mem.forEach(function(d){ stmtSelectedDebtors[d.id] = true; }); renderStatementContacts(); return;
+      }
+      if(t.hasAttribute('data-grp-rename')){
+        var g = stmtGroups.filter(function(x){ return x.id === t.getAttribute('data-grp-rename'); })[0]; if(!g) return;
+        var nn = await djAsk('Rename this contact group', { input: g.name, inputLabel: 'Group name', ok: 'Rename' }); if(!nn) return;
+        var r = await sb.from('contact_groups').update({ name: nn.slice(0, 80), updated_at: new Date().toISOString() }).eq('id', g.id); if(r.error){ toast(r.error.message); return; }
+        g.name = nn.slice(0, 80); renderStatementContacts(); return;
+      }
+      if(t.hasAttribute('data-grp-del')){
+        var g2 = stmtGroups.filter(function(x){ return x.id === t.getAttribute('data-grp-del'); })[0]; if(!g2) return;
+        if(!await djAsk('Delete the group “' + g2.name + '”?\n\nThe contacts stay; they just aren’t grouped any more.', { ok: 'Delete' })) return;
+        var r2 = await sb.from('contact_groups').delete().eq('id', g2.id); if(r2.error){ toast(r2.error.message); return; }
+        await loadContactGroups(); renderStatementContacts(); toast('Group deleted.'); return;
+      }
+    };
     Array.prototype.forEach.call(list.querySelectorAll('[data-toggle]'), function(btn){
       btn.addEventListener('click', function(e){
         e.preventDefault(); e.stopPropagation();
@@ -3912,6 +4034,30 @@
     renderStatementPreview();
   }
 
+  // Contact groups: contacts that belong to the same business. Statements only merge related contacts.
+  async function loadContactGroups(){
+    var g = await sb.from('contact_groups').select('id, name, xero_group_id').eq('org_id', currentOrg.id).order('name');
+    var m = await sb.from('contact_group_members').select('group_id, debtor_id').eq('org_id', currentOrg.id);
+    stmtGroups = g.error ? [] : (g.data || []); stmtGroupsOf = {};
+    (m.data || []).forEach(function(x){ (stmtGroupsOf[x.debtor_id] = stmtGroupsOf[x.debtor_id] || []).push(x.group_id); });
+  }
+  function contactsRelated(a, b){
+    var ga = stmtGroupsOf[a] || [], gb = stmtGroupsOf[b] || [];
+    if(ga.some(function(x){ return gb.indexOf(x) >= 0; })) return true;
+    var da = stmtDebtors.filter(function(x){ return x.id === a; })[0], db = stmtDebtors.filter(function(x){ return x.id === b; })[0];
+    return !!(da && db && da.abn && da.abn === db.abn);
+  }
+  async function groupContacts(ids){
+    var first = stmtDebtors.filter(function(x){ return x.id === ids[0]; })[0];
+    var name = await djAsk('Name the new contact group', { input: first ? first.name : '', inputLabel: 'Group name (for example the business that owns these accounts)', ok: 'Create group' });
+    if(!name) return false;
+    var g = await sb.from('contact_groups').insert({ org_id: currentOrg.id, name: name.slice(0, 80) }).select('id').maybeSingle();
+    if(g.error || !g.data){ toast('Could not create the group: ' + ((g.error && g.error.message) || 'unknown error')); return false; }
+    var r = await sb.from('contact_group_members').insert(ids.map(function(id){ return { group_id: g.data.id, debtor_id: id, org_id: currentOrg.id }; }));
+    if(r.error){ toast('Could not add contacts to the group: ' + r.error.message); return false; }
+    await loadContactGroups(); toast('Group “' + name.slice(0, 80) + '” created.');
+    return true;
+  }
   function selectedStatementItems(){
     var debtorIds = Object.keys(stmtSelectedDebtors).filter(function(id){ return stmtSelectedDebtors[id]; });
     var items = [];
@@ -4086,10 +4232,10 @@
 
   /* ---------- templates ---------- */
   var TPL_BASE = {
-    colors: { accent:'#1f3a8a', heading:'#14213d', text:'#1b2433', muted:'#5b6474', th_bg:'#eef2f8', th_text:'#14213d', border:'#d9e0ea', stripe:'#f6f8fb', band_text:'#ffffff' },
+    colors: { accent:'#1f3a8a', heading:'#14213d', text:'#1b2433', muted:'#5b6474', th_bg:'#eef2f8', th_text:'#14213d', border:'#d9e0ea', stripe:'#f6f8fb', band_text:'#ffffff', overdue:'#b42318', paid:'#1f7a45', disputed:'#9a5b00' },
     font: 'Sora', heading_font: 'Sora', font_size: 12.5,
     table_style: 'lined', density: 'regular', header_style: 'plain',
-    logo: null, hide_logo: false, logo_position: 'left', logo_height: 44, desc_mode: 'short_details', desc_max: 60, upcoming: 'separate',
+    logo: null, hide_logo: false, logo_position: 'left', logo_height: 44, desc_mode: 'short_details', desc_max: 60, upcoming: 'separate', summary_style: 'boxes', show_to_details: true,
     title: 'Account Statement', from_lines: '', intro: '', footer: '', sign_off: 'Accounts team',
     columns: { invoice:true, description:true, issued:false, due:true, days_overdue:true, amount:true, paid:false, interest:true, fees:true, balance:true, status:true, pay_link:true },
     sections: { summary:true, ageing:true, line_notes:true, cover:true, payment:true, remittance:false, late_rate:false }
@@ -4136,12 +4282,13 @@
     t.font_size = Math.min(15, Math.max(10, Number(t.font_size) || 12.5));
     if(['lined','striped','boxed','minimal'].indexOf(t.table_style) < 0) t.table_style = 'lined';
     if(['separate','together','exclude'].indexOf(t.upcoming) < 0) t.upcoming = 'separate';
+    if(['boxes','headline','breakdown','ageing'].indexOf(t.summary_style) < 0) t.summary_style = 'boxes';
     if(['compact','regular','roomy'].indexOf(t.density) < 0) t.density = 'regular';
     if(['plain','band','centred'].indexOf(t.header_style) < 0) t.header_style = 'plain';
     if(['left','right'].indexOf(t.logo_position) < 0) t.logo_position = 'left';
     t.logo_height = Math.min(90, Math.max(24, Number(t.logo_height) || 44));
     t.hide_logo = !!t.hide_logo;
-    if(['full','short','short_details'].indexOf(t.desc_mode) < 0) t.desc_mode = 'short_details';
+    if(['full','short','short_details','short_below','below'].indexOf(t.desc_mode) < 0) t.desc_mode = 'short_details';
     t.desc_max = Math.min(120, Math.max(30, Number(t.desc_max) || 60));
     if(t.logo && !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(t.logo)) t.logo = null;
     ['title','from_lines','intro','footer','sign_off'].forEach(function(k){ t[k] = String(t[k] == null ? '' : t[k]).slice(0, 1200); });
@@ -4181,7 +4328,7 @@
     { title:'Quick styles', presets:true },
     { title:'Colours', fields:[
       ['colors.accent','color','Accent'], ['colors.heading','color','Headings'], ['colors.text','color','Body text'], ['colors.muted','color','Secondary text'],
-      ['colors.th_bg','color','Table header'], ['colors.th_text','color','Table header text'], ['colors.border','color','Lines'], ['colors.stripe','color','Stripes'], ['colors.band_text','color','Header band text'] ] },
+      ['colors.th_bg','color','Table header'], ['colors.th_text','color','Table header text'], ['colors.border','color','Lines'], ['colors.stripe','color','Stripes'], ['colors.band_text','color','Header band text'], ['colors.overdue','color','Overdue (days and status)'], ['colors.paid','color','Paid'], ['colors.disputed','color','Disputed / on hold'] ] },
     { title:'Fonts & size', fields:[
       ['font','font','Body font'], ['heading_font','font','Heading font'], ['font_size','range','Text size', 10, 15, 0.5] ] },
     { title:'Table', fields:[
@@ -4201,8 +4348,10 @@
       ['columns.paid','check','Paid to date'], ['columns.interest','check','Interest'], ['columns.fees','check','Fees'],
       ['columns.balance','check','Balance owing'], ['columns.status','check','Status'], ['columns.pay_link','check','Pay online link'] ] },
     { title:'Long descriptions', fields:[
+      ['summary_style','select','Summary at the top', [['boxes','Boxes: amount due, overdue, charges'],['headline','One headline figure with oldest invoice and reference'],['breakdown','Breakdown strip: owing, charges, overdue, total'],['ageing','Ageing strip: current to 90+ days, then the total']]],
+      ['show_to_details','check','Show the customer’s address and ABN under “To”'],
       ['upcoming','select','Invoices not yet due', [['separate','Separate: overdue first, then not yet due'],['together','Together in one list'],['exclude','Leave them off the statement']]],
-      ['desc_mode','select','How to show long invoice descriptions', [['short_details','Shorten in the table, full text under “Invoice details”'],['short','Shorten in the table only'],['full','Show in full']]],
+      ['desc_mode','select','How to show long invoice descriptions', [['short_below','Short in the table, full text under the invoice'],['short_details','Short in the table, full text in “Invoice details” at the end'],['short','Short in the table only'],['below','Full text under the invoice only (no description column)'],['full','Full text in the table']]],
       ['desc_max','range','Shorten to about (characters)', 30, 120, 5] ] },
     { title:'Sections', fields:[
       ['sections.summary','check','Amount-due summary'], ['sections.cover','check','Cover message'], ['sections.line_notes','check','Notes under each invoice'],
@@ -4385,10 +4534,18 @@
       items: items, totals: totals, ageing: ageing, debtorIds: sel.debtorIds, upcoming_mode: upMode,
       multi: sel.debtorIds.length > 1,
       recipient: document.getElementById('stmtRecipientName').value || '',
+      recipient_lines: (function(){
+        var ds = sel.debtorIds.map(function(id){ return stmtDebtors.filter(function(x){ return x.id === id; })[0]; }).filter(Boolean); if(!ds.length) return [];
+        var d0 = ds[0], sameAbn = ds.every(function(d){ return d.abn && d.abn === d0.abn; });
+        if(ds.length > 1 && !sameAbn) return [];
+        var out = (d0.address || []).slice();
+        if(d0.abn && d0.debtor_kind !== 'individual') out.push('ABN ' + fmtAbn(d0.abn));
+        return out;
+      })(),
       date: today.toISOString(),
       number: 'ST-' + today.toISOString().slice(2, 10).replace(/-/g, '') + '-' + (sel.debtorIds[0] || '0000').replace(/-/g, '').slice(0, 4).toUpperCase(),
-      cover: stmtTxtOn.cover ? document.getElementById('stmtNotes').value.trim() : '',
-      texts: ['after_totals', 'pay_note', 'closing'].reduce(function(o, k){ var el = document.getElementById('stmtTxt-' + k); if(stmtTxtOn[k] && el && el.value.trim()) o[k] = el.value.trim(); return o; }, {}),
+      cover: stmtTxtMaster && stmtTxtOn.cover ? document.getElementById('stmtNotes').value.trim() : '',
+      texts: ['after_totals', 'pay_note', 'closing'].reduce(function(o, k){ var el = document.getElementById('stmtTxt-' + k); if(stmtTxtMaster && stmtTxtOn[k] && el && el.value.trim()) o[k] = el.value.trim(); return o; }, {}),
       late: sel.debtorIds.length ? lateMetrics(sel.debtorIds) : null,
       payment: orgPayment ? {
         account_name: orgPayment.account_name, bsb: orgPayment.bsb, account_number: orgPayment.account_number, bank_name: orgPayment.bank_name,
@@ -4407,6 +4564,7 @@
     t = normaliseTpl(t);
     var c = t.colors, cols = t.columns, sec = t.sections;
     var pad = { compact: '4px 7px', regular: '7px 9px', roomy: '10px 11px' }[t.density];
+    var gapTxt = { compact: '8px', regular: '14px', roomy: '22px' }[t.density] || '14px', notePad = { compact: '0 7px 4px', regular: '1px 9px 8px', roomy: '3px 11px 12px' }[t.density] || '1px 9px 8px';
     var hasCharges = !!m.charges || m.items.some(function(i){ return i.interest || i.fees; });
     var showPay = !!(m.payment && m.payment.online_provider && m.payment.online_provider !== 'none') && m.items.some(function(i){ return i.pay_url; });
     var refMap = new Map(), refN = 0;
@@ -4424,7 +4582,7 @@
       ['balance', 'Balance', function(i){ return '<b>'+money(r2(i.balance + i.interest + i.fees))+'</b>'; }, 'num'],
       ['status', 'Status', function(i){ return '<span class="sd-st sd-st-'+i.status.toLowerCase().replace(/ /g, '-')+'">'+escapeHtml(i.status)+'</span>'; }],
       ['pay_link', 'Pay', function(i){ return i.pay_url && !i.fullyPaid && !i.disputed ? '<a href="'+escapeHtml(i.pay_url)+'" target="_blank" rel="noopener">Pay online</a>' : ''; }, '', !showPay]
-    ].filter(function(d){ return cols[d[0]] && !d[4]; });
+    ].filter(function(d){ return cols[d[0]] && !d[4] && !(d[0] === 'description' && t.desc_mode === 'below'); });
     var ncol = colDefs.length;
     var S = '.sd';
     var css = '<style>'
@@ -4448,7 +4606,7 @@
       + S+' .sd-box .k{font-size:.78em;text-transform:uppercase;letter-spacing:.05em;color:'+c.muted+';}'
       + S+' .sd-box .v{font-size:1.25em;font-weight:700;font-variant-numeric:tabular-nums;}'
       + S+' .sd-box.main{border-color:'+c.accent+';border-width:2px;}'+S+' .sd-box.main .v{color:'+c.accent+';font-size:1.45em;}'
-      + S+' .sd-cover{margin:0 0 14px;white-space:pre-line;}'
+      + S+' .sd-cover{margin:0 0 '+gapTxt+';white-space:pre-line;line-height:'+(t.density === 'compact' ? 1.4 : t.density === 'roomy' ? 1.7 : 1.55)+';}'
       + S+' table.sd-t{width:100%;border-collapse:collapse;margin:4px 0 6px;}'
       + S+' .sd-t th{background:'+(t.table_style === 'minimal' ? 'transparent' : c.th_bg)+';color:'+c.th_text+';text-align:left;font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding:'+pad+';font-weight:700;}'
       + S+' .sd-t td{padding:'+pad+';vertical-align:top;}'+S+' .sd-t th{white-space:normal;vertical-align:bottom;line-height:1.25;}'
@@ -4457,16 +4615,17 @@
       + (t.table_style === 'striped' ? S+' .sd-t tr.alt td{background:'+c.stripe+';}' : '')
       + (t.table_style === 'boxed' ? S+' .sd-t th,'+S+' .sd-t td{border:1px solid '+c.border+';}'+S+' .sd-t tr.sd-has-note td{border-bottom:none;}'+S+' .sd-t tr.sd-note td{border-top:none;}' : '')
       + (t.table_style === 'minimal' ? S+' .sd-t th{border-bottom:1px solid '+c.border+';}' : '')
-      + S+' .sd-t tr.sd-note td{padding-top:0;font-size:.88em;color:'+c.muted+';}'
+      + S+' .sd-t tr.sd-note td{padding:'+notePad+';font-size:.88em;color:'+c.muted+';line-height:'+(t.density === 'roomy' ? 1.6 : 1.45)+';}'
+      + S+' .sd-t tr.sd-fulldesc td .sd-fd{white-space:pre-line;color:'+c.text+';font-size:.95em;padding-left:2px;}'
       + S+' .sd-t tr.sd-grp td{padding:12px 0 5px;font-weight:800;color:'+c.heading+';border-bottom:2px solid '+c.accent+';background:transparent;}'
       + S+' .sd-t tr.sd-grp td span.sd-grp-amt{float:right;font-variant-numeric:tabular-nums;}'
       + S+' .sd-ref{color:'+c.accent+';font-weight:700;margin-left:2px;}'+S+' .sd-t .sd-desc{min-width:90px;}'
       + S+' .sd-det{display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:.9em;padding:6px 0;border-bottom:1px solid '+c.border+';page-break-inside:avoid;}'
       + S+' .sd-det .k{font-weight:700;color:'+c.heading+';}'+S+' .sd-det .k sup{color:'+c.accent+';}'+S+' .sd-det .v{white-space:pre-line;}'
       + S+' .sd-t tr.sd-note td span{display:block;border-left:3px solid '+c.accent+';padding:1px 0 1px 8px;font-style:italic;}'
-      + S+' .sd-od{color:#b42318;}'
+      + S+' .sd-od{color:'+c.overdue+';}'
       + S+' .sd-st{font-size:.85em;font-weight:700;white-space:nowrap;}'
-      + S+' .sd-st-overdue{color:#b42318;}'+S+' .sd-st-paid{color:#1f7a45;}'+S+' .sd-st-disputed{color:#9a5b00;}'+S+' .sd-st-due-today{color:#b42318;}'
+      + S+' .sd-st-overdue{color:'+c.overdue+';}'+S+' .sd-st-paid{color:'+c.paid+';}'+S+' .sd-st-disputed{color:'+c.disputed+';}'+S+' .sd-st-due-today{color:'+c.overdue+';}'
       + S+' .sd-t a{color:'+c.accent+';font-weight:600;white-space:nowrap;}'
       + S+' .sd-tot{margin-left:auto;width:min(340px,100%);border-collapse:collapse;}'
       + S+' .sd-tot td{padding:4px 0;}'+S+' .sd-tot td:last-child{text-align:right;font-variant-numeric:tabular-nums;}'
@@ -4478,7 +4637,13 @@
       + S+' .sd-pay > div{border:1px solid '+c.border+';border-radius:8px;padding:10px 12px;}'
       + S+' .sd-pay .k{font-size:.78em;text-transform:uppercase;letter-spacing:.05em;color:'+c.accent+';font-weight:700;margin-bottom:3px;}'
       + S+' .sd-pay dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:1px 10px;}'+S+' .sd-pay dt{color:'+c.muted+';}'+S+' .sd-pay dd{margin:0;font-weight:600;}'
-      + S+' .sd-sign{margin-top:20px;}'
+      + S+' .sd-sign{margin-top:20px;}'+S+' .sd-to{font-size:.92em;color:'+c.muted+';margin-top:2px;line-height:1.4;}'
+      + S+' .sd-big{display:flex;justify-content:space-between;align-items:center;gap:16px;border:2px solid '+c.accent+';border-radius:8px;padding:12px 16px;margin:6px 0 16px;}'
+      + S+' .sd-big .k{font-size:.8em;text-transform:uppercase;letter-spacing:.05em;color:'+c.muted+';}'+S+' .sd-big .v{font-size:1.9em;font-weight:800;color:'+c.accent+';font-variant-numeric:tabular-nums;}'
+      + S+' .sd-big .s{font-size:.9em;color:'+c.muted+';text-align:right;}'
+      + S+' .sd-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));border-top:2px solid '+c.accent+';border-bottom:1px solid '+c.border+';margin:6px 0 16px;}'
+      + S+' .sd-strip > div{padding:8px 10px;border-right:1px solid '+c.border+';}'+S+' .sd-strip > div:last-child{border-right:none;}'
+      + S+' .sd-strip .k{font-size:.74em;text-transform:uppercase;letter-spacing:.04em;color:'+c.muted+';}'+S+' .sd-strip .v{font-weight:700;font-variant-numeric:tabular-nums;}'+S+' .sd-strip .main .v{color:'+c.accent+';font-size:1.15em;}'
       + S+' .sd-foot{margin-top:18px;padding-top:10px;border-top:1px solid '+c.border+';font-size:.8em;color:'+c.muted+';white-space:pre-line;}'
       + S+' .sd-slip{margin-top:22px;border-top:2px dashed '+c.muted+';padding-top:12px;font-size:.9em;}'
       + S+' .sd-slip .row{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 20px;}'
@@ -4492,28 +4657,44 @@
     var meta = '<div class="sd-meta"><h1>'+escapeHtml(t.title || 'Account Statement')+'</h1>'
       + '<div>Statement date: <b>'+escapeHtml(fmt(m.date))+'</b></div>'
       + '<div>Statement no: <b>'+escapeHtml(m.number || '—')+'</b></div>'
-      + '<div>To: <b>'+escapeHtml(m.recipient || '—')+'</b></div></div>';
+      + '<div>To: <b>'+escapeHtml(m.recipient || '—')+'</b>'+(t.show_to_details !== false && (m.recipient_lines || []).length ? '<div class="sd-to">'+m.recipient_lines.map(escapeHtml).join('<br>')+'</div>' : '')+'</div></div>';
     var headCls = t.header_style === 'centred' ? 'centred' : (t.logo_position === 'right' ? 'right' : '');
     var head = '<div class="sd-head '+headCls+'">'+who+meta+'</div>';
     if(t.header_style === 'band') head = '<div class="sd-band">'+head+'</div>';
 
     var T = m.totals;
     var stmtFeeTotal = (T.statement_fees || []).reduce(function(s, f){ return s + f.amount; }, 0);
-    var summary = sec.summary ? '<div class="sd-summary">'
-      + (T.upcoming && m.upcoming_mode === 'separate'
-          ? '<div class="sd-box main"><div class="k">Pay now</div><div class="v">'+money(T.pay_now)+'</div></div><div class="sd-box"><div class="k">Not yet due</div><div class="v">'+money(T.upcoming)+'</div></div>'
-          : '<div class="sd-box main"><div class="k">Amount due</div><div class="v">'+money(T.due)+'</div></div>')
-      + '<div class="sd-box"><div class="k">Overdue</div><div class="v">'+money(T.overdue)+'</div></div>'
-      + ((T.interest + T.fees + stmtFeeTotal) > 0 ? '<div class="sd-box"><div class="k">Interest &amp; fees</div><div class="v">'+money(T.interest + T.fees + stmtFeeTotal)+'</div></div>' : '')
-      + (T.disputed > 0 ? '<div class="sd-box"><div class="k">Disputed, on hold</div><div class="v">'+money(T.disputed)+'</div></div>' : '')
-      + '</div>' : '';
+    var sepUp = T.upcoming && m.upcoming_mode === 'separate', A0 = m.ageing || {};
+    var oldestDays = m.items.filter(function(i){ return !i.fullyPaid && !i.disputed && i.daysOverdue > 0; }).reduce(function(mx, i){ return Math.max(mx, i.daysOverdue); }, 0);
+    var headline = sepUp ? ['Pay now', T.pay_now] : ['Amount due', T.due];
+    var box = function(k, v, main){ return '<div class="sd-box'+(main ? ' main' : '')+'"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
+    var cell = function(k, v, main){ return '<div'+(main ? ' class="main"' : '')+'><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; };
+    var summary = '';
+    if(sec.summary){
+      var style = t.summary_style || 'boxes';
+      if(style === 'boxes') summary = '<div class="sd-summary">'
+        + box(headline[0], money(headline[1]), true) + (sepUp ? box('Not yet due', money(T.upcoming)) : '')
+        + box('Overdue', money(T.overdue))
+        + ((T.interest + T.fees + stmtFeeTotal) > 0 ? box('Interest &amp; fees', money(T.interest + T.fees + stmtFeeTotal)) : '')
+        + (T.disputed > 0 ? box('Disputed, on hold', money(T.disputed)) : '') + '</div>';
+      else if(style === 'headline') summary = '<div class="sd-big"><div><div class="k">'+headline[0]+'</div><div class="v">'+money(headline[1])+'</div></div>'
+        + '<div class="s">'+(oldestDays ? 'Oldest invoice '+oldestDays+' days overdue' : 'Nothing overdue')+(sepUp ? '<br>'+money(T.upcoming)+' not yet due' : '')+'<br>Reference '+escapeHtml(m.reference || '')+'</div></div>';
+      else if(style === 'breakdown') summary = '<div class="sd-strip">' + cell('Invoices owing', money(T.balance))
+        + ((T.interest + T.fees + stmtFeeTotal) > 0 ? cell('Interest &amp; fees', money(T.interest + T.fees + stmtFeeTotal)) : '')
+        + cell('Overdue', money(T.overdue)) + (sepUp ? cell('Not yet due', money(T.upcoming)) : '')
+        + (T.disputed > 0 ? cell('On hold', money(T.disputed)) : '') + cell(headline[0], money(headline[1]), true) + '</div>';
+      else if(style === 'ageing') summary = '<div class="sd-strip">' + cell('Current', money(A0.current || 0)) + cell('1–30 days', money(A0.d1_30 || 0))
+        + cell('31–60 days', money(A0.d31_60 || 0)) + cell('61–90 days', money(A0.d61_90 || 0)) + cell('90+ days', money(A0.d90 || 0)) + cell(headline[0], money(headline[1]), true) + '</div>';
+    }
     var coverText = [t.intro, m.cover].filter(function(x){ return x && x.trim(); }).join('\n\n');
     var cover = sec.cover && coverText ? '<div class="sd-cover">'+escapeHtml(coverText)+'</div>' : '';
 
     var rowHtml = function(list){ return list.map(function(i, idx){
       var alt = idx % 2 ? ' alt' : '';
       var hasNote = sec.line_notes && i.note;
-      var tr = '<tr class="'+(hasNote ? 'sd-has-note' : 'sd-end')+alt+'">' + colDefs.map(function(d){ return '<td class="'+(d[3] || '')+'">'+d[2](i)+'</td>'; }).join('') + '</tr>';
+      var dd = itemDesc(i, t), showFull = dd.full && (t.desc_mode === 'below' || (t.desc_mode === 'short_below' && (dd.shortened || !(t.columns || {}).description)));
+      var tr = '<tr class="'+(hasNote || showFull ? 'sd-has-note' : 'sd-end')+alt+'">' + colDefs.map(function(d){ return '<td class="'+(d[3] || '')+'">'+d[2](i)+'</td>'; }).join('') + '</tr>';
+      if(showFull) tr += '<tr class="sd-note sd-fulldesc'+(hasNote ? ' sd-has-note' : ' sd-end')+alt+'"><td colspan="'+ncol+'"><div class="sd-fd">'+escapeHtml(dd.full)+'</div></td></tr>';
       if(hasNote) tr += '<tr class="sd-note sd-end'+alt+'"><td colspan="'+ncol+'"><span>'+escapeHtml(i.note)+'</span></td></tr>';
       return tr;
     }).join(''); };
@@ -4682,11 +4863,21 @@
     stmtTxtOn[k] = !!on;
     var box = document.querySelector('[data-txt-sec="' + k + '"]'); if(!box) return;
     box.querySelector('[data-ts-on]').checked = !!on; box.classList.toggle('on', !!on);
-    var ta = box.querySelector('textarea'); ta.hidden = !on;
+    var ta = box.querySelector('textarea'); ta.hidden = !on; syncTxtClear(ta);
     schedulePreview();
   }
   document.querySelectorAll('[data-ts-on]').forEach(function(cb){ cb.addEventListener('change', function(){ setStmtTxt(cb.getAttribute('data-ts-on'), cb.checked); if(cb.checked) cb.closest('.txt-sec').querySelector('textarea').focus(); }); });
-  document.querySelectorAll('textarea[data-ts]').forEach(function(ta){ ta.addEventListener('input', schedulePreview); });
+  var stmtTxtMaster = true;
+  function stmtTxtBoxes(){ return [document.getElementById('stmtNotes')].concat(Array.prototype.slice.call(document.querySelectorAll('textarea[data-ts]'))); }
+  function syncTxtClear(ta){ var sec = ta.closest('.txt-sec'), b = sec && sec.querySelector('[data-ts-clear]'); if(b) b.hidden = !ta.value || ta.hidden; }
+  stmtTxtBoxes().forEach(function(ta){ ta.addEventListener('input', function(){ schedulePreview(); syncTxtClear(ta); }); });
+  document.getElementById('stmtTxtMaster').addEventListener('change', function(){ stmtTxtMaster = this.checked; document.getElementById('stmtTxtSecs').hidden = !this.checked; schedulePreview(); });
+  document.getElementById('stmtTxtSecs').addEventListener('click', function(e){
+    var b = e.target.closest('[data-ts-clear]'); if(!b) return;
+    var k = b.getAttribute('data-ts-clear'), ta = k === 'cover' ? document.getElementById('stmtNotes') : document.getElementById('stmtTxt-' + k), old = ta.value;
+    ta.value = ''; syncTxtClear(ta); schedulePreview();
+    toastUndo('Text removed.', function(){ ta.value = old; syncTxtClear(ta); schedulePreview(); });
+  });
   document.getElementById('stmtAiNotesBtn').addEventListener('click', async function(){
     var sel = selectedStatementItems(); if(!sel.items.length) return;
     var btn = this; btn.disabled = true; btn.textContent = 'Drafting…';
@@ -7019,6 +7210,13 @@
   });
   document.getElementById('stmtSearch').addEventListener('input', function(){ stmtSearch = this.value; renderStatementContacts(); });
   document.getElementById('stmtClearSel').addEventListener('click', function(){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; renderStatementContacts(); });
+  document.getElementById('stmtShowMode').addEventListener('change', function(){ stmtShowMode = this.value; renderStatementContacts(); });
+  [['stmtTickAllInv', true], ['stmtUntickAllInv', false]].forEach(function(p){ document.getElementById(p[0]).addEventListener('click', function(){
+    var ids = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; });
+    if(!ids.length){ toast('Tick a contact first.'); return; }
+    stmtDebtors.forEach(function(d){ if(ids.indexOf(d.id) >= 0) d.invoices.forEach(function(i){ if(!i.fullyPaid) stmtInvoiceOverride[i.id] = p[1]; }); });
+    renderStatementContacts();
+  }); });
   document.getElementById('stmtCsvTemplate').addEventListener('click', function(){
     var csv = 'debtor_name,debtor_type,abn,contact_name,email,phone,invoice_number,description,amount,issued_date,due_date\n'
       + 'Example Pty Ltd,company,12345678901,Jane Citizen,accounts@example.com,0412345678,INV-1001,Website build,1650.00,2026-10-01,2026-10-31\n'

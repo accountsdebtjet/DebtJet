@@ -206,6 +206,26 @@ Deno.serve(async (req: Request) => {
       (upserted || []).forEach((d: any) => { contactIdToDebtorId[d.xero_contact_id] = d.id; });
     }
 
+    // 2b. Contact groups from Xero (one way for now: Xero -> DebtJet). Groups made in Xero are kept in
+    //     step with Xero; groups made only in DebtJet are left alone. Statements only merge contacts that
+    //     share a group, so this lets businesses reuse the groups they already keep in Xero.
+    let groupsSynced = 0;
+    try {
+      const gl = await xeroFetch("/api.xro/2.0/ContactGroups?where=Status%3D%3D%22ACTIVE%22", accessToken, conn.tenant_id);
+      for (const g of (gl.ContactGroups || []).slice(0, 50)) {
+        const det = await xeroFetch(`/api.xro/2.0/ContactGroups/${g.ContactGroupID}`, accessToken, conn.tenant_id);
+        const ids: string[] = (((det.ContactGroups || [])[0] || {}).Contacts || []).map((c: any) => c.ContactID);
+        const { data: grp } = await supabaseUser.from("contact_groups")
+          .upsert({ org_id, name: String(g.Name || "Xero group").slice(0, 80), xero_group_id: g.ContactGroupID, updated_at: new Date().toISOString() }, { onConflict: "org_id,xero_group_id" })
+          .select("id").single();
+        if (!grp) continue;
+        await supabaseUser.from("contact_group_members").delete().eq("group_id", grp.id);
+        const rows = ids.map((cid) => contactIdToDebtorId[cid]).filter(Boolean).map((did) => ({ group_id: grp.id, debtor_id: did, org_id }));
+        if (rows.length) await supabaseUser.from("contact_group_members").insert(rows);
+        groupsSynced++;
+      }
+    } catch (e) { console.error("Contact groups sync failed", e); }
+
     // 3. Pull sales invoices (incrementally after the first sync) and upsert
     //    them keyed by Xero's InvoiceID, reusing or opening a case per debtor.
     let invoicePath = `/api.xro/2.0/Invoices?where=Type%3D%3D%22ACCREC%22`;
@@ -286,6 +306,7 @@ Deno.serve(async (req: Request) => {
     return json({
       ok: true,
       contactsSynced: debtorRows.length,
+      groupsSynced,
       invoicesSynced,
       invoicesSkipped,
     });
