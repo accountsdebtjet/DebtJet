@@ -1643,6 +1643,8 @@
   }
 
   /* ---------- Debtor contact cards + ABN register check ---------- */
+  // True when the legal name on file came from an ABN register check (not typed in by hand).
+  function legalFromRegister(d){ return !!(d && d.legal_name && d.abr_checked_at && /^(match|similar|different|cancelled)$/.test(d.name_check || '')); }
   var NAME_CHECK = {
     match:       { label: 'Matches ABN register', cls: 'ok',   icon: '✓' },
     similar:     { label: 'Similar to register name', cls: 'warn', icon: '!' },
@@ -1760,6 +1762,9 @@
       +   '<span class="fine">Businesses need an ABN. An individual owes money in their own name and has no ABN.</span></label>'
       + f('name', isPerson(d) ? 'Full name (as in Xero)' : 'Name on file (as in Xero)', { wide: true })
       + '<label class="cc-abn"'+(isPerson(d) ? ' hidden' : '')+'>ABN<input data-ce="abn" value="'+escapeHtml(d.abn || '')+'" inputmode="numeric" maxlength="14" /></label>' + f('website', 'Website')
+      + '<label class="cc-abn span2"'+(isPerson(d) ? ' hidden' : '')+'>Legal name<input data-ce="legal_name" value="'+escapeHtml(d.legal_name || '')+'" maxlength="200" placeholder="e.g. Jacaranda Early Learning Pty Ltd" />'
+      +   '<span class="fine">The registered entity name, used on claims. Re-check ABN fills it from the ABN register, or copy it from ABN Lookup or an ASIC search.</span></label>'
+      + '<label class="cc-abn"'+(isPerson(d) ? ' hidden' : '')+'>ACN (companies)<input data-ce="acn" value="'+escapeHtml(d.acn || '')+'" inputmode="numeric" maxlength="11" /></label><span class="cc-abn"'+(isPerson(d) ? ' hidden' : '')+'></span>'
       + f('contact_name', isPerson(d) ? 'Preferred name' : 'Main contact') + f('email', 'Email', { attrs: 'type="email"' })
       + f('phone', 'Phone') + '<span></span>'
       + f('address_line1', 'Address line 1', { wide: true }) + f('address_line2', 'Address line 2', { wide: true })
@@ -1835,10 +1840,16 @@
         if(abn && !validAbnClient(abn)){ toast("That ABN isn't valid. Check it for typos."); return; }
         if(kind === 'individual' && c.debtor.abn && !confirm('Individuals have no ABN. Remove the ABN on file for ' + c.debtor.name + '?')) return;
         if(v('postcode') && !/^\d{4}$/.test(v('postcode'))){ toast('Postcode should be 4 digits.'); return; }
+        var legal = kind === 'individual' ? null : v('legal_name');
+        var acn = kind === 'individual' ? null : ((v('acn') || '').replace(/\D/g, '') || null);
+        if(acn && acn.length !== 9){ toast('An ACN has 9 digits.'); return; }
+        var legalByHand = legal !== (c.debtor.legal_name || null);
+        if(legalByHand && legal && legalFromRegister(c.debtor) && !confirm('This replaces the legal name from the ABN register (' + c.debtor.legal_name + '). Continue?')) return;
         var row = { name: v('name') || c.debtor.name, abn: abn, debtor_kind: kind, website: v('website'), contact_name: v('contact_name'), email: v('email'), phone: v('phone'),
-          address_line1: v('address_line1'), address_line2: v('address_line2'), suburb: v('suburb'), state: v('state'), postcode: v('postcode'), country: v('country'), notes: v('notes') };
+          address_line1: v('address_line1'), address_line2: v('address_line2'), suburb: v('suburb'), state: v('state'), postcode: v('postcode'), country: v('country'), notes: v('notes'), legal_name: legal, acn: acn };
         var abnChanged = abn !== (c.debtor.abn || null) || row.name !== c.debtor.name;
         if(abnChanged) Object.assign(row, { name_check: null, abr_checked_at: null });
+        else if(legalByHand && legalFromRegister(c.debtor)) Object.assign(row, { name_check: null, abr_checked_at: null });
         if(kind === 'individual' && c.debtor.abn) Object.assign(row, { name_check: null, abr_checked_at: null, legal_name: null, acn: null, abn_status: null, entity_type: null });
         var up = await sb.from('debtors').update(row).eq('id', c.debtor.id);
         if(up.error){ toast('Could not save: ' + up.error.message); return; }
@@ -1849,7 +1860,7 @@
     });
     box.addEventListener('change', function(e){
       if(e.target.getAttribute('data-ce') !== 'debtor_kind') return;
-      var abnLab = box.querySelector('.cc-abn'); if(abnLab) abnLab.hidden = e.target.value === 'individual';
+      box.querySelectorAll('.cc-abn').forEach(function(el){ el.hidden = e.target.value === 'individual'; });
     });
     box.addEventListener('keydown', function(e){ if(e.key === 'Enter' && e.target.id === 'ccSearchName'){ e.preventDefault(); box.querySelector('[data-cc="dosearch"]').click(); } });
   }
@@ -5351,7 +5362,8 @@
     if(isPerson(d)) add(/\s/.test(String(d.name || '').trim()) ? 'ok' : 'caution', cap1(T[1]) + ' is an individual: ' + (d.name || ''), 'Use the person’s full legal name (first and last name) and their home address. No ABN is needed.');
     else if(!d.debtor_kind) add('caution', 'Debtor type not set', 'Set whether the ' + T[1] + ' is a business or an individual on the contact card, so the right name and details are used.');
     if(isPerson(d)){}
-    else if(!d.legal_name) add('caution', 'Legal name not confirmed', 'Name the ' + T[1] + ' by its legal entity name, not just a trading name. Check the ABN on the debtor’s contact card.');
+    else if(!d.legal_name) add('caution', 'Legal name not confirmed', 'Name the ' + T[1] + ' by its legal entity name, not just a trading name. On the debtor’s contact card, use Re-check ABN to fill it from the ABN register, or Edit details to enter it from ABN Lookup or an ASIC search.');
+    else if(!legalFromRegister(d)) add('info', cap1(T[1]) + ': ' + letterAddresseeName(d) + ' (entered by hand)', 'Not checked against the ABN register. Confirm the exact name on ABN Lookup or an ASIC search before you lodge.' + ([d.abn ? 'ABN ' + fmtAbn(d.abn) : '', d.acn ? 'ACN ' + fmtAcn(d.acn) : ''].filter(Boolean).map(function(x, i){ return (i ? ' · ' : ' ') + x; }).join('')));
     else add('ok', cap1(T[1]) + ': ' + letterAddresseeName(d), (d.abn ? 'ABN ' + fmtAbn(d.abn) : '') + (d.acn ? ' · ACN ' + fmtAcn(d.acn) : ''));
     if(d.abn_status && !/active/i.test(d.abn_status)) add('caution', 'ABN is ' + d.abn_status.toLowerCase(), 'The business may have closed or the company may be deregistered. Check ASIC before applying.');
     if(d.name_check && /mismatch|differ|problem/i.test(d.name_check)) add('caution', 'Name check needs attention', 'The name on file doesn’t match the ABN register. Fix it on the contact card.');
