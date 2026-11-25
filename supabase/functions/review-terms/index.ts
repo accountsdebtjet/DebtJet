@@ -45,7 +45,7 @@ const SCHEMA = {
   properties: {
     is_terms: { type: "boolean" },
     document_kind: { type: "string", enum: ["terms_of_trade", "terms_of_service", "credit_application", "other"] },
-    summary: str,
+    summary_points: { type: "array", items: str },
     acceptance: str,
     governing_law: str,
     payment_terms: { type: "object", additionalProperties: false, properties: {
@@ -79,27 +79,23 @@ const SCHEMA = {
       topic: str, finding: str, clause: str,
       effect: { type: "string", enum: ["supports_charges", "limits_charges", "neutral", "missing"] },
     }, required: ["topic", "finding", "clause", "effect"] } },
-    cautions: { type: "array", items: str },
   },
-  required: ["is_terms", "document_kind", "summary", "acceptance", "governing_law", "payment_terms", "interest", "fees", "recovery_costs", "key_points", "cautions"],
+  required: ["is_terms", "document_kind", "summary_points", "acceptance", "governing_law", "payment_terms", "interest", "fees", "recovery_costs", "key_points"],
 };
 
 const SYSTEM =
   "You review an Australian business's OWN terms of trade or terms of service for DebtJet, software that works out interest and fees on the business's overdue invoices. " +
   "Report only what the document actually says, with its clause numbers (or headings if unnumbered). Never invent a rate, fee, number or clause. " +
   "If something is not in the document, say it is not stated. Quotes must be copied exactly and kept under 30 words. " +
-  "You are not giving legal advice: do not say whether a clause is enforceable, do not predict outcomes of disputes, tribunals or court, and do not recommend suing. " +
-  "Cautions are short, general points for the business to check with its own adviser, for example: " +
-  "the terms only bind a customer who agreed to them before the supply (signed application, accepted quote, or clearly provided terms); " +
-  "standard-form contracts with small businesses or consumers are covered by the unfair contract terms laws; " +
-  "a fixed late fee should reflect the business's genuine costs rather than act as a penalty; " +
-  "a very high interest rate (well above commercial rates) can be challenged; " +
-  "interest should not be charged on disputed amounts. Only include cautions that apply to this document. " +
+  "NO LEGAL ADVICE: only describe what the document says. Never comment on whether a clause is valid, enforceable, fair, reasonable, " +
+  "a penalty, too high, compliant with any law, or likely to succeed; never recommend changes to the document, never suggest what the business " +
+  "should do, and never predict outcomes of disputes, tribunals or court. " +
+  "summary_points: 3 to 7 short dot points (one fact each, under 25 words) describing what the document covers, in the order it appears. " +
   "debtjet_can_charge is true only for a fee DebtJet can add automatically: a fixed or percentage amount on overdue invoices, or once per reminder or statement. " +
   "Dishonour fees, actual recovery or legal costs and anything event-based are false, with a note saying it must be added manually when it happens. " +
   "key_points: 4 to 10 points that matter for chasing unpaid invoices (payment terms, interest, fees, recovery costs, how the customer accepts the terms, " +
   "disputes process, suspending supply, retention of title or security, guarantees, how payments are applied). Use effect 'missing' for an important topic the document does not cover. " +
-  "Write in plain Australian English. If the document is not terms of trade or service at all, set is_terms false and explain in summary.";
+  "Write in plain Australian English. If the document is not terms of trade or service at all, set is_terms false and say what it appears to be in summary_points.";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });

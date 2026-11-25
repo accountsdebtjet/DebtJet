@@ -714,7 +714,8 @@
   .terms-editor label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;}
   .terms-editor input{width:100%;max-width:420px;}
   .terms-editor textarea{width:100%;min-height:220px;font:inherit;font-size:13px;line-height:1.5;}
-  .tr-sum{font-size:14px;line-height:1.55;margin:0 0 12px;}
+  .tr-sum{font-size:14px;line-height:1.55;margin:0 0 12px;padding-left:20px;}
+  .tr-sum li{margin-bottom:3px;}
   .tr-table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 4px;}
   .tr-table th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);border-bottom:var(--rule) solid var(--ink);padding:6px 8px;}
   .tr-table td{border-bottom:1px solid var(--border);padding:8px;vertical-align:top;}
@@ -5693,7 +5694,7 @@
       }
     });
     curFees.forEach(function(c){ if(!seen[String(c.name).toLowerCase()] && !P.fees.some(function(m){ return m.name.toLowerCase() === String(c.name).toLowerCase(); }))
-      rows.push({ label: c.name, terms: 'Not found in your terms', now: feeText(c), st: 'extra', note: 'This fee is in your rules but not in this document. Check you’re allowed to charge it.' }); });
+      rows.push({ label: c.name, terms: 'Not found in your terms', now: feeText(c), st: 'extra', note: 'This fee is in your rules but isn’t in this document.' }); });
     var rc = R.recovery_costs || {};
     if(rc.stated) rows.push({ label: 'Recovery costs', terms: rc.scope || 'Customer pays recovery costs', now: 'Not automatic', st: 'manual', clause: rc.clause,
       note: 'Actual costs vary, so DebtJet doesn’t add them automatically. Claim them case by case, for example in Debt Recovery.' });
@@ -5734,8 +5735,8 @@
     var cl = function(r){ return r.clause ? '<span class="src-tag">'+escapeHtml(clauseLabel(r.clause))+'</span>' : ''; };
     var html = '';
     if(R.is_terms === false) html += '<div class="ai-flag caution">This doesn’t look like terms of trade or service, so DebtJet AI can’t take rules from it.</div>';
-    html += '<p class="tr-sum">'+escapeHtml(R.summary || '')+'</p>';
-    (R.cautions || []).forEach(function(c){ html += '<div class="ai-flag caution">'+escapeHtml(c)+'</div>'; });
+    var pts = Array.isArray(R.summary_points) ? R.summary_points : String(R.summary || '').split(/(?<=\.)\s+(?=[A-Z])/).filter(Boolean);
+    html += '<ul class="tr-sum">' + pts.map(function(t){ return '<li>'+escapeHtml(t)+'</li>'; }).join('') + '</ul>';
     html += '<h4 class="sub-h">How your terms fit your rules</h4>'
       + '<table class="tr-table"><thead><tr><th>Setting</th><th>Your terms say</th><th>Your rules now</th><th></th></tr></thead><tbody>'
       + plan.rows.map(function(r){
@@ -5754,7 +5755,7 @@
     if(R.governing_law) extra.push(['Governing law', R.governing_law]);
     if(extra.length) html += '<details class="tr-details"><summary>Acceptance and governing law</summary><table class="tr-table"><tbody>'
       + extra.map(function(x){ return '<tr><td class="k">'+escapeHtml(x[0])+'</td><td>'+escapeHtml(x[1])+'</td></tr>'; }).join('') + '</tbody></table></details>';
-    html += '<div class="fine">DebtJet AI’s summary of your own document, not legal advice. Check anything important against the document itself, or with your adviser.</div>';
+    html += '<div class="fine">DebtJet AI describes what your document says. It doesn’t assess whether any term is valid or enforceable, and isn’t legal advice. Always check figures against the document itself.</div>';
     out.innerHTML = html;
     renderTermsSource();
   }
