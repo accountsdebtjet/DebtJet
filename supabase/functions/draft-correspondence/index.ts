@@ -80,7 +80,37 @@ Deno.serve(async (req: Request) => {
     // ---------- Work out figures (interest per invoice, by that invoice's own days overdue) ----------
     // Interest & Fees rules (if saved): terms must allow it; start rule; auto vs manual; per-invoice
     // apply/waive decisions; disputed invoices never charged. Mirrors invoiceCharges() in the app.
-    const { data: chg } = await sb.from("org_charge_settings").select("*").eq("org_id", orgId).maybeSingle();
+    const { data: chg } = await sb.from("org_charge_settings").select("apply_mode").eq("org_id", orgId).maybeSingle();
+    // Interest only under the customer's accepted terms (own record, else contact group, else all customers),
+    // held to what the terms allow. Mirrors resolveTerms() / clampToLimits() in the app.
+    let termRules: any = null, acceptedOn = "";
+    if (kind === "letter") {
+      const [{ data: accs }, { data: grp }] = await Promise.all([
+        sb.from("terms_acceptances").select("document_id, debtor_id, group_id, accepted_on").eq("org_id", orgId),
+        sb.from("contact_group_members").select("group_id").eq("debtor_id", caseRow.debtor_id),
+      ]);
+      const groups = new Set((grp || []).map((g: any) => g.group_id));
+      const acc = (accs || []).find((a: any) => a.debtor_id === caseRow.debtor_id)
+        || (accs || []).filter((a: any) => a.group_id && groups.has(a.group_id)).sort((a: any, b: any) => String(b.accepted_on).localeCompare(String(a.accepted_on)))[0]
+        || (accs || []).find((a: any) => !a.debtor_id && !a.group_id);
+      if (acc) {
+        const { data: doc } = await sb.from("org_terms_documents").select("kind, limits, rules, rules_confirmed_at, archived").eq("id", acc.document_id).maybeSingle();
+        const okKind = ["terms_of_trade", "terms_of_service", "credit_application", "quote_or_contract"].includes(doc?.kind);
+        if (doc && okKind && !doc.archived && doc.limits && doc.rules && doc.rules_confirmed_at) {
+          const L = doc.limits, I = L.interest || {}, r = JSON.parse(JSON.stringify(doc.rules));
+          if (r.interest_enabled) {
+            if (!I.allowed) r.interest_enabled = false;
+            if (I.max_rate_pa != null && Number(r.rate_pa) > Number(I.max_rate_pa)) r.rate_pa = Number(I.max_rate_pa);
+            if (r.method === "compound_monthly" && I.method !== "compound_monthly") r.method = "simple";
+            const LS = I.start || "due_date", LG = Number(I.grace_days) || 0, b = r.interest_start, g = Number(r.grace_days) || 0;
+            const within = LS === "due_date" || (LS === "after_grace" && b === "after_grace" && g >= LG)
+              || (LS === "first_demand" && (b === "first_demand" || b === "final_demand")) || (LS === "final_demand" && b === "final_demand");
+            if (!within) { r.interest_start = LS; r.grace_days = LG; }
+          }
+          termRules = r; acceptedOn = String(acc.accepted_on);
+        }
+      }
+    }
     const { data: decs } = invs.length
       ? await sb.from("invoice_charge_decisions").select("invoice_id, decision").in("invoice_id", invs.map((i: any) => i.id))
       : { data: [] as any[] };
@@ -95,16 +125,14 @@ Deno.serve(async (req: Request) => {
       if ((l.type === "final_demand" || l.type === "pre_legal") && !demand.final) demand.final = String(l.sent_at).slice(0, 10);
     });
     const now = Date.now();
-    const rate = kind !== "letter" ? 0
-      : chg ? (chg.terms_allow_charges && chg.interest_enabled ? Number(chg.rate_pa) : 0)
-      : Number(caseRow.interest_rate || 0);
+    const rate = kind !== "letter" || !termRules || !termRules.interest_enabled ? 0 : Number(termRules.rate_pa) || 0;
     const dayMs = (iso: string) => Date.parse(String(iso).slice(0, 10) + "T00:00:00Z");
     const interestFor = (inv: any, bal: number, days: number) => {
-      if (!chg) return round2(bal * rate * days / 365);
-      if (!rate || disputedIds.has(inv.id) || decisionOf[inv.id] === "waive") return 0;
-      if ((chg.apply_mode || "auto") === "manual" && decisionOf[inv.id] !== "apply") return 0;
-      if (bal < Number(chg.min_balance || 0)) return 0;
-      const grace = Number(chg.grace_days || 0), basis = chg.interest_start || "after_grace";
+      if (!termRules || !rate || disputedIds.has(inv.id) || decisionOf[inv.id] === "waive") return 0;
+      if (acceptedOn && String(inv.issued_date || inv.due_date || "").slice(0, 10) < acceptedOn) return 0;
+      if ((chg?.apply_mode || "auto") === "manual" && decisionOf[inv.id] !== "apply") return 0;
+      if (bal < Number(termRules.min_balance || 0)) return 0;
+      const grace = Number(termRules.grace_days || 0), basis = termRules.interest_start || "after_grace";
       let d = 0;
       if (basis === "due_date") d = days;
       else if (basis === "after_grace") d = days > grace ? days - grace : 0;
@@ -116,8 +144,8 @@ Deno.serve(async (req: Request) => {
         d = Math.max(0, Math.floor((now - start) / DAY));
       }
       if (d <= 0) return 0;
-      let i = chg.method === "compound_monthly" ? bal * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : bal * rate * d / 365;
-      if (chg.cap_pct) i = Math.min(i, bal * Number(chg.cap_pct));
+      let i = termRules.method === "compound_monthly" ? bal * (Math.pow(1 + rate / 12, d / (365 / 12)) - 1) : bal * rate * d / 365;
+      if (termRules.cap_pct) i = Math.min(i, bal * Number(termRules.cap_pct));
       return round2(i);
     };
     const paidBy: Record<string, number> = {};
