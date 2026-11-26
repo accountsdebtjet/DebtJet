@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { unzipSync, strFromU8 } from "https://esm.sh/fflate@0.8.2";
+import { extractText, getDocumentProxy } from "npm:unpdf@1.8.0";
+import { quoteFound } from "./terms-evidence.ts";
 
 // DebtJet AI review of a business's own terms of trade / service.
 // Reads the uploaded file (PDF, Word .docx or text) or the text written in the app, asks Claude
@@ -17,6 +19,17 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 const DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const MAX_DOC_TEXT = 400000;
+async function pdfText(bytes: Uint8Array): Promise<string> {
+  try {
+    const pdf = await getDocumentProxy(bytes.slice());
+    const { text } = await extractText(pdf, { mergePages: true });
+    return String(Array.isArray(text) ? text.join("\n") : text || "").trim();
+  } catch (e) {
+    console.error("pdf text", e);
+    return "";
+  }
+}
 const MAX_TEXT = 120000;
 
 function docxText(bytes: Uint8Array): string {
@@ -44,7 +57,7 @@ const SCHEMA = {
   type: "object", additionalProperties: false,
   properties: {
     is_terms: { type: "boolean" },
-    document_kind: { type: "string", enum: ["terms_of_trade", "terms_of_service", "credit_application", "other"] },
+    document_kind: { type: "string", enum: ["terms_of_trade", "terms_of_service", "credit_application", "quote_or_contract", "other"] },
     summary_points: { type: "array", items: str },
     acceptance: str,
     governing_law: str,
@@ -108,13 +121,15 @@ Deno.serve(async (req: Request) => {
     if (!u?.user) return json({ error: "Please sign in." }, 401);
 
     const p = await req.json();
+    const focus = String(p.focus || "").trim().slice(0, 400);
     const { data: doc } = await sb.from("org_terms_documents").select("*").eq("id", p.document_id).maybeSingle();
     if (!doc) return json({ error: "Document not found." }, 404);
 
-    // Build the document part of the message.
-    let part: any;
+    // Build the document part of the message, and keep the document's text for checking quotes.
+    let part: any, docText = "";
     if (doc.source === "text") {
-      part = { type: "text", text: "DOCUMENT (" + doc.title + "):\n" + String(doc.body_text || "").slice(0, MAX_TEXT) };
+      docText = String(doc.body_text || "");
+      part = { type: "text", text: "DOCUMENT (" + doc.title + "):\n" + docText.slice(0, MAX_TEXT) };
     } else {
       const { data: blob, error } = await sb.storage.from("terms-docs").download(doc.storage_path);
       if (error || !blob) return json({ error: "Couldn't open the uploaded file." }, 404);
@@ -122,12 +137,15 @@ Deno.serve(async (req: Request) => {
       const mime = doc.mime || blob.type;
       if (mime === "application/pdf" || /\.pdf$/i.test(doc.file_name || "")) {
         part = { type: "document", source: { type: "base64", media_type: "application/pdf", data: toBase64(bytes) }, title: doc.title };
+        docText = await pdfText(bytes);
       } else if (mime === DOCX || /\.docx$/i.test(doc.file_name || "")) {
         const t = docxText(bytes);
         if (!t) return json({ error: "That Word file has no readable text." }, 422);
+        docText = t;
         part = { type: "text", text: "DOCUMENT (" + doc.title + "):\n" + t.slice(0, MAX_TEXT) };
       } else {
-        part = { type: "text", text: "DOCUMENT (" + doc.title + "):\n" + new TextDecoder().decode(bytes).slice(0, MAX_TEXT) };
+        docText = new TextDecoder().decode(bytes);
+        part = { type: "text", text: "DOCUMENT (" + doc.title + "):\n" + docText.slice(0, MAX_TEXT) };
       }
     }
 
@@ -141,7 +159,9 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model, max_tokens: 4000, system: SYSTEM,
         output_config: { format: { type: "json_schema", schema: SCHEMA } },
-        messages: [{ role: "user", content: [part, { type: "text", text: "Review this document as described. Return the JSON." }] }],
+        messages: [{ role: "user", content: [part, { type: "text", text: "Review this document as described." +
+          (focus ? " The user says part of an earlier reading was wrong: " + JSON.stringify(focus) + ". Re-read that part of the document carefully and report exactly what it says." : "") +
+          " Return the JSON." }] }],
       }),
     });
     const ai = await aiRes.json();
@@ -156,9 +176,18 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false, error: "The review couldn't be read. Please try again." }, 502);
     }
 
-    const { data: saved, error: upErr } = await sb.from("org_terms_documents")
+    // Mark whether each quote DebtJet AI gave can be found word for word in the document's text.
+    docText = docText.slice(0, MAX_DOC_TEXT);
+    if (review.interest) review.interest.quote_found = docText ? quoteFound(docText, review.interest.quote) : null;
+    (review.fees || []).forEach((f: any) => { f.quote_found = docText ? quoteFound(docText, f.quote) : null; });
+    review.text_readable = !!docText.trim();
+    if (focus) review.reread_focus = focus;
+
+    // Reviews and document text are written by the server only (see guard_terms_rules).
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: saved, error: upErr } = await admin.from("org_terms_documents")
       .update({ review, review_model: model, reviewed_at: new Date().toISOString(), reviewed_by: u.user.id,
-        kind: review.document_kind || doc.kind })
+        kind: doc.rules_confirmed_at ? doc.kind : (review.document_kind || doc.kind), doc_text: docText.trim() || null })
       .eq("id", doc.id).select("*").maybeSingle();
     if (upErr) console.error("save review", upErr);
     return json({ ok: true, document: saved || { ...doc, review }, model });

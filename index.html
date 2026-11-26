@@ -755,6 +755,26 @@
   .acc-pick{max-height:200px;overflow:auto;border:1px solid var(--border);background:var(--surface);padding:6px 8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;font-size:12.5px;font-weight:400;}
   .acc-pick label{flex-direction:row;align-items:center;gap:6px;font-weight:400;font-size:12.5px;}
   .terms-locked{padding:14px;background:var(--surface-alt);font-size:13px;}
+  .ev-line{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.45;}
+  .ev-line q{font-style:italic;}
+  .ev{display:inline-block;font-size:11px;font-weight:600;margin-left:6px;}
+  .ev.ok{color:#1f7a45;} .ev.bad{color:#b42318;}
+  .ev-need{border-left:3px solid var(--hl);background:var(--surface-alt);padding:10px 12px;margin:8px 0;display:grid;grid-template-columns:1fr 160px;gap:8px 12px;}
+  .ev-need b{grid-column:1/-1;font-size:13px;}
+  .ev-need label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;}
+  .ev-need textarea,.ev-need input,.lim-reread input{border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;background:var(--surface);color:var(--text);width:100%;}
+  .ev-status{grid-column:1/-1;font-size:12px;font-weight:600;}
+  .ev-status.ok{color:#1f7a45;} .ev-status.bad{color:#b42318;}
+  .ev-all{font-size:12.5px;padding:8px 12px;background:#e3f4ea;color:#1f7a45;margin:12px 0;}
+  .lim-problems{background:#fde4e1;color:#b42318;font-size:12.5px;padding:8px 12px;margin:10px 0;}
+  .lim-problems:empty{display:none;}
+  .lim-reread{display:flex;gap:8px;align-items:center;margin:10px 0;}
+  .lim-reread[hidden]{display:none;}
+  .lim-fee > *{min-width:0;} .lim-fee input,.lim-fee select,.lim-grid input:not([type=checkbox]),.lim-grid select{width:100%;}
+  .lim-hist{margin-top:12px;font-size:12.5px;}
+  .lim-hist summary{cursor:pointer;font-weight:600;}
+  .lim-hist li{margin:6px 0;}
+  .lim-hist .q{font-style:italic;color:var(--text-muted);}
   .post-seg{display:flex;gap:0;margin-left:auto;}
   #chgXero.xp-off .card-body > :not(#xpNotice){display:none;}
   .post-seg button{border:1px solid var(--border-strong);background:var(--surface);padding:4px 12px;font:inherit;font-size:12px;cursor:pointer;}
@@ -4256,6 +4276,71 @@
     return { ok: true, doc: d, acc: a, cfg: Object.assign(cl.cfg, { terms_allow_charges: true, apply_mode: (orgCharges && orgCharges.apply_mode) || 'auto' }) };
   }
   function invDebtorId(i){ return i.debtor_id || (i.debtor && i.debtor.id) || null; }
+  // ---- Evidence checks (same rules as supabase/functions/_shared/terms-evidence.ts; the server decides) ----
+  function termsEvNorm(s){ return String(s || '').toLowerCase().normalize('NFKD').replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"').replace(/[‐-―]/g, '-').replace(/[^a-z0-9%$.]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function termsEvFound(docText, quote){ var q = termsEvNorm(quote); return q.length >= 12 && !!docText && termsEvNorm(docText).indexOf(q) >= 0; }
+  var TERMS_EV_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, 'twenty one': 21, 'twenty eight': 28, thirty: 30, 'thirty one': 31, forty: 40, 'forty five': 45, sixty: 60, ninety: 90 };
+  function termsEvNumbers(q){
+    var out = [], m, re = /\d+(?:\.\d+)?/g, s = String(q || '').replace(/(\d),(\d{3})/g, '$1$2');
+    while((m = re.exec(s))) out.push(Number(m[0]));
+    var t = ' ' + termsEvNorm(q) + ' ';
+    Object.keys(TERMS_EV_WORDS).forEach(function(w){ if(t.indexOf(' ' + w + ' ') >= 0) out.push(TERMS_EV_WORDS[w]); });
+    return out;
+  }
+  function termsEvHasNum(q, n){ return termsEvNumbers(q).some(function(x){ return Math.abs(x - n) < 0.005; }); }
+  function termsEvMonthly(q){ return /\b(per|a|each|every) (calendar )?month\b|\bmonthly\b/.test(termsEvNorm(q)); }
+  function termsBaseline(R){
+    R = R || {}; var I = R.interest || {};
+    var start = I.start === 'after_days' ? (I.start_days ? 'after_grace' : 'due_date') : (I.start && I.start !== 'not_stated' ? I.start : 'due_date');
+    return {
+      interest: { allowed: !!I.stated, max_rate_pa: I.rate_pa_percent != null ? Math.round(I.rate_pa_percent * 100) / 10000 : null, method: I.method === 'compound_monthly' ? 'compound_monthly' : 'simple',
+        start: start, grace_days: start === 'after_grace' ? Math.round(I.start_days || 0) : 0, clause: I.clause || '', quote: I.quote || '', quote_found: I.quote_found, rate_text: I.rate_text || '', start_stated: !!(I.start && I.start !== 'not_stated') },
+      fees: (R.fees || []).filter(function(f){ return f.debtjet_can_charge && f.amount != null && f.amount > 0; }).map(function(f){
+        return { name: String(f.name || 'Fee').slice(0, 40), type: f.type === 'percent' ? 'percent' : 'fixed', max_amount: Math.round(f.amount * 100) / 100,
+          applies: f.trigger === 'per_reminder_or_statement' ? 'per_statement' : 'per_invoice', min_after_days: Math.max(1, Math.round(f.after_days || 1)), clause: f.clause || '', quote: f.quote || '', quote_found: f.quote_found };
+      })
+    };
+  }
+  var TERMS_START_ORDER = { due_date: 0, after_grace: 1, first_demand: 2, final_demand: 3 };
+  function termsStartEarlier(s, g, bs, bg){
+    var a = TERMS_START_ORDER[s] || 0, b = TERMS_START_ORDER[bs] || 0;
+    return a !== b ? a < b : (s === 'after_grace' && g < bg);
+  }
+  function termsEvNeeds(base, lim){
+    var out = [], I = lim.interest || {}, B = base.interest || {};
+    if(I.allowed){
+      if(!B.allowed) out.push({ key: 'interest', label: 'Interest on overdue amounts', keyword: 'interest' });
+      if(B.max_rate_pa == null || Number(I.max_rate_pa) > Number(B.max_rate_pa) + 1e-9){ var pct = Math.round(Number(I.max_rate_pa) * 10000) / 100; out.push({ key: 'rate', label: 'Interest rate of ' + pct + '% a year', numbers: [pct], monthlyOk: true }); }
+      if(I.method === 'compound_monthly' && B.method !== 'compound_monthly') out.push({ key: 'method', label: 'Compounding interest', keyword: 'compound' });
+      if(termsStartEarlier(I.start, Number(I.grace_days) || 0, B.allowed ? B.start : 'final_demand', Number(B.grace_days) || 0))
+        out.push(I.start === 'after_grace' ? { key: 'start', label: 'Interest from ' + I.grace_days + ' days overdue', numbers: [Number(I.grace_days) || 0] }
+          : I.start === 'due_date' ? { key: 'start', label: 'Interest from the due date', keyword: 'due' } : { key: 'start', label: 'When interest starts', keyword: 'demand' });
+    }
+    (lim.fees || []).forEach(function(f){
+      var b = (base.fees || []).filter(function(x){ return String(x.name).toLowerCase() === String(f.name).toLowerCase(); })[0];
+      var nums = [], kw = '';
+      if(!b || Number(f.max_amount) > Number(b.max_amount) + 1e-9 || f.type !== b.type) nums.push(Number(f.max_amount));
+      if(b && Number(f.min_after_days) < Number(b.min_after_days)) nums.push(Number(f.min_after_days));
+      if(b && f.applies !== b.applies) kw = f.applies === 'per_statement' ? 'statement' : 'invoice';
+      if(nums.length || kw) out.push({ key: 'fee:' + String(f.name).toLowerCase(), label: f.name + ' (' + (f.type === 'percent' ? f.max_amount + '%' : '$' + f.max_amount) + ')', numbers: nums, keyword: kw || null });
+    });
+    return out;
+  }
+  // One need checked against its quote: '' if supported, else the reason.
+  function termsEvProblem(docText, n, ev){
+    var q = ev && typeof ev.quote === 'string' ? ev.quote : '';
+    if(!q.trim()) return 'This goes beyond DebtJet AI’s reading, so quote the wording from the document that says it.';
+    if(!docText) return 'DebtJet can’t read the text of this file, so the wording can’t be checked.';
+    if(!termsEvFound(docText, q)) return 'That wording wasn’t found in the document. Copy it exactly.';
+    var nums = n.numbers || [];
+    for(var i = 0; i < nums.length; i++){
+      var num = nums[i];
+      if(!(termsEvHasNum(q, num) || (n.monthlyOk && termsEvMonthly(q) && termsEvHasNum(q, Math.round(num / 12 * 10000) / 10000)))) return 'The quote doesn’t contain ' + num + (n.monthlyOk ? ' (or the monthly equivalent)' : '') + '.';
+    }
+    if(n.keyword && termsEvNorm(q).indexOf(n.keyword) < 0) return 'The quote doesn’t mention “' + n.keyword + '”.';
+    return '';
+  }
+
   function chargesOn(){ return termsDocs.some(termsUsable) && termsAccepts.length > 0; }
   // Display rate for a customer (cases list, letters): 0 when nothing can be charged.
   function rateForDebtor(debtorId){ var t = resolveTerms(debtorId, null); return t.ok && t.cfg.interest_enabled ? Number(t.cfg.rate_pa) || 0 : 0; }
@@ -5712,7 +5797,7 @@
   });
   function onChargeRulesChanged(){ renderChargeRuleHelp(); renderCalculator(); renderChargesPortal(); }
   /* ---------- Terms & rules: sets of terms, what each allows, what you charge, who accepted them ---------- */
-  var termsSelId = null, termsBusy = {}, termsEditId = null, limitsDraft = null, acceptDraft = null;
+  var termsSelId = null, termsBusy = {}, termsEditId = null, limitsDraft = null, acceptDraft = null, limitsEditing = null;
   var DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
   var TERMS_KIND = { terms_of_trade: 'Terms of trade', terms_of_service: 'Terms of service', credit_application: 'Credit application', quote_or_contract: 'Signed quote or contract', other: 'Other document' };
   var ACCEPT_HOW = { signed_credit_application: 'Signed credit application', signed_terms: 'Signed the terms', signed_quote_or_contract: 'Signed quote or contract', accepted_in_writing: 'Accepted in writing (for example by email)', other: 'Other' };
@@ -5759,19 +5844,24 @@
   }
   // First reading of the limits from DebtJet AI's review; a person checks and confirms them.
   function limitsFromReview(d){
-    var R = d.review || {}, I = R.interest || {};
-    var start = I.start === 'after_days' ? (I.start_days ? 'after_grace' : 'due_date') : (I.start && I.start !== 'not_stated' ? I.start : 'due_date');
+    var R = d.review || {}, B = termsBaseline(R);
     return {
       kind: TERMS_CHARGE_KINDS[R.document_kind] ? R.document_kind : (TERMS_CHARGE_KINDS[d.kind] ? d.kind : 'other'),
-      interest: { allowed: !!I.stated, max_rate_pa: I.rate_pa_percent != null ? r2(I.rate_pa_percent) / 100 : null, method: I.method === 'compound_monthly' ? 'compound_monthly' : 'simple',
-        start: start, grace_days: start === 'after_grace' ? Math.round(I.start_days || 0) : 0, clause: I.clause || '', rate_text: I.rate_text || '', start_stated: !!(I.start && I.start !== 'not_stated') },
-      fees: (R.fees || []).filter(function(f){ return f.debtjet_can_charge && f.amount != null && f.amount > 0; }).map(function(f){
-        return { name: String(f.name || 'Fee').slice(0, 40), type: f.type === 'percent' ? 'percent' : 'fixed', max_amount: r2(f.amount),
-          applies: f.trigger === 'per_reminder_or_statement' ? 'per_statement' : 'per_invoice', min_after_days: Math.max(1, Math.round(f.after_days || 1)), clause: f.clause || '' };
-      }),
+      interest: { allowed: B.interest.allowed, max_rate_pa: B.interest.max_rate_pa, method: B.interest.method, start: B.interest.start, grace_days: B.interest.grace_days,
+        clause: B.interest.clause, rate_text: B.interest.rate_text },
+      fees: B.fees.map(function(f){ return { name: f.name, type: f.type, max_amount: f.max_amount, applies: f.applies, min_after_days: f.min_after_days, clause: f.clause }; }),
       manual: (R.fees || []).filter(function(f){ return !(f.debtjet_can_charge && f.amount != null && f.amount > 0); }).map(function(f){ return { name: f.name, text: f.note || '', clause: f.clause || '' }; })
         .concat(R.recovery_costs && R.recovery_costs.stated ? [{ name: 'Recovery costs', text: R.recovery_costs.scope || '', clause: R.recovery_costs.clause || '' }] : [])
     };
+  }
+  function termsDocText(d){ return (d && (d.doc_text || (d.source === 'text' ? d.body_text : ''))) || ''; }
+  function limitsNormalized(D){
+    var I = D.interest || {};
+    return { interest: { allowed: !!I.allowed, max_rate_pa: I.rate_pct != null && I.rate_pct !== '' ? Math.round(Number(I.rate_pct) * 100) / 10000 : null, method: I.method === 'compound_monthly' ? 'compound_monthly' : 'simple',
+        start: I.start || 'due_date', grace_days: I.start === 'after_grace' ? Math.max(0, Math.round(Number(I.grace_days) || 0)) : 0, clause: String(I.clause || '').slice(0, 30), rate_text: I.rate_text || '' },
+      fees: (D.fees || []).filter(function(f){ return String(f.name || '').trim(); }).map(function(f){ return { name: String(f.name).trim().slice(0, 40), type: f.type === 'percent' ? 'percent' : 'fixed', max_amount: r2(Number(f.max_amount) || 0),
+        applies: f.applies === 'per_statement' ? 'per_statement' : 'per_invoice', min_after_days: Math.max(1, Math.min(365, Math.round(Number(f.min_after_days) || 1))), clause: String(f.clause || '').slice(0, 30) }; }),
+      manual: D.manual || [] };
   }
   function rulesFromLimits(L){
     var I = L.interest || {};
@@ -5823,6 +5913,16 @@
     html += '<div class="fine">DebtJet AI describes what your document says. It doesn’t assess whether any term is valid or enforceable, and isn’t legal advice. Always check figures against the document itself.</div>';
     out.innerHTML = html;
   }
+  function evLine(e){
+    if(!e) return '';
+    var q = e.quote ? ' <q>' + escapeHtml(e.quote) + '</q>' : '';
+    return '<div class="ev-line">' + (e.source === 'quote' ? 'From the wording you quoted' + (e.clause ? ' (' + escapeHtml(clauseLabel(e.clause)) + ')' : '') + ':' + q + '<span class="ev ok">✓ found in the document</span>'
+      : 'From DebtJet AI’s reading' + (q ? ':' + q : '') + (e.found === true ? '<span class="ev ok">✓ found in the document</span>' : e.found === false && e.quote ? '<span class="ev bad">⚠ wording not found word for word</span>' : '')) + '</div>';
+  }
+  function aiRead(quote, found){
+    if(!quote) return '';
+    return '<div class="ev-line">DebtJet AI read: <q>' + escapeHtml(quote) + '</q>' + (found === true ? '<span class="ev ok">✓ found in the document</span>' : found === false ? '<span class="ev bad">⚠ not found word for word, check it</span>' : '') + '</div>';
+  }
   function renderLimits(){
     var d = termsSel(), out = document.getElementById('termsLimits'), meta = document.getElementById('termsLimitsMeta');
     var admin = canEditPayments();
@@ -5830,22 +5930,36 @@
     if(!d){ out.innerHTML = '<div class="empty-note">Nothing yet.</div>'; return; }
     if(!d.review && !d.limits){ out.innerHTML = '<div class="empty-note">Once DebtJet AI has read these terms, you confirm here the most they allow you to charge.</div>'; return; }
     if(limitsDraft && limitsDraft.docId !== d.id) limitsDraft = null;
-    if(!limitsDraft && termsConfirmed(d)){
-      var L = d.limits, I = L.interest || {};
-      var rows = [['Document', TERMS_KIND[d.kind] || 'Document', '']];
-      rows.push(['Interest', I.allowed ? 'Up to ' + r2((I.max_rate_pa || 0) * 100) + '% a year, ' + (I.method === 'compound_monthly' ? 'simple or compounding monthly' : 'simple') + ', ' + startText(I.start, I.grace_days) : 'Not provided for: no interest', I.clause]);
-      (L.fees || []).forEach(function(f){ rows.push([f.name, limFeeText(f), f.clause]); });
-      if(!(L.fees || []).length) rows.push(['Fees', 'None that DebtJet can add automatically', '']);
-      out.innerHTML = '<table class="tr-table"><tbody>' + rows.map(function(r){ return '<tr><td class="k">'+escapeHtml(r[0])+'</td><td>'+escapeHtml(r[1])+(r[2] ? ' '+termsTag(r[2]) : '')+'</td></tr>'; }).join('') + '</tbody></table>'
+    var reread = '<div class="lim-reread" id="limReread" hidden><input maxlength="400" data-reread placeholder="Which clause, and what did DebtJet AI get wrong? e.g. clause 8.2 says 2% per month" /><button type="button" class="btn sm" data-lim="reread-go">'+AI_MARK+'Re-read</button></div>';
+    if(!limitsDraft && termsConfirmed(d) && limitsEditing !== d.id){
+      var L = d.limits, I = L.interest || {}, E = L.evidence || {};
+      var rows = [['Document', TERMS_KIND[d.kind] || 'Document', '', '']];
+      rows.push(['Interest', I.allowed ? 'Up to ' + r2((I.max_rate_pa || 0) * 100) + '% a year, ' + (I.method === 'compound_monthly' ? 'simple or compounding monthly' : 'simple') + ', ' + startText(I.start, I.grace_days) : 'Not provided for: no interest', I.clause, I.allowed ? evLine(E.rate) : '']);
+      (L.fees || []).forEach(function(f){ rows.push([f.name, limFeeText(f), f.clause, evLine(E['fee:' + String(f.name).toLowerCase()])]); });
+      if(!(L.fees || []).length) rows.push(['Fees', 'None that DebtJet can add automatically', '', '']);
+      var log = (d.limits_log || []).slice().reverse();
+      out.innerHTML = '<table class="tr-table"><tbody>' + rows.map(function(r){ return '<tr><td class="k">'+escapeHtml(r[0])+'</td><td>'+escapeHtml(r[1])+(r[2] ? ' '+termsTag(r[2]) : '')+r[3]+'</td></tr>'; }).join('') + '</tbody></table>'
         + ((L.manual || []).length ? '<div class="lim-manual">Not added automatically (add these by hand when they apply):<ul>' + L.manual.map(function(m){ return '<li><b>'+escapeHtml(m.name)+'</b>'+(m.clause ? ' '+termsTag(m.clause) : '')+(m.text ? ' · '+escapeHtml(m.text) : '')+'</li>'; }).join('') + '</ul></div>' : '')
-        + (admin ? '<div class="tr-actions"><button type="button" class="btn sm" data-lim="edit">Change what these terms allow</button></div>' : '');
+        + (log.length ? '<details class="lim-hist"><summary>History (' + log.length + ')</summary><ul>' + log.map(function(e){
+            return '<li><b>' + escapeHtml(fmt(e.at)) + '</b> · ' + escapeHtml(e.by === session.user.id ? 'you' : (e.by_email || 'a team member')) + ' ' + escapeHtml(e.action || 'confirmed') + ' (compared with the ' + escapeHtml(e.compared_with || 'previous version') + ')'
+              + ((e.changes || []).length ? '<br>' + e.changes.map(escapeHtml).join('<br>') : '<br>No changes.')
+              + (e.quotes || []).map(function(q){ return '<br><span class="q">' + escapeHtml(q.what) + (q.clause ? ' (' + escapeHtml(clauseLabel(q.clause)) + ')' : '') + ': “' + escapeHtml(q.quote) + '”</span>'; }).join('') + '</li>';
+          }).join('') + '</ul></details>' : '')
+        + (admin ? '<div class="tr-actions"><button type="button" class="btn sm" data-lim="edit">Change what these terms allow</button><button type="button" class="btn sm ghost" data-lim="reread">'+AI_MARK+'Ask DebtJet AI to re-read a clause</button></div>' + reread : '');
       return;
     }
     if(!admin){ out.innerHTML = '<div class="empty-note">An owner or admin needs to confirm what these terms allow before they can be used for charges.</div>'; return; }
-    if(!limitsDraft) limitsDraft = Object.assign({ docId: d.id }, JSON.parse(JSON.stringify(d.limits ? Object.assign({ kind: d.kind }, d.limits) : limitsFromReview(d))));
-    if(limitsDraft.interest && limitsDraft.interest.max_rate_pa != null) limitsDraft.interest.rate_pct = r2(limitsDraft.interest.max_rate_pa * 100);
-    var D = limitsDraft, I2 = D.interest, sel = function(v, opts){ return opts.map(function(o){ return '<option value="'+o[0]+'"'+(o[0] === v ? ' selected' : '')+'>'+o[1]+'</option>'; }).join(''); };
-    var html = '<p class="hint-r" style="margin:0 0 10px;">Filled in from DebtJet AI’s reading. Check each value against the document, correct anything that’s wrong, then confirm. DebtJet will never charge customers on these terms more than this.</p>'
+    if(!limitsDraft){
+      var src = d.limits ? Object.assign({ kind: d.kind }, JSON.parse(JSON.stringify(d.limits))) : limitsFromReview(d);
+      limitsDraft = Object.assign({ docId: d.id, evidence: {} }, src);
+      var EV = (d.limits && d.limits.evidence) || {};
+      Object.keys(EV).forEach(function(k){ if(EV[k] && EV[k].source === 'quote') limitsDraft.evidence[k] = { quote: EV[k].quote, clause: EV[k].clause }; });
+      if(limitsDraft.interest && limitsDraft.interest.max_rate_pa != null) limitsDraft.interest.rate_pct = r2(limitsDraft.interest.max_rate_pa * 100);
+    }
+    var D = limitsDraft, I2 = D.interest, B = termsBaseline(d.review), sel = function(v, opts){ return opts.map(function(o){ return '<option value="'+o[0]+'"'+(o[0] === v ? ' selected' : '')+'>'+o[1]+'</option>'; }).join(''); };
+    var unread = d.review && d.review.text_readable === false && d.source === 'upload';
+    var html = '<p class="hint-r" style="margin:0 0 10px;">Filled in from DebtJet AI’s reading. You can lower anything. To go beyond DebtJet AI’s reading, quote the exact wording from the document: DebtJet checks it’s there before saving. DebtJet will never charge customers on these terms more than this.</p>'
+      + (unread ? '<div class="ai-flag caution">DebtJet couldn’t read text from this file (it may be a scan), so wording can’t be checked. You can confirm DebtJet AI’s reading or lower it, but not go beyond it. Upload a text-based PDF or Word file to change more.</div>' : '')
       + '<div class="lim-grid">'
       + '<label class="span2">Document type<select data-lk="kind">' + sel(D.kind, [['terms_of_trade', 'Terms of trade'], ['terms_of_service', 'Terms of service'], ['credit_application', 'Credit application'], ['quote_or_contract', 'Signed quote or contract'], ['other', 'Other (can’t be used for charges)']]) + '</select></label>'
       + '<label class="span2 inline-check" style="flex-direction:row;align-items:center;"><input type="checkbox" data-lk="interest.allowed"'+(I2.allowed ? ' checked' : '')+' /> The terms provide for interest on overdue amounts</label>'
@@ -5854,24 +5968,43 @@
       + '<label>Earliest start<select data-lk="interest.start">' + sel(I2.start, [['due_date', 'From the due date'], ['after_grace', 'After a number of days overdue'], ['first_demand', 'From the first letter of demand'], ['final_demand', 'From the final letter of demand']]) + '</select></label>'
       + '<label>Days overdue<input type="number" min="0" max="365" data-lk="interest.grace_days" value="'+escapeHtml(I2.grace_days || 0)+'"'+(I2.start === 'after_grace' ? '' : ' disabled')+' /></label>'
       + '<label class="span2">Interest clause<input maxlength="30" data-lk="interest.clause" value="'+escapeHtml(I2.clause || '')+'" placeholder="e.g. 5.1" /></label>'
-      + (I2.rate_text ? '<div class="span2 hint-r" style="align-self:center;">The terms say: “'+escapeHtml(I2.rate_text)+'”'+(I2.start_stated === false ? '. When interest starts isn’t stated, so check this.' : '')+'</div>' : '')
+      + '<div class="span4">' + (B.interest.quote ? aiRead(B.interest.quote, B.interest.quote_found) : (d.review ? '<div class="ev-line">DebtJet AI found no interest clause.</div>' : '')) + (B.interest.rate_text && B.interest.max_rate_pa == null ? '<div class="ev-line">The rate isn’t a fixed number (“' + escapeHtml(B.interest.rate_text) + '”). Enter today’s rate and quote the clause.</div>' : '') + '</div>'
       + '</div>'
       + '<h4 class="sub-h">Fees DebtJet can add</h4>'
       + (D.fees || []).map(function(f, i){
+          var bf = B.fees.filter(function(x){ return x.name.toLowerCase() === String(f.name || '').toLowerCase(); })[0];
           return '<div class="lim-fee" data-lf="'+i+'">'
             + '<label>Fee<input maxlength="40" data-lf-k="name" value="'+escapeHtml(f.name)+'" /></label>'
             + '<label>Type<select data-lf-k="type">' + sel(f.type, [['fixed', '$ fixed'], ['percent', '% of balance']]) + '</select></label>'
-            + '<label>Up to<input type="number" min="0" step="0.01" data-lf-k="max_amount" value="'+escapeHtml(f.max_amount)+'" /></label>'
+            + '<label>Up to<input type="number" min="0" step="0.01" data-lf-k="max_amount" value="'+escapeHtml(f.max_amount == null ? '' : f.max_amount)+'" /></label>'
             + '<label>Charged<select data-lf-k="applies">' + sel(f.applies, [['per_invoice', 'Per invoice'], ['per_statement', 'Once per statement']]) + '</select></label>'
             + '<label>From days overdue<input type="number" min="1" max="365" data-lf-k="min_after_days" value="'+escapeHtml(f.min_after_days || 1)+'" /></label>'
             + '<label>Clause<input maxlength="30" data-lf-k="clause" value="'+escapeHtml(f.clause || '')+'" /></label>'
-            + '<button type="button" class="btn sm ghost" data-lim="delfee" data-i="'+i+'" title="Remove" aria-label="Remove fee">✕</button></div>';
+            + '<button type="button" class="btn sm ghost" data-lim="delfee" data-i="'+i+'" title="Remove" aria-label="Remove fee">✕</button></div>'
+            + (bf ? aiRead(bf.quote, bf.quote_found) : '<div class="ev-line">Not in DebtJet AI’s reading: quote the wording below.</div>');
         }).join('')
-      + '<div class="tr-actions"><button type="button" class="btn sm" data-lim="addfee">+ Add a fee from the terms</button></div>'
+      + '<div class="tr-actions"><button type="button" class="btn sm" data-lim="addfee">+ Add a fee from the terms</button><button type="button" class="btn sm ghost" data-lim="reread">'+AI_MARK+'Ask DebtJet AI to re-read a clause</button></div>' + reread
       + ((D.manual || []).length ? '<div class="lim-manual">Not added automatically (add these by hand when they apply):<ul>' + D.manual.map(function(m){ return '<li><b>'+escapeHtml(m.name)+'</b>'+(m.clause ? ' '+termsTag(m.clause) : '')+(m.text ? ' · '+escapeHtml(m.text) : '')+'</li>'; }).join('') + '</ul></div>' : '')
-      + '<label class="lim-confirm"><input type="checkbox" data-lk="checked" /> <span>I’ve checked these against “'+escapeHtml(d.title)+'”. They are the most these terms allow, and DebtJet won’t charge more than this to customers on these terms.</span></label>'
+      + '<div id="limEvidence"></div>'
+      + '<div class="lim-problems" id="limProblems"></div>'
+      + '<label class="lim-confirm"><input type="checkbox" data-lk="checked"'+(D.checked ? ' checked' : '')+' /> <span>I’ve checked these against “'+escapeHtml(d.title)+'”. They are the most these terms allow, and DebtJet won’t charge more than this to customers on these terms.</span></label>'
       + '<div class="tr-actions"><button type="button" class="btn primary" data-lim="confirm">Confirm what these terms allow</button>'+(termsConfirmed(d) ? '<button type="button" class="btn ghost" data-lim="cancel">Cancel</button>' : '')+'</div>';
     out.innerHTML = html;
+    renderLimEvidence();
+  }
+  // The "wording from the document" boxes for anything beyond DebtJet AI's reading.
+  function renderLimEvidence(){
+    var el = document.getElementById('limEvidence'), d = termsSel(); if(!el || !limitsDraft || !d) return;
+    var needs = termsEvNeeds(termsBaseline(d.review), limitsNormalized(limitsDraft)), text = termsDocText(d);
+    if(!needs.length){ el.innerHTML = '<div class="ev-all">Everything above matches DebtJet AI’s reading or is lower, so no extra wording is needed.</div>'; return; }
+    el.innerHTML = '<h4 class="sub-h">Wording from the document</h4><p class="hint-r" style="margin:0;">These go beyond DebtJet AI’s reading. Paste the exact words from the document that say each one. DebtJet checks they’re in the document and contain the value.</p>'
+      + needs.map(function(n){
+          var e = limitsDraft.evidence[n.key] || {}, prob = termsEvProblem(text, n, e);
+          return '<div class="ev-need" data-evk="'+escapeHtml(n.key)+'"><b>'+escapeHtml(n.label)+'</b>'
+            + '<label>Quote from the document<textarea rows="2" data-evq>'+escapeHtml(e.quote || '')+'</textarea></label>'
+            + '<label>Clause<input maxlength="30" data-evc value="'+escapeHtml(e.clause || '')+'" /></label>'
+            + '<div class="ev-status '+(prob ? 'bad' : 'ok')+'">'+(prob ? escapeHtml(prob) : '✓ Found in the document')+'</div></div>';
+        }).join('');
   }
   function renderRulesHints(){
     var d = termsSel(), lock = document.getElementById('chgRulesLocked'), body = document.getElementById('chgRulesBody');
@@ -5958,12 +6091,12 @@
     termsSelId = id; limitsDraft = null; acceptDraft = null;
     loadRulesForm(termsSel()); renderTermsTab(); renderCalculator(); renderChargesPortal();
   }
-  async function reviewTerms(id){
+  async function reviewTerms(id, focus){
     if(termsBusy[id]) return;
     termsBusy[id] = true; termsSelId = id; limitsDraft = null; renderTermsTab();
-    var d = await invokeFn('review-terms', { document_id: id });
+    var d = await invokeFn('review-terms', focus ? { document_id: id, focus: focus } : { document_id: id });
     delete termsBusy[id];
-    if(d && d.ok && d.document){ termsDocs = termsDocs.map(function(x){ return x.id === id ? d.document : x; }); toast('DebtJet AI has reviewed your terms.'); }
+    if(d && d.ok && d.document){ termsDocs = termsDocs.map(function(x){ return x.id === id ? d.document : x; }); toast(focus ? 'DebtJet AI has re-read your terms. Check the values below.' : 'DebtJet AI has reviewed your terms.'); }
     else toast((d && d.error) || 'The review didn’t work. Please try again.');
     loadRulesForm(termsSel()); renderTermsTab();
   }
@@ -6010,7 +6143,7 @@
     if(termsEditId){
       var id = termsEditId, was = termsDocById(id);
       if(was && termsConfirmed(was) && !await djAsk('Changing the wording means what these terms allow must be confirmed again. Until then, no interest or fees are added for customers on these terms. Continue?', { ok: 'Save changes' })) return;
-      var u = await sb.from('org_terms_documents').update({ title: title.slice(0, 120), body_text: text, review: null, reviewed_at: null }).eq('id', id).select('*').single();
+      var u = await sb.from('org_terms_documents').update({ title: title.slice(0, 120), body_text: text }).eq('id', id).select('*').single();
       if(u.error){ toast('Could not save: ' + u.error.message); return; }
       termsDocs = termsDocs.map(function(x){ return x.id === id ? u.data : x; });
       document.getElementById('termsEditor').hidden = true; termsEditId = null;
@@ -6057,51 +6190,65 @@
   var limitsEl = document.getElementById('termsLimits');
   limitsEl.addEventListener('input', function(e){
     if(!limitsDraft) return;
-    var t = e.target, k = t.getAttribute('data-lk'), v = t.type === 'checkbox' ? t.checked : t.value;
+    var t = e.target, box = t.closest('[data-evk]');
+    if(box){
+      var key = box.getAttribute('data-evk'), ev = limitsDraft.evidence[key] = limitsDraft.evidence[key] || {};
+      if(t.hasAttribute('data-evq')) ev.quote = t.value; else if(t.hasAttribute('data-evc')) ev.clause = t.value;
+      var d = termsSel(), n = termsEvNeeds(termsBaseline(d.review), limitsNormalized(limitsDraft)).filter(function(x){ return x.key === key; })[0];
+      var st = box.querySelector('.ev-status'), prob = n ? termsEvProblem(termsDocText(d), n, ev) : '';
+      st.className = 'ev-status ' + (prob ? 'bad' : 'ok'); st.textContent = prob || '✓ Found in the document';
+      return;
+    }
+    if(t.hasAttribute('data-reread')) return;
+    var k = t.getAttribute('data-lk'), v = t.type === 'checkbox' ? t.checked : t.value;
     if(k){
       if(k === 'checked'){ limitsDraft.checked = v; return; }
       var parts = k.split('.'), o = limitsDraft;
       for(var i = 0; i < parts.length - 1; i++) o = o[parts.at(i)];
       o[parts.at(-1)] = (t.type === 'number') ? (v === '' ? null : Number(v)) : v;
       if(k === 'interest.start'){ var g = limitsEl.querySelector('[data-lk="interest.grace_days"]'); if(g) g.disabled = v !== 'after_grace'; }
-      return;
+    } else {
+      var row = t.closest('[data-lf]'), fk = t.getAttribute('data-lf-k'); if(!row || !fk) return;
+      var f = limitsDraft.fees[Number(row.getAttribute('data-lf'))];
+      f[fk] = t.type === 'number' ? (v === '' ? null : Number(v)) : v;
     }
-    var row = t.closest('[data-lf]'), fk = t.getAttribute('data-lf-k'); if(!row || !fk) return;
-    var f = limitsDraft.fees[Number(row.getAttribute('data-lf'))];
-    f[fk] = t.type === 'number' ? (v === '' ? null : Number(v)) : v;
+    renderLimEvidence();
   });
-  limitsEl.addEventListener('change', function(e){ if(e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
+  limitsEl.addEventListener('change', function(e){ if(e.target.tagName === 'SELECT' || e.target.type === 'checkbox') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
   limitsEl.addEventListener('click', async function(e){
     var b = e.target.closest('[data-lim]'); if(!b) return;
     var act = b.getAttribute('data-lim'), d = termsSel(); if(!d || !canEditPayments()) return;
-    if(act === 'edit'){ limitsDraft = null; limitsDraft = Object.assign({ docId: d.id, kind: d.kind }, JSON.parse(JSON.stringify(d.limits))); renderLimits(); return; }
-    if(act === 'cancel'){ limitsDraft = null; renderLimits(); return; }
+    if(act === 'edit'){ limitsDraft = null; limitsEditing = d.id; renderLimits(); return; }
+    if(act === 'cancel'){ limitsDraft = null; limitsEditing = null; renderLimits(); return; }
+    if(act === 'reread'){ var rr = document.getElementById('limReread'); rr.hidden = !rr.hidden; if(!rr.hidden) rr.querySelector('input').focus(); return; }
+    if(act === 'reread-go'){
+      var focus = (limitsEl.querySelector('[data-reread]').value || '').trim();
+      if(focus.length < 5){ toast('Say which clause, and what DebtJet AI got wrong.'); return; }
+      limitsDraft = null; return reviewTerms(d.id, focus);
+    }
     if(act === 'addfee'){ limitsDraft.fees.push({ name: '', type: 'fixed', max_amount: null, applies: 'per_invoice', min_after_days: 1, clause: '' }); renderLimits(); return; }
     if(act === 'delfee'){ limitsDraft.fees.splice(Number(b.getAttribute('data-i')), 1); renderLimits(); return; }
     if(act === 'confirm'){
-      var D = limitsDraft, I = D.interest || {}, bad = [];
-      if(!D.checked) bad.push('Tick that you’ve checked these against the document.');
-      if(I.allowed && !(Number(I.rate_pct) > 0 && Number(I.rate_pct) <= 100)) bad.push('Enter the highest interest rate the terms allow.');
-      if(I.allowed && I.start === 'after_grace' && !(Number(I.grace_days) >= 0)) bad.push('Enter the days overdue before interest starts.');
+      var D = limitsDraft, N = limitsNormalized(D), probs = [], probEl = document.getElementById('limProblems');
+      if(!D.checked) probs.push('Tick that you’ve checked these against the document.');
+      if(N.interest.allowed && !(N.interest.max_rate_pa > 0 && N.interest.max_rate_pa <= 1)) probs.push('Enter the highest interest rate the terms allow.');
       var names = {};
       (D.fees || []).forEach(function(f){
         var nm = String(f.name || '').trim().toLowerCase();
-        if(!nm) bad.push('Give every fee a name.');
-        else if(names[nm]) bad.push('Two fees are called “' + f.name + '”.');
+        if(!nm) probs.push('Give every fee a name.'); else if(names[nm]) probs.push('Two fees are called “' + f.name + '”.');
         names[nm] = 1;
-        if(!(Number(f.max_amount) > 0)) bad.push('Enter the amount for “' + (f.name || 'fee') + '”.');
+        if(!(Number(f.max_amount) > 0)) probs.push('Enter the amount for “' + (f.name || 'fee') + '”.');
       });
-      if(bad.length){ toast(bad[0]); return; }
-      var limits = { interest: { allowed: !!I.allowed, max_rate_pa: I.allowed ? r2(Number(I.rate_pct)) / 100 : null, method: I.method === 'compound_monthly' ? 'compound_monthly' : 'simple',
-          start: I.start || 'due_date', grace_days: I.start === 'after_grace' ? Math.round(Number(I.grace_days) || 0) : 0, clause: String(I.clause || '').slice(0, 30), rate_text: I.rate_text || '' },
-        fees: (D.fees || []).map(function(f){ return { name: String(f.name).trim().slice(0, 40), type: f.type === 'percent' ? 'percent' : 'fixed', max_amount: r2(f.max_amount),
-          applies: f.applies === 'per_statement' ? 'per_statement' : 'per_invoice', min_after_days: Math.max(1, Math.min(365, Math.round(Number(f.min_after_days) || 1))), clause: String(f.clause || '').slice(0, 30) }; }),
-        manual: D.manual || [] };
-      var rules = d.rules ? clampToLimits(d.rules, limits).cfg : rulesFromLimits(limits);
-      var u = await sb.from('org_terms_documents').update({ kind: D.kind, limits: limits, rules: rules, rules_confirmed_at: new Date().toISOString(), rules_confirmed_by: session.user.id }).eq('id', d.id).select('*').single();
-      if(u.error){ toast('Could not save: ' + u.error.message); return; }
-      termsDocs = termsDocs.map(function(x){ return x.id === d.id ? u.data : x; });
-      limitsDraft = null; loadRulesForm(u.data); renderTermsTab(); renderChargesPortal();
+      var needs = termsEvNeeds(termsBaseline(d.review), N), text = termsDocText(d), evidence = {};
+      needs.forEach(function(n){ var p = termsEvProblem(text, n, D.evidence[n.key]); if(p) probs.push(n.label + ': ' + p); evidence[n.key] = { quote: (D.evidence[n.key] || {}).quote || '', clause: (D.evidence[n.key] || {}).clause || '' }; });
+      probEl.innerHTML = probs.map(escapeHtml).join('<br>');
+      if(probs.length){ toast(probs[0]); return; }
+      b.disabled = true;
+      var r = await invokeFn('terms-limits', { document_id: d.id, kind: D.kind, limits: N, evidence: evidence });
+      b.disabled = false;
+      if(!r || !r.ok){ var list = (r && r.problems) || [(r && r.error) || 'Couldn’t confirm. Please try again.']; probEl.innerHTML = list.map(escapeHtml).join('<br>'); toast(list[0]); return; }
+      termsDocs = termsDocs.map(function(x){ return x.id === d.id ? r.document : x; });
+      limitsDraft = null; limitsEditing = null; loadRulesForm(r.document); renderTermsTab(); renderChargesPortal();
       await loadCases(); renderDashboard();
       toast(TERMS_CHARGE_KINDS[D.kind] ? 'Confirmed. Now check what you charge, and record which customers accepted these terms.' : 'Saved. This document type can’t be used for charges.');
     }
