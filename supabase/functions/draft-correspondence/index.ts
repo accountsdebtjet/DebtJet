@@ -81,18 +81,18 @@ Deno.serve(async (req: Request) => {
     // Interest & Fees rules (if saved): terms must allow it; start rule; auto vs manual; per-invoice
     // apply/waive decisions; disputed invoices never charged. Mirrors invoiceCharges() in the app.
     const { data: chg } = await sb.from("org_charge_settings").select("apply_mode").eq("org_id", orgId).maybeSingle();
-    // Interest only under the customer's accepted terms (own record, else contact group, else all customers),
+    // Interest only under the customer's accepted terms with evidence attached or verified (own record, else contact group),
     // held to what the terms allow. Mirrors resolveTerms() / clampToLimits() in the app.
     let termRules: any = null, acceptedOn = "";
     if (kind === "letter") {
       const [{ data: accs }, { data: grp }] = await Promise.all([
-        sb.from("terms_acceptances").select("document_id, debtor_id, group_id, accepted_on").eq("org_id", orgId),
+        sb.from("terms_acceptances").select("document_id, debtor_id, group_id, accepted_on, evidence_grade").eq("org_id", orgId),
         sb.from("contact_group_members").select("group_id").eq("debtor_id", caseRow.debtor_id),
       ]);
       const groups = new Set((grp || []).map((g: any) => g.group_id));
-      const acc = (accs || []).find((a: any) => a.debtor_id === caseRow.debtor_id)
-        || (accs || []).filter((a: any) => a.group_id && groups.has(a.group_id)).sort((a: any, b: any) => String(b.accepted_on).localeCompare(String(a.accepted_on)))[0]
-        || (accs || []).find((a: any) => !a.debtor_id && !a.group_id);
+      const proven = (accs || []).filter((a: any) => a.evidence_grade === "evidence" || a.evidence_grade === "verified");
+      const acc = proven.find((a: any) => a.debtor_id === caseRow.debtor_id)
+        || proven.filter((a: any) => a.group_id && groups.has(a.group_id)).sort((a: any, b: any) => String(b.accepted_on).localeCompare(String(a.accepted_on)))[0];
       if (acc) {
         const { data: doc } = await sb.from("org_terms_documents").select("kind, limits, rules, rules_confirmed_at, archived").eq("id", acc.document_id).maybeSingle();
         const okKind = ["terms_of_trade", "terms_of_service", "credit_application", "quote_or_contract"].includes(doc?.kind);

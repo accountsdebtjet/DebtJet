@@ -775,6 +775,20 @@
   .lim-hist summary{cursor:pointer;font-weight:600;}
   .lim-hist li{margin:6px 0;}
   .lim-hist .q{font-style:italic;color:var(--text-muted);}
+  .acc-chips{display:flex;gap:6px;margin:0 0 10px;} .acc-chips .tchip{margin-left:0;}
+  .ev-item{font-size:12.5px;margin-bottom:4px;} .ev-item a{color:var(--ink);text-decoration:underline;}
+  .linkbtn{border:0;background:none;color:var(--text-muted);cursor:pointer;font:inherit;padding:0 2px;}
+  .acc-miss{border:1px solid var(--border);margin-top:6px;}
+  .acc-miss-row{display:flex;gap:12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;}
+  .acc-miss-row:last-child{border-bottom:0;} .acc-miss-row span{flex:1;color:var(--text-muted);font-size:12.5px;}
+  .acc-src-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:4px 0 8px;font-size:13px;}
+  .acc-src{flex-direction:row !important;align-items:center;gap:6px !important;font-weight:400 !important;font-size:13px !important;}
+  .acc-src.dis{color:var(--text-faint);}
+  .acc-src-body{background:var(--surface);border:1px solid var(--border);padding:10px 12px;margin-bottom:8px;}
+  .acc-src-body input[type=url]{width:100%;}
+  .acc-email{display:flex !important;flex-direction:row !important;gap:8px !important;align-items:flex-start;font-weight:400 !important;font-size:12.5px !important;padding:6px 0;border-bottom:1px solid var(--border);}
+  .acc-desc{margin-top:4px;}
+  .acc-declared{flex-direction:row !important;align-items:center;gap:8px !important;font-weight:400 !important;font-size:12.5px !important;color:var(--text-muted);}
   .post-seg{display:flex;gap:0;margin-left:auto;}
   #chgXero.xp-off .card-body > :not(#xpNotice){display:none;}
   .post-seg button{border:1px solid var(--border-strong);background:var(--surface);padding:4px 12px;font:inherit;font-size:12px;cursor:pointer;}
@@ -1594,7 +1608,7 @@
               <option value="waived">Waived</option>
               <option value="waiting">Not started yet</option>
               <option value="disputed">Disputed</option>
-              <option value="noterms">No terms on file</option>
+              <option value="noterms">No terms or evidence on file</option>
               <option value="none">No charges</option>
             </select>
             <select id="chgAge" aria-label="Days overdue">
@@ -1694,7 +1708,7 @@
       </div>
 
       <div class="card" data-chgpane="terms" hidden id="termsWhoCard">
-        <div class="card-head"><h3>Customers who accepted these terms</h3><span class="hint-r">No record, no interest or fees</span></div>
+        <div class="card-head"><h3>Customers who accepted these terms</h3><span class="hint-r">No evidence, no interest or fees</span></div>
         <div class="card-body" id="termsWho"></div>
       </div>
 
@@ -4223,14 +4237,17 @@
   var TERMS_CHARGE_KINDS = { terms_of_trade: 1, terms_of_service: 1, credit_application: 1, quote_or_contract: 1 };
   function termsUsable(d){ return !!(d && !d.archived && TERMS_CHARGE_KINDS[d.kind] && d.limits && d.rules && d.rules_confirmed_at); }
   function termsDocById(id){ return termsDocs.filter(function(d){ return d.id === id; })[0] || null; }
-  function acceptanceFor(debtorId){
-    var own = termsAccepts.filter(function(a){ return a.debtor_id && a.debtor_id === debtorId; })[0];
+  // Evidence grades: only 'evidence' (a file or email the user attached) or 'verified' (from a connected app) allow charges.
+  var EVIDENCE_OK = { evidence: 1, verified: 1 };
+  function hasEvidence(a){ return !!(a && EVIDENCE_OK[a.evidence_grade]); }
+  // The customer's own record, else their contact group's (latest). An "all customers" record never counts on its own.
+  function acceptanceFor(debtorId, anyGrade){
+    var ok = function(a){ return anyGrade || hasEvidence(a); };
+    var own = termsAccepts.filter(function(a){ return a.debtor_id && a.debtor_id === debtorId && ok(a); })[0];
     if(own) return own;
     var groups = (typeof stmtGroupsOf !== 'undefined' && stmtGroupsOf[debtorId]) || [];
-    var g = termsAccepts.filter(function(a){ return a.group_id && groups.indexOf(a.group_id) >= 0; })
-      .sort(function(a, b){ return String(b.accepted_on).localeCompare(String(a.accepted_on)); })[0];
-    if(g) return g;
-    return termsAccepts.filter(function(a){ return !a.debtor_id && !a.group_id; })[0] || null;
+    return termsAccepts.filter(function(a){ return a.group_id && groups.indexOf(a.group_id) >= 0 && ok(a); })
+      .sort(function(a, b){ return String(b.accepted_on).localeCompare(String(a.accepted_on)); })[0] || null;
   }
   // Which start rules charge no earlier than the terms allow.
   function startWithin(lim, basis, grace){
@@ -4267,7 +4284,11 @@
   // The terms behind one customer's invoice. ok:false explains why nothing can be charged.
   function resolveTerms(debtorId, issuedISO){
     var a = debtorId ? acceptanceFor(debtorId) : null;
-    if(!a) return { ok: false, code: 'no_terms', label: 'No terms on file', note: 'No accepted terms are recorded for this customer, so no interest or fees are added. Record them on the Terms & rules tab.' };
+    if(!a){
+      var dec = debtorId ? acceptanceFor(debtorId, true) : null;
+      if(dec) return { ok: false, code: 'no_evidence', label: 'No evidence on file', acc: dec, doc: termsDocById(dec.document_id), note: 'This customer is recorded as accepting terms, but no evidence is attached (a signed document, an email, or a record from a connected app), so no interest or fees are added.' };
+      return { ok: false, code: 'no_terms', label: 'No terms on file', note: 'No accepted terms are recorded for this customer, so no interest or fees are added. Record them, with evidence, on the Terms & rules tab.' };
+    }
     var d = termsDocById(a.document_id);
     if(!d) return { ok: false, code: 'no_terms', label: 'No terms on file', note: 'The terms this customer accepted are no longer in DebtJet.' };
     if(!termsUsable(d)) return { ok: false, code: 'unconfirmed', label: 'Terms not confirmed', doc: d, acc: a, note: 'What “' + d.title + '” allows hasn’t been confirmed yet, so no interest or fees are added.' };
@@ -4341,7 +4362,7 @@
     return '';
   }
 
-  function chargesOn(){ return termsDocs.some(termsUsable) && termsAccepts.length > 0; }
+  function chargesOn(){ return termsDocs.some(termsUsable) && termsAccepts.some(hasEvidence); }
   // Display rate for a customer (cases list, letters): 0 when nothing can be charged.
   function rateForDebtor(debtorId){ var t = resolveTerms(debtorId, null); return t.ok && t.cfg.interest_enabled ? Number(t.cfg.rate_pa) || 0 : 0; }
   var START_LABEL = { due_date: 'From the due date', after_grace: 'After the grace period', grace_backdated: 'After the grace period, backdated to the due date', first_demand: 'From the first letter of demand', final_demand: 'From the final letter of demand' };
@@ -5808,6 +5829,7 @@
       sb.from('terms_acceptances').select('*').eq('org_id', currentOrg.id)
     ]);
     termsDocs = (r[0].data || []).slice(); termsAccepts = (r[1].data || []).slice();
+    await loadTermsEvidence();
     await loadContactGroups();
     if(!termsDocs.some(function(d){ return d.id === termsSelId; })){
       var cur = termsDocs.filter(function(d){ return !d.archived && termsUsable(d); })[0] || termsDocs.filter(function(d){ return !d.archived; })[0] || termsDocs[0];
@@ -6056,35 +6078,6 @@
     var form = readChargesForm(), saved = Object.assign({}, d.rules, { terms_allow_charges: true, apply_mode: form.apply_mode });
     return savedChargeKey(form) !== savedChargeKey(saved) ? { docId: d.id, cfg: form } : null;
   }
-  function renderWho(){
-    var d = termsSel(), out = document.getElementById('termsWho'), admin = canEditPayments();
-    if(!d){ out.innerHTML = '<div class="empty-note">Add your terms first.</div>'; return; }
-    var rows = termsAccepts.filter(function(a){ return a.document_id === d.id; })
-      .sort(function(a, b){ return (a.debtor_id || a.group_id ? 1 : 0) - (b.debtor_id || b.group_id ? 1 : 0) || accWho(a).localeCompare(accWho(b)); });
-    var n = termsCoverage(d);
-    var html = '<p class="hint-r" style="margin:0 0 10px;">Interest and fees are only added for customers recorded here, on invoices issued on or after the date they accepted. A customer’s own record comes first, then their contact group’s, then “All customers”.'
-      + (termsUsable(d) ? '' : ' <b>These terms can’t be used for charges until you confirm what they allow.</b>') + '</p>';
-    html += rows.length ? '<table class="tr-table"><thead><tr><th>Who</th><th>Accepted on</th><th>How</th><th>Note</th><th></th></tr></thead><tbody>'
-      + rows.map(function(a){ return '<tr><td class="k">'+escapeHtml(accWho(a))+'</td><td>'+escapeHtml(fmt(a.accepted_on))+'</td><td>'+escapeHtml(ACCEPT_HOW[a.accepted_how] || '')+'</td><td>'+escapeHtml(a.note || '')+'</td>'
-          + '<td>'+(admin ? '<button type="button" class="btn sm ghost" data-acc-del="'+escapeHtml(a.id)+'" title="Remove" aria-label="Remove">✕</button>' : '')+'</td></tr>'; }).join('') + '</tbody></table>'
-      + '<div class="fine">'+n+' of your '+stmtDebtors.length+' customers are on these terms.</div>'
-      : '<div class="empty-note">No customers recorded yet, so nothing is charged under these terms.</div>';
-    if(acceptDraft && acceptDraft.docId === d.id){
-      var A = acceptDraft, q = (A.q || '').toLowerCase();
-      html += '<div class="acc-form">'
-        + '<label>Who accepted<select data-ak="scope"><option value="all"'+(A.scope === 'all' ? ' selected' : '')+'>All customers</option><option value="group"'+(A.scope === 'group' ? ' selected' : '')+'>A contact group</option><option value="debtors"'+(A.scope === 'debtors' ? ' selected' : '')+'>Selected customers</option></select></label>'
-        + '<label>Accepted on<input type="date" data-ak="accepted_on" value="'+escapeHtml(A.accepted_on || '')+'" /></label>'
-        + '<label>How<select data-ak="accepted_how">' + Object.keys(ACCEPT_HOW).map(function(k){ return '<option value="'+k+'"'+(A.accepted_how === k ? ' selected' : '')+'>'+escapeHtml(ACCEPT_HOW[k])+'</option>'; }).join('') + '</select></label>'
-        + (A.scope === 'group' ? '<label class="span3">Contact group<select data-ak="group_id"><option value="">Choose…</option>' + stmtGroups.map(function(g){ return '<option value="'+escapeHtml(g.id)+'"'+(A.group_id === g.id ? ' selected' : '')+'>'+escapeHtml(g.name)+'</option>'; }).join('') + '</select></label>' : '')
-        + (A.scope === 'debtors' ? '<label class="span3">Customers<input type="search" data-ak="q" placeholder="Search customers…" value="'+escapeHtml(A.q || '')+'" /><div class="acc-pick">'
-            + stmtDebtors.filter(function(x){ return !q || (x.name || '').toLowerCase().indexOf(q) >= 0; }).slice(0, 300).map(function(x){ return '<label><input type="checkbox" data-ad="'+escapeHtml(x.id)+'"'+(A.debtors[x.id] ? ' checked' : '')+' /> '+escapeHtml(x.name || '')+'</label>'; }).join('')
-            + '</div></label>' : '')
-        + '<label class="span3">Note (optional)<input maxlength="300" data-ak="note" value="'+escapeHtml(A.note || '')+'" placeholder="e.g. signed credit application kept in our files" /></label>'
-        + '<div class="span3 tr-actions" style="margin:0;"><button type="button" class="btn primary" data-acc="save">Save</button><button type="button" class="btn ghost" data-acc="cancel">Cancel</button>'
-        + '<span class="hint-r">Record only customers who agreed to these terms before you supplied them.</span></div></div>';
-    } else if(admin) html += '<div class="tr-actions"><button type="button" class="btn" data-acc="new">+ Record who accepted these terms</button></div>';
-    out.innerHTML = html;
-  }
   // ---- Actions ----
   function selectTerms(id){
     if(termsSelId === id) return;
@@ -6260,51 +6253,254 @@
     chgFeesDraft.push({ name: f.name, type: f.type, amount: f.max_amount, applies: f.applies, after_days: f.min_after_days || 1 });
     renderFeeRows(); renderFeeQuick(); renderCalculator(); renderChargesPortal();
   });
-  // Who accepted
+  // ---- Customers who accepted these terms: records, evidence, and overdue customers with nothing on file ----
+  var termsEvidence = [];
+  var EV_SOURCE = { upload: 'File', gmail: 'Gmail', outlook: 'Outlook', xero: 'Xero', quickbooks: 'QuickBooks', servicem8: 'ServiceM8', esign: 'E-signature' };
+  var GRADE_CHIP = { verified: '<span class="tchip ok">Verified</span>', evidence: '<span class="tchip ok">Evidence attached</span>', declared: '<span class="tchip todo">No evidence: not charged</span>' };
+  async function loadTermsEvidence(){
+    var r = await Promise.all([
+      sb.from('terms_acceptances').select('*').eq('org_id', currentOrg.id),
+      sb.from('terms_evidence').select('*').eq('org_id', currentOrg.id)
+    ]);
+    termsAccepts = (r[0].data || []).slice(); termsEvidence = (r[1].data || []).slice();
+  }
+  function evFor(accId){ return termsEvidence.filter(function(e){ return e.acceptance_id === accId; }); }
+  function gmailLink(msgId){ return 'https://mail.google.com/mail/u/0/#search/' + encodeURIComponent('rfc822msgid:' + String(msgId || '').replace(/^<|>$/g, '')); }
+  function emailLinkOk(u){ try { var h = new URL(u).hostname; return /^(mail\.google\.com|outlook\.office\.com|outlook\.office365\.com|outlook\.live\.com)$/.test(h) && /^https:/.test(u); } catch(e){ return false; } }
+  async function sha256Hex(file){
+    try { var h = await crypto.subtle.digest('SHA-256', await file.arrayBuffer()); return Array.prototype.map.call(new Uint8Array(h), function(b){ return ('0' + b.toString(16)).slice(-2); }).join(''); }
+    catch(e){ return null; }
+  }
+  function evLabel(e){
+    var what = e.source === 'upload' ? (e.file_name || 'File') : (e.description || (e.source === 'gmail' || e.source === 'outlook' ? 'Email' : 'Record'));
+    return (EV_SOURCE[e.source] || 'Evidence') + ': ' + what + (e.party ? ' · ' + e.party : '') + (e.occurred_at ? ' · ' + fmt(e.occurred_at) : '') + (e.grade === 'verified' ? ' ✓' : '');
+  }
+  function overdueWithoutEvidence(){
+    var today = localTodayISO(), by = {};
+    stmtInvoices.forEach(function(i){
+      if(i.fullyPaid || !i.due_date || i.due_date >= today) return;
+      var id = invDebtorId(i); if(!id) return;
+      by[id] = (by[id] || 0) + Math.max(0, i.amount - (i.paid || 0));
+    });
+    return Object.keys(by).filter(function(id){ return !acceptanceFor(id); }).map(function(id){
+      var d = stmtDebtors.filter(function(x){ return x.id === id; })[0];
+      return { id: id, name: d ? d.name : 'Customer', owing: r2(by[id]), declared: acceptanceFor(id, true) };
+    }).sort(function(a, b){ return b.owing - a.owing; });
+  }
+  function renderWho(){
+    var d = termsSel(), out = document.getElementById('termsWho'), admin = canEditPayments();
+    if(!d){ out.innerHTML = '<div class="empty-note">Add your terms first.</div>'; return; }
+    var recs = termsAccepts.filter(function(a){ return a.document_id === d.id; })
+      .sort(function(a, b){ return accWho(a).localeCompare(accWho(b)); });
+    var n = { verified: 0, evidence: 0, declared: 0 };
+    recs.forEach(function(a){ if(a.debtor_id || a.group_id) n[a.evidence_grade || 'declared']++; });
+    var html = '<p class="hint-r" style="margin:0 0 10px;">Interest and fees are only added for customers with evidence that they accepted these terms: a signed document or email you attach, or a record DebtJet verifies from a connected app. Invoices issued before the date they accepted are never charged.'
+      + (termsUsable(d) ? '' : ' <b>These terms can’t be used for charges until you confirm what they allow.</b>') + '</p>'
+      + '<div class="acc-chips"><span class="tchip ok">Verified ' + n.verified + '</span><span class="tchip ok">Evidence attached ' + n.evidence + '</span><span class="tchip todo">No evidence ' + n.declared + '</span></div>';
+    html += recs.length ? '<table class="tr-table"><thead><tr><th>Customer</th><th>Accepted</th><th>How</th><th>Evidence</th><th>Status</th><th></th></tr></thead><tbody>'
+      + recs.map(function(a){
+          var all = !a.debtor_id && !a.group_id, evs = evFor(a.id);
+          return '<tr><td class="k">'+escapeHtml(accWho(a))+'</td><td>'+escapeHtml(fmt(a.accepted_on))+'</td><td>'+escapeHtml(ACCEPT_HOW[a.accepted_how] || '')+(a.note ? '<div class="tr-note">'+escapeHtml(a.note)+'</div>' : '')+'</td>'
+            + '<td>' + evs.map(function(e){ return '<div class="ev-item"><a href="#" data-ev-open="'+escapeHtml(e.id)+'">'+escapeHtml(evLabel(e))+'</a>'+(admin && e.grade !== 'verified' ? ' <button type="button" class="linkbtn" data-ev-del="'+escapeHtml(e.id)+'" title="Remove this evidence" aria-label="Remove evidence">✕</button>' : '')+'</div>'; }).join('')
+            + (admin && !all ? '<button type="button" class="btn sm" data-acc-ev="'+escapeHtml(a.id)+'">+ Evidence</button>' : '') + '</td>'
+            + '<td>'+(all ? '<span class="tchip no">Doesn’t count</span><div class="tr-note">Each customer or group needs its own evidence.</div>' : (GRADE_CHIP[a.evidence_grade] || GRADE_CHIP.declared))+'</td>'
+            + '<td>'+(admin ? '<button type="button" class="btn sm ghost" data-acc-del="'+escapeHtml(a.id)+'" title="Remove record" aria-label="Remove record">✕</button>' : '')+'</td></tr>';
+        }).join('') + '</tbody></table>'
+      : '<div class="empty-note">No customers recorded yet, so nothing is charged under these terms.</div>';
+    var miss = overdueWithoutEvidence();
+    if(miss.length) html += '<h4 class="sub-h">Overdue customers with no evidence on file <span class="hint-r" style="font-weight:400;">(no interest or fees for them)</span></h4>'
+      + '<div class="acc-miss">' + miss.slice(0, 8).map(function(m){ return '<div class="acc-miss-row"><b>'+escapeHtml(m.name)+'</b><span>'+money(m.owing)+' overdue'+(m.declared ? ' · recorded without evidence' : '')+'</span>'
+          + (admin ? '<button type="button" class="btn sm" data-acc-cust="'+escapeHtml(m.id)+'"'+(m.declared ? ' data-acc-existing="'+escapeHtml(m.declared.id)+'"' : '')+'>'+(m.declared ? '+ Add evidence' : '+ Record with evidence')+'</button>' : '')+'</div>'; }).join('')
+      + (miss.length > 8 ? '<div class="fine">and ' + (miss.length - 8) + ' more.</div>' : '') + '</div>';
+    if(acceptDraft && acceptDraft.docId === d.id) html += renderAcceptForm(d);
+    else if(admin) html += '<div class="tr-actions"><button type="button" class="btn" data-acc="new">+ Record customers who accepted these terms</button></div>';
+    out.innerHTML = html;
+    if(acceptDraft && acceptDraft.src === 'email') loadDraftEmails();
+  }
+  function draftSingleDebtor(){
+    var A = acceptDraft; if(!A) return null;
+    if(A.mode === 'evidence'){ var a = termsAccepts.filter(function(x){ return x.id === A.accId; })[0]; return a && a.debtor_id ? a.debtor_id : null; }
+    var ids = Object.keys(A.debtors); return A.scope === 'debtors' && ids.length === 1 ? ids[0] : null;
+  }
+  async function loadDraftEmails(){
+    var A = acceptDraft, id = draftSingleDebtor(), box = document.getElementById('accEmails'); if(!box) return;
+    if(!id){ box.innerHTML = '<div class="tr-note">Choose a single customer to pick one of their emails, or use a link instead.</div>'; return; }
+    if(A.emailsFor !== id){
+      box.innerHTML = '<div class="tr-note">Loading emails…</div>';
+      var r = await sb.from('case_notes').select('id, debtor_id, email_subject, email_from, email_message_id, email_date, occurred_at').eq('debtor_id', id).order('occurred_at', { ascending: false }).limit(40);
+      A.emails = (r.data || []).filter(function(x){ return x.email_message_id; }); A.emailsFor = id;
+      if(acceptDraft !== A) return;
+    }
+    box.innerHTML = A.emails.length ? A.emails.map(function(m){ return '<label class="acc-email"><input type="radio" name="accEmail" data-ak-email="'+escapeHtml(m.id)+'"'+(A.emailNoteId === m.id ? ' checked' : '')+' /> <span><b>'+escapeHtml(m.email_subject || '(no subject)')+'</b><br>'+escapeHtml((m.email_from || '') + ' · ' + fmt(m.email_date || m.occurred_at))+'</span></label>'; }).join('')
+      + '<div class="tr-note">The email stays in your inbox. DebtJet keeps a reference to it, not a copy.</div>'
+      : '<div class="tr-note">No emails from this customer are logged in DebtJet yet. Log the acceptance email with the DebtJet Gmail add-on or Chrome extension, or paste a link to it.</div>';
+  }
+  function renderAcceptForm(d){
+    var A = acceptDraft, q = (A.q || '').toLowerCase(), isNew = A.mode !== 'evidence';
+    var acc = !isNew ? termsAccepts.filter(function(x){ return x.id === A.accId; })[0] : null;
+    var h = '<div class="acc-form">';
+    if(isNew){
+      h += '<label>Who accepted<select data-ak="scope"><option value="debtors"'+(A.scope === 'debtors' ? ' selected' : '')+'>Selected customers</option><option value="group"'+(A.scope === 'group' ? ' selected' : '')+'>A contact group</option></select></label>'
+        + '<label>Accepted on<input type="date" data-ak="accepted_on" value="'+escapeHtml(A.accepted_on || '')+'" max="'+localTodayISO()+'" /></label>'
+        + '<label>How<select data-ak="accepted_how">' + Object.keys(ACCEPT_HOW).map(function(k){ return '<option value="'+k+'"'+(A.accepted_how === k ? ' selected' : '')+'>'+escapeHtml(ACCEPT_HOW[k])+'</option>'; }).join('') + '</select></label>'
+        + (A.scope === 'group' ? '<label class="span3">Contact group<select data-ak="group_id"><option value="">Choose…</option>' + stmtGroups.map(function(g){ return '<option value="'+escapeHtml(g.id)+'"'+(A.group_id === g.id ? ' selected' : '')+'>'+escapeHtml(g.name)+'</option>'; }).join('') + '</select></label>' : '')
+        + (A.scope === 'debtors' ? '<label class="span3">Customers<input type="search" data-ak="q" placeholder="Search customers…" value="'+escapeHtml(A.q || '')+'" /><div class="acc-pick">'
+            + stmtDebtors.filter(function(x){ return !q || (x.name || '').toLowerCase().indexOf(q) >= 0 || A.debtors[x.id]; }).slice(0, 300).map(function(x){ return '<label><input type="checkbox" data-ad="'+escapeHtml(x.id)+'"'+(A.debtors[x.id] ? ' checked' : '')+' /> '+escapeHtml(x.name || '')+'</label>'; }).join('')
+            + '</div></label>' : '');
+    } else {
+      h += '<div class="span3"><b>Add evidence for '+escapeHtml(acc ? accWho(acc) : 'this record')+'</b>'+(acc ? ' · accepted '+escapeHtml(fmt(acc.accepted_on))+' · '+escapeHtml(ACCEPT_HOW[acc.accepted_how] || '') : '')+'</div>';
+    }
+    var src = A.src || 'upload', radio = function(v, label, dis){ return '<label class="acc-src'+(dis ? ' dis' : '')+'"><input type="radio" name="accSrc" data-ak-src="'+v+'"'+(src === v ? ' checked' : '')+(dis ? ' disabled' : '')+' /> '+label+'</label>'; };
+    h += '<div class="span3"><div class="acc-src-row"><b>Evidence</b>'
+      + radio('upload', 'Upload a file') + radio('email', 'An email in your inbox') + radio('link', 'A link to an email')
+      + radio('app', 'From a connected app', true) + '<span class="hint-r">Xero, QuickBooks and ServiceM8: coming soon</span></div>';
+    if(src === 'upload') h += '<div class="acc-src-body"><input type="file" data-ak-file accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" />'+(A.file ? ' <span class="tr-note">'+escapeHtml(A.file.name)+'</span>' : '')+'<div class="tr-note">A signed credit application, signed terms, accepted quote, or a photo or scan of one. Up to 10 MB. Kept privately for your organisation.</div></div>';
+    if(src === 'email') h += '<div class="acc-src-body" id="accEmails"></div>';
+    if(src === 'link') h += '<div class="acc-src-body"><input type="url" data-ak="link" placeholder="https://mail.google.com/… or https://outlook.office.com/…" value="'+escapeHtml(A.link || '')+'" /><div class="tr-note">Paste the link to the email in Gmail or Outlook where the customer accepted. The email stays in your inbox.</div></div>';
+    h += '<label class="acc-desc">Describe the evidence (optional)<input maxlength="300" data-ak="ev_desc" value="'+escapeHtml(A.ev_desc || '')+'" placeholder="e.g. Credit application signed by J Smith, director" /></label></div>';
+    if(isNew) h += '<label class="span3 inline-check acc-declared"><input type="checkbox" data-ak-declared'+(A.declared ? ' checked' : '')+' /> No evidence yet. Save the record anyway; no interest or fees until evidence is added.</label>';
+    h += '<div class="span3 tr-actions" style="margin:0;"><button type="button" class="btn primary" data-acc="save">Save</button><button type="button" class="btn ghost" data-acc="cancel">Cancel</button>'
+      + '<span class="hint-r">Only record customers who agreed to these terms before you supplied them.</span></div></div>';
+    return h;
+  }
+  async function uploadEvidenceFile(file){
+    if(!/\.(pdf|docx|txt|jpe?g|png)$/i.test(file.name)) return { error: 'Upload a PDF, Word (.docx), text, JPG or PNG file.' };
+    if(file.size > 10485760) return { error: 'That file is over 10 MB.' };
+    var ext = (file.name.match(/\.([a-z]+)$/i) || [])[1].toLowerCase();
+    var mime = { pdf: 'application/pdf', docx: DOCX_MIME, txt: 'text/plain', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' }[ext];
+    var path = currentOrg.id + '/evidence/' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now())) + '-' + file.name.replace(/[^\w.\-]+/g, '_').slice(-80);
+    var sha = await sha256Hex(file);
+    var up = await sb.storage.from('terms-docs').upload(path, file, { contentType: mime, upsert: false });
+    if(up.error) return { error: 'Upload failed: ' + up.error.message };
+    return { storage_path: path, file_name: file.name.slice(0, 200), mime: mime, size_bytes: file.size, sha256: sha };
+  }
+  // The evidence row(s) the draft describes, without acceptance_id. Returns { rows } or { error } or { none: true }.
+  async function draftEvidence(){
+    var A = acceptDraft, src = A.src || 'upload', desc = (A.ev_desc || '').trim().slice(0, 300) || null;
+    if(src === 'upload'){
+      if(!A.file) return { none: true };
+      var f = await uploadEvidenceFile(A.file); if(f.error) return f;
+      return { row: Object.assign({ source: 'upload', description: desc }, f) };
+    }
+    if(src === 'email'){
+      var m = (A.emails || []).filter(function(x){ return x.id === A.emailNoteId; })[0]; if(!m) return { none: true };
+      return { row: { source: 'gmail', external_id: String(m.email_message_id).slice(0, 500), external_url: gmailLink(m.email_message_id), case_note_id: m.id,
+        occurred_at: m.email_date || m.occurred_at, party: (m.email_from || '').slice(0, 200) || null, description: desc || (m.email_subject || '').slice(0, 300) || null } };
+    }
+    if(src === 'link'){
+      var u = (A.link || '').trim(); if(!u) return { none: true };
+      if(!emailLinkOk(u)) return { error: 'Paste a link to the email in Gmail (mail.google.com) or Outlook (outlook.office.com or outlook.live.com).' };
+      return { row: { source: /outlook\./.test(u) ? 'outlook' : 'gmail', external_url: u.slice(0, 1000), description: desc } };
+    }
+    return { none: true };
+  }
+  async function refreshAfterAcceptance(){ await loadTermsEvidence(); renderTermsTab(); renderChargesPortal(); await loadCases(); renderDashboard(); }
   var whoEl = document.getElementById('termsWho');
   whoEl.addEventListener('input', function(e){
     if(!acceptDraft) return;
     var t = e.target, k = t.getAttribute('data-ak');
-    if(k){ acceptDraft[k] = t.value; if(k === 'scope' || k === 'q'){ var pos = t.selectionStart; renderWho(); if(k === 'q'){ var q = whoEl.querySelector('[data-ak="q"]'); q.focus(); try { q.setSelectionRange(pos, pos); } catch(x){} } } return; }
-    var id = t.getAttribute('data-ad'); if(id){ if(t.checked) acceptDraft.debtors[id] = true; else delete acceptDraft.debtors[id]; }
+    if(t.hasAttribute('data-ak-file')){ acceptDraft.file = t.files && t.files[0] || null; return; }
+    if(t.hasAttribute('data-ak-src')){ acceptDraft.src = t.getAttribute('data-ak-src'); renderWho(); return; }
+    if(t.hasAttribute('data-ak-email')){ acceptDraft.emailNoteId = t.getAttribute('data-ak-email'); return; }
+    if(t.hasAttribute('data-ak-declared')){ acceptDraft.declared = t.checked; return; }
+    if(k){
+      acceptDraft[k] = t.value;
+      if(k === 'scope' || k === 'q' || k === 'group_id'){
+        var pos = t.selectionStart; renderWho();
+        if(k === 'q'){ var qi = whoEl.querySelector('[data-ak="q"]'); qi.focus(); try { qi.setSelectionRange(pos, pos); } catch(x){} }
+      }
+      return;
+    }
+    var id = t.getAttribute('data-ad');
+    if(id){ if(t.checked) acceptDraft.debtors[id] = true; else delete acceptDraft.debtors[id]; if(acceptDraft.src === 'email') loadDraftEmails(); }
   });
-  whoEl.addEventListener('change', function(e){ if(e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
+  whoEl.addEventListener('change', function(e){ var t = e.target; if(t.tagName === 'SELECT' || t.type === 'radio' || t.type === 'file' || t.type === 'checkbox') t.dispatchEvent(new Event('input', { bubbles: true })); });
   whoEl.addEventListener('click', async function(e){
-    var d = termsSel(); if(!d || !canEditPayments()) return;
+    var d = termsSel(); if(!d) return;
+    var open = e.target.closest('[data-ev-open]');
+    if(open){
+      e.preventDefault();
+      var ev = termsEvidence.filter(function(x){ return x.id === open.getAttribute('data-ev-open'); })[0]; if(!ev) return;
+      if(ev.storage_path){
+        var w = window.open('', '_blank'), su = await sb.storage.from('terms-docs').createSignedUrl(ev.storage_path, 300);
+        if(su.error || !su.data){ if(w) w.close(); toast('Couldn’t open the file.'); return; }
+        if(w) w.location = su.data.signedUrl; else window.location.href = su.data.signedUrl;
+      } else if(ev.external_url) window.open(ev.external_url, '_blank', 'noopener');
+      return;
+    }
+    if(!canEditPayments()) return;
+    var evDel = e.target.closest('[data-ev-del]');
+    if(evDel){
+      var x = termsEvidence.filter(function(y){ return y.id === evDel.getAttribute('data-ev-del'); })[0]; if(!x) return;
+      var last = evFor(x.acceptance_id).length === 1;
+      if(!await djAsk('Remove this evidence (' + evLabel(x) + ')?' + (last ? '\n\nIt’s the only evidence on this record, so interest and fees will stop for this customer until evidence is added.' : ''), { ok: 'Remove' })) return;
+      var dr = await sb.from('terms_evidence').delete().eq('id', x.id);
+      if(dr.error){ toast('Could not remove: ' + dr.error.message); return; }
+      if(x.storage_path && !termsEvidence.some(function(y){ return y.id !== x.id && y.storage_path === x.storage_path; })) await sb.storage.from('terms-docs').remove([x.storage_path]);
+      await refreshAfterAcceptance(); toast('Evidence removed.'); return;
+    }
     var del = e.target.closest('[data-acc-del]');
     if(del){
       var a = termsAccepts.filter(function(x){ return x.id === del.getAttribute('data-acc-del'); })[0]; if(!a) return;
-      if(!await djAsk('Remove the record that ' + accWho(a) + (a.debtor_id || a.group_id ? '' : ' (all customers)') + ' accepted “' + d.title + '”?\n\nUnless another record covers them, no interest or fees will be added for them.', { ok: 'Remove' })) return;
+      if(!await djAsk('Remove the record that ' + accWho(a) + ' accepted “' + d.title + '”, and its evidence?\n\nUnless another record covers them, no interest or fees will be added for them.', { ok: 'Remove' })) return;
+      var paths = evFor(a.id).map(function(x){ return x.storage_path; }).filter(Boolean);
       var r = await sb.from('terms_acceptances').delete().eq('id', a.id);
       if(r.error){ toast('Could not remove: ' + r.error.message); return; }
-      termsAccepts = termsAccepts.filter(function(x){ return x.id !== a.id; });
-      renderTermsTab(); renderChargesPortal(); await loadCases(); renderDashboard(); return;
+      var keep = termsEvidence.filter(function(x){ return x.acceptance_id !== a.id; });
+      paths = paths.filter(function(p){ return !keep.some(function(x){ return x.storage_path === p; }); });
+      if(paths.length) await sb.storage.from('terms-docs').remove(paths);
+      await refreshAfterAcceptance(); return;
+    }
+    var addEv = e.target.closest('[data-acc-ev]');
+    if(addEv){ acceptDraft = { docId: d.id, mode: 'evidence', accId: addEv.getAttribute('data-acc-ev'), debtors: {}, src: 'upload' }; renderWho(); return; }
+    var cust = e.target.closest('[data-acc-cust]');
+    if(cust){
+      var existing = cust.getAttribute('data-acc-existing');
+      if(existing){ var ex = termsAccepts.filter(function(x){ return x.id === existing; })[0]; if(ex && ex.document_id !== d.id){ selectTerms(ex.document_id); d = termsSel(); } acceptDraft = { docId: d.id, mode: 'evidence', accId: existing, debtors: {}, src: 'upload' }; }
+      else { var dd = {}; dd[cust.getAttribute('data-acc-cust')] = true; acceptDraft = { docId: d.id, mode: 'new', scope: 'debtors', debtors: dd, accepted_on: '', accepted_how: 'signed_credit_application', src: 'upload', q: '' }; }
+      renderWho(); var f = whoEl.querySelector('.acc-form'); if(f && f.scrollIntoView) f.scrollIntoView({ block: 'nearest' }); return;
     }
     var b = e.target.closest('[data-acc]'); if(!b) return;
     var act = b.getAttribute('data-acc');
-    if(act === 'new'){ acceptDraft = { docId: d.id, scope: termsAccepts.some(function(x){ return !x.debtor_id && !x.group_id; }) ? 'debtors' : 'all', accepted_on: '', accepted_how: 'signed_credit_application', note: '', group_id: '', debtors: {}, q: '' }; renderWho(); return; }
+    if(act === 'new'){ acceptDraft = { docId: d.id, mode: 'new', scope: 'debtors', accepted_on: '', accepted_how: 'signed_credit_application', note: '', group_id: '', debtors: {}, q: '', src: 'upload' }; renderWho(); return; }
     if(act === 'cancel'){ acceptDraft = null; renderWho(); return; }
-    if(act === 'save'){
-      var A = acceptDraft;
-      if(!A.accepted_on){ toast('Enter the date the terms were accepted.'); return; }
-      if(A.accepted_on > localTodayISO()){ toast('The acceptance date can’t be in the future.'); return; }
-      var targets = A.scope === 'all' ? [{}] : A.scope === 'group' ? (A.group_id ? [{ group_id: A.group_id }] : []) : Object.keys(A.debtors).map(function(id){ return { debtor_id: id }; });
-      if(!targets.length){ toast(A.scope === 'group' ? 'Choose a contact group.' : 'Tick at least one customer.'); return; }
-      var existing = [];
-      targets.forEach(function(t){ termsAccepts.forEach(function(x){
-        if((t.debtor_id && x.debtor_id === t.debtor_id) || (t.group_id && x.group_id === t.group_id) || (!t.debtor_id && !t.group_id && !x.debtor_id && !x.group_id)) existing.push(x);
-      }); });
-      if(existing.length && !await djAsk(existing.length + ' of these already ' + (existing.length === 1 ? 'has' : 'have') + ' a record (' + existing.slice(0, 3).map(function(x){ var dd = termsDocById(x.document_id); return accWho(x) + ': ' + (dd ? dd.title : 'other terms'); }).join('; ') + (existing.length > 3 ? '…' : '') + '). Replace with “' + d.title + '”?', { ok: 'Replace' })) return;
-      for(var i = 0; i < existing.length; i++){ var rd = await sb.from('terms_acceptances').delete().eq('id', existing[i].id); if(rd.error){ toast('Could not replace: ' + rd.error.message); return; } }
-      termsAccepts = termsAccepts.filter(function(x){ return existing.indexOf(x) < 0; });
-      var rows = targets.map(function(t){ return Object.assign({ org_id: currentOrg.id, document_id: d.id, accepted_on: A.accepted_on, accepted_how: A.accepted_how, note: (A.note || '').trim().slice(0, 300) || null }, t); });
-      var ins = await sb.from('terms_acceptances').insert(rows).select('*');
-      if(ins.error){ toast('Could not save: ' + ins.error.message); return; }
-      termsAccepts = termsAccepts.concat(ins.data || rows);
-      acceptDraft = null; renderTermsTab(); renderChargesPortal();
-      await loadCases(); renderDashboard();
-      toast('Recorded. Interest and fees under “' + d.title + '” now apply to ' + (A.scope === 'all' ? 'all customers' : A.scope === 'group' ? 'that group' : targets.length + ' customer' + (targets.length === 1 ? '' : 's')) + (termsUsable(d) ? '' : ', once you confirm what the terms allow') + '.');
+    if(act !== 'save') return;
+    var A = acceptDraft;
+    if(A.mode === 'evidence'){
+      var evd = await draftEvidence();
+      if(evd.error){ toast(evd.error); return; }
+      if(evd.none){ toast('Add the evidence: a file, an email from your inbox, or a link to an email.'); return; }
+      b.disabled = true;
+      var ie = await sb.from('terms_evidence').insert(Object.assign({ org_id: currentOrg.id, acceptance_id: A.accId }, evd.row));
+      b.disabled = false;
+      if(ie.error){ toast('Could not save: ' + ie.error.message); return; }
+      acceptDraft = null; await refreshAfterAcceptance(); toast('Evidence added. Interest and fees under “' + d.title + '” now apply to this customer' + (termsUsable(d) ? '' : ', once you confirm what the terms allow') + '.');
+      return;
     }
+    if(!A.accepted_on){ toast('Enter the date the terms were accepted.'); return; }
+    if(A.accepted_on > localTodayISO()){ toast('The acceptance date can’t be in the future.'); return; }
+    var targets = A.scope === 'group' ? (A.group_id ? [{ group_id: A.group_id }] : []) : Object.keys(A.debtors).map(function(id){ return { debtor_id: id }; });
+    if(!targets.length){ toast(A.scope === 'group' ? 'Choose a contact group.' : 'Tick at least one customer.'); return; }
+    var hasEv = (A.src === 'upload' && A.file) || (A.src === 'email' && A.emailNoteId) || (A.src === 'link' && (A.link || '').trim());
+    if(!hasEv && !A.declared){ toast('Add the evidence, or tick “No evidence yet” to save the record without charges.'); return; }
+    var existingRecs = [];
+    targets.forEach(function(t){ termsAccepts.forEach(function(x){ if((t.debtor_id && x.debtor_id === t.debtor_id) || (t.group_id && x.group_id === t.group_id)) existingRecs.push(x); }); });
+    if(existingRecs.length && !await djAsk(existingRecs.length + ' of these already ' + (existingRecs.length === 1 ? 'has' : 'have') + ' a record (' + existingRecs.slice(0, 3).map(function(x){ var td = termsDocById(x.document_id); return accWho(x) + ': ' + (td ? td.title : 'other terms'); }).join('; ') + (existingRecs.length > 3 ? '…' : '') + '). Replace with “' + d.title + '”? Their current evidence is removed too.', { ok: 'Replace' })) return;
+    b.disabled = true;
+    var evr = hasEv ? await draftEvidence() : { none: true };
+    if(evr.error){ b.disabled = false; toast(evr.error); return; }
+    for(var i = 0; i < existingRecs.length; i++){ var rd = await sb.from('terms_acceptances').delete().eq('id', existingRecs[i].id); if(rd.error){ b.disabled = false; toast('Could not replace: ' + rd.error.message); return; } }
+    var rows = targets.map(function(t){ return Object.assign({ org_id: currentOrg.id, document_id: d.id, accepted_on: A.accepted_on, accepted_how: A.accepted_how, note: (A.note || '').trim().slice(0, 300) || null }, t); });
+    var ins = await sb.from('terms_acceptances').insert(rows).select('*');
+    if(ins.error){ b.disabled = false; toast('Could not save: ' + ins.error.message); return; }
+    if(evr.row){
+      var evRows = (ins.data || []).map(function(a){ return Object.assign({ org_id: currentOrg.id, acceptance_id: a.id }, evr.row); });
+      var ei = await sb.from('terms_evidence').insert(evRows);
+      if(ei.error){ b.disabled = false; toast('Saved the record, but the evidence couldn’t be attached: ' + ei.error.message); await refreshAfterAcceptance(); return; }
+    }
+    b.disabled = false; acceptDraft = null; await refreshAfterAcceptance();
+    toast(evr.row ? 'Recorded with evidence. Interest and fees under “' + d.title + '” now apply to ' + (A.scope === 'group' ? 'that group' : targets.length + ' customer' + (targets.length === 1 ? '' : 's')) + (termsUsable(d) ? '' : ', once you confirm what the terms allow') + '.'
+      : 'Recorded without evidence. No interest or fees until you add evidence.');
   });
   ['chgStart','chgBackdate','chgTerms','chgInterestOn','chgRate','chgMethod','chgGrace','chgMinBal','chgCap'].forEach(function(id){
     document.getElementById(id).addEventListener('input', onChargeRulesChanged);
