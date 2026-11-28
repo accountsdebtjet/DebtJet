@@ -17,7 +17,7 @@ Do these first. Each one speeds up everything after it.
 |---|---|---|---|---|
 | F1 | ✅ `CLAUDE.md` with the rules and workflow | S | — | Done 28 Nov 2026 |
 | F2 | ✅ Browser tests moved into the repo (`tests/e2e/`, `run_all.py`) | S | — | Done 28 Nov 2026. 13 tests pass. |
-| F3 | Run the tests automatically on every push (GitHub Actions) | S | Yes | Gives a green or red tick on each change. May need the owner to allow the `workflow` permission for pushes. |
+| F3 | ✅ Run the tests automatically on every push (GitHub Actions) | S | — | Done 28 Nov 2026 (`.github/workflows/tests.yml`). Syntax check plus all browser tests; screenshots are kept for 7 days when a run fails. First run: 13/13 passed in about 2 minutes. |
 | F4 | Turn the tests' printed checks into real pass/fail assertions | M | Yes | Today most tests print values for a person to read; only crashes and page errors fail. |
 | F5 | Split `index.html` into modules (shared, statements, interest & fees, letters, recovery, settings) as plain `<script src>` files, with no build step | M | **No**, do it alone | Unlocks parallel agents. Behaviour must not change; the tests prove it. |
 | F6 | Nightly scheduled check: run the tests and the Supabase security and performance advisors, then email the owner a short report | S | Yes | Uses a scheduled task. |
