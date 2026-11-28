@@ -30,11 +30,11 @@ Do these first. Each one speeds up everything after it.
 | P1 | Send statements and letters from the user's own Gmail or Outlook, and mark them sent automatically | L | Yes | Split it: Gmail send (data stays with Google), Outlook send, then logging and auto-sent. Sending is always in the business's own name. |
 | P2 | ✅ Server-side terms check in `xero-charges` | S | — | Done 28 Nov 2026. `xero-charges` v2 re-checks each item on the server: terms accepted with evidence, document ready, issued after acceptance, not disputed or waived, approved in manual mode, start date, rate and amount (on Xero's balance), and any cap. Logic in `_shared/terms-check.ts` with 13 unit tests; refusals show in the DebtJet dialog (run42). |
 | P3 | ✅ Terms, acceptance and evidence in the claim and evidence pack | M | — | Done 28 Nov 2026. The claim snapshot saves the terms basis; the pack has a new section 3, "Terms and acceptance" (document, acceptance, evidence with file fingerprint, clauses and quotes for interest and each fee). Lodged claims keep the terms as lodged. Claim checks name the terms and clause (run43). |
-| P4 | Xero payments sync, so part-paid invoices have the right balance | M | Yes | Fixes the known interest-posting limit. |
+| P4 | ✅ Xero payments sync | M | — | Done 28 Nov 2026. `xero-sync` v5 records each Xero payment, credit note and prepayment/overpayment allocation (plus one adjustment if Xero's list doesn't add up), so DebtJet's balance equals Xero's amount due. Rows are keyed by Xero id and locked to the sync (migration `20261128120000_xero_payments.sql`). The first sync after this is a full sync. 7 unit tests; run44. |
 | P5 | Interest & Fees: rework the Calculator tab to match the terms-based rules | M | Yes | Interest & Fees area only. |
 | P6 | Teammates: invite staff, set roles (owner, admin, member), and turn on leaked-password protection | M | Yes | **Owner:** decide the roles. |
 | P7 | Contact groups: push DebtJet-made groups to Xero, remove one contact from a group, and manage groups from the contact card | M | Yes | |
-| P8 | Debt Recovery: let the user leave out time-barred invoices instead of blocking the whole case | S | Yes | |
+| P8 | ✅ Leave out invoices past the time limit | S | — | Done 28 Nov 2026. Claim amount has "Leave out invoices past the time limit" (names the invoices and amount); the rest can be claimed, and Eligibility records what was left out (run45). |
 | P9 | Debt Recovery: when a claim is over a state's limit, show the next forum up (facts only, no advice) | M | Yes | |
 | P10 | Letters: CourtSA Final Notice template (SA pre-action notice) | S | Yes | |
 | P11 | Use the rich editor for statement cover messages and dispute responses | S | Yes | |

@@ -359,20 +359,26 @@
 
   // Amounts for the claim, built from the same figures as letters (disputed invoices left out unless included).
   function recClaim(c, m){
-    var opt = Object.assign({ include_interest: true, include_fees: false, include_disputed: false, abandon_excess: false }, (m && m.checklist && m.checklist.options) || recState.options || {});
+    var opt = Object.assign({ include_interest: true, include_fees: false, include_disputed: false, abandon_excess: false, leave_out_stale: false }, (m && m.checklist && m.checklist.options) || recState.options || {});
     var lm = buildLetterModel(c, { pay_days: 7 });
+    var rules = recRules(c, m);
     var items = lm.items.filter(function(i){ return opt.include_disputed || !i.disputed; });
+    // Invoices that fell due before the time limit: the user can leave them out and claim the rest.
+    var cutoff = rules.limitationYears ? addDaysIso(isoLocal(), -Math.round(rules.limitationYears * 365.25)) : null;
+    var staleItems = cutoff ? items.filter(function(i){ return i.due_date && i.due_date < cutoff; }) : [];
+    var leftOut = opt.leave_out_stale ? staleItems : [];
+    if(leftOut.length) items = items.filter(function(i){ return leftOut.indexOf(i) < 0; });
     var sum = function(k){ return r2(items.reduce(function(s, x){ return s + (Number(x[k]) || 0); }, 0)); };
     var principal = sum('balance');
     var interest = opt.include_interest ? sum('interest') : 0;
     var fees = opt.include_fees ? r2(sum('fees') + (lm.totals.statement_fees || []).reduce(function(s, f){ return s + f.amount; }, 0)) : 0;
     var total = r2(principal + interest + fees);
-    var rules = recRules(c, m), entity = recEntity(m);
+    var entity = recEntity(m);
     var gross = total, abandoned = 0;
     if(rules.limitOver === 'abandon' && opt.abandon_excess && total > rules.limit){ abandoned = r2(total - rules.limit); total = rules.limit; }
     var bands = Array.isArray(rules.fees) ? rules.fees : (rules.fees ? rules.fees[entity] : []);
     var band = (bands || []).filter(function(b){ return total <= b.upTo; })[0] || null;
-    return { opt: opt, lm: lm, gross: gross, abandoned: abandoned, entity: entity, items: items, disputedItems: lm.items.filter(function(i){ return i.disputed; }), principal: principal, interest: interest, fees: fees, total: total,
+    return { opt: opt, lm: lm, gross: gross, abandoned: abandoned, entity: entity, items: items, staleItems: staleItems, leftOut: leftOut, cutoff: cutoff, disputedItems: lm.items.filter(function(i){ return i.disputed; }), principal: principal, interest: interest, fees: fees, total: total,
       fullInterest: r2(lm.items.reduce(function(s, i){ return s + (i.disputed && !opt.include_disputed ? 0 : (Number(i.interest) || 0)); }, 0)),
       fullFees: r2(items.reduce(function(s, x){ return s + (Number(x.fees) || 0); }, 0)), filingFee: band ? band.fee : null, rules: rules };
   }
@@ -390,7 +396,8 @@
     var warnCut = addDaysIso(isoLocal(), -Math.round((R.limitationYears - 0.5) * 365.25));
     var stale = cl.items.filter(function(i){ return i.due_date && i.due_date < cutoff; });
     var nearly = cl.items.filter(function(i){ return i.due_date && i.due_date >= cutoff && i.due_date < warnCut; });
-    if(stale.length) add('stop', 'Time limit may have passed', stale.map(function(i){ return i.invoice_number; }).join(', ') + ' fell due more than ' + R.limitationYears + ' years ago. Claims for unpaid invoices generally have a ' + R.limitationYears + '-year time limit from when the debt fell due.');
+    if(stale.length) add('stop', 'Time limit may have passed', stale.map(function(i){ return i.invoice_number; }).join(', ') + ' fell due more than ' + R.limitationYears + ' years ago. Claims for unpaid invoices generally have a ' + R.limitationYears + '-year time limit from when the debt fell due.' + (cl.items.length > stale.length ? ' To claim the other invoices, tick “Leave out invoices past the time limit” under Claim amount.' : ''));
+    if(cl.leftOut.length) add('ok', 'Left out: past the time limit', cl.leftOut.map(function(i){ return i.invoice_number; }).join(', ') + ' (' + money(r2(cl.leftOut.reduce(function(s, i){ return s + (Number(i.balance) || 0); }, 0))) + ') fell due more than ' + R.limitationYears + ' years ago and ' + (cl.leftOut.length === 1 ? 'is' : 'are') + ' not in this claim.');
     else if(nearly.length) add('caution', 'Time limit approaching', nearly.map(function(i){ return i.invoice_number; }).join(', ') + ' will be ' + R.limitationYears + ' years overdue within six months.');
     else if(cl.items.length) add('ok', 'Inside the ' + R.limitationYears + '-year time limit', 'Oldest invoice in the claim fell due ' + fmt(cl.items[0].due_date) + '.');
     var dd = demandDates[c.id] || {};
@@ -438,7 +445,7 @@
       sb.from('correspondence_log').select('*').eq('debtor_id', c.debtor.id).order('occurred_at'),
       sb.from('case_notes').select('id, invoice_id, category, summary, dispute_reason, occurred_at, source').eq('debtor_id', c.debtor.id).order('occurred_at'),
       sb.from('case_events').select('id, event_type, title, body, occurred_at').eq('case_id', c.id).order('occurred_at'),
-      sb.from('payments').select('invoice_id, amount, paid_at, method').eq('case_id', c.id).order('paid_at'),
+      sb.from('payments').select('invoice_id, amount, paid_at, method, source').eq('case_id', c.id).order('paid_at'),
       sb.from('invoices').select('id, invoice_number, description, amount, issued_date, due_date, status').eq('debtor_id', c.debtor.id).order('due_date')
     ]);
     if(recState.caseId !== c.id) return;
@@ -484,7 +491,7 @@
     var r = recState.records; if(!r) return [];
     var ev = [];
     r.invoices.forEach(function(i){ ev.push({ at: i.issued_date, kind: 'Invoice issued', text: i.invoice_number + ' · ' + money(i.amount) + (i.description ? ' · ' + i.description : '') + ' · due ' + fmt(i.due_date) }); });
-    r.payments.forEach(function(p){ ev.push({ at: p.paid_at, kind: 'Payment received', text: money(p.amount) + (p.method ? ' · ' + p.method : '') }); });
+    r.payments.forEach(function(p){ ev.push({ at: p.paid_at, kind: REC_PAY_KIND[p.method] || 'Payment received', text: money(p.amount) + (p.source === 'xero' ? ' · from Xero' : p.method && !REC_PAY_KIND[p.method] ? ' · ' + p.method : '') }); });
     r.letters.forEach(function(l, n){ ev.push({ at: l.sent_at, kind: (TPL_LABEL[l.type] || 'Letter') + ' sent', text: (l.subject || '') + (l.send_via ? ' · via ' + l.send_via : '') + (l.snapshot && l.snapshot.html ? ' · copy at Annexure A' + (n + 1) : '') }); });
     r.log.forEach(function(x){ ev.push({ at: x.occurred_at, kind: (x.direction === 'in' ? 'Received' : x.direction === 'out' ? 'Sent' : 'Note') + ' (' + (HIST_CHANNEL[x.channel] || x.channel) + ')', text: (x.subject ? x.subject + ': ' : '') + x.summary }); });
     // Hardship notes can hold health or personal details; they stay out of the pack.
@@ -588,6 +595,7 @@
     P2.s2 = step(2, 'Claim amount',
       (locked ? '<p class="muted small">Amounts were locked when the application was lodged. Figures below are today’s.</p>' : '')
       + '<div class="rec-togs">' + tog('include_interest', 'Include interest', money(cl.fullInterest)) + tog('include_fees', 'Include fees', money(cl.fullFees)) + (cl.disputedItems.length ? tog('include_disputed', 'Include disputed invoices') : '')
+      + (cl.staleItems.length ? tog('leave_out_stale', 'Leave out invoices past the time limit', cl.staleItems.map(function(i){ return i.invoice_number; }).join(', ') + ' · ' + money(r2(cl.staleItems.reduce(function(s, i){ return s + (Number(i.balance) || 0); }, 0)))) : '')
       + (R.limitOver === 'abandon' && (cl.gross > R.limit || cl.opt.abandon_excess) ? tog('abandon_excess', 'Abandon the excess over ' + money(R.limit), cl.gross > R.limit ? money(r2(cl.gross - R.limit)) : '') : '')
       + (R.entityFees ? '<label class="rec-tog">You pay <select data-rentity'+(locked ? ' disabled' : '')+'><option value="corporation"'+(cl.entity !== 'person' ? ' selected' : '')+'>the corporation fee</option><option value="person"'+(cl.entity === 'person' ? ' selected' : '')+'>the individual fee</option></select></label>'
         + '<span class="muted small rec-ent-src">' + (!orgFeeEntity() ? '<a href="#" data-goto-settings>Set your business type in Settings</a>' : (cl.entity === orgFeeEntity() ? 'From Settings' : 'Changed for this claim (Settings says ' + (orgFeeEntity() === 'person' ? 'individual' : 'corporation') + ')')) + '</span>' : '')
@@ -966,6 +974,8 @@
       + (cl.abandoned ? '<tr><td colspan="5">Less amount abandoned to stay within the '+money(cl.rules.limit)+' limit</td><td class="num">−'+money(cl.abandoned)+'</td></tr>' : '')
       + '<tr class="tot"><td colspan="5">Total claimed</td><td class="num">'+money(cl.total)+'</td></tr></tbody></table>';
   }
+  // How payments synced from Xero read in the chronology (method set by xero-sync).
+  var REC_PAY_KIND = { payment: 'Payment received', credit_note: 'Credit note applied', prepayment: 'Prepayment applied', overpayment: 'Overpayment applied', adjustment: 'Paid or credited in Xero' };
   function recPackHtml(c, m, cl){
     var A = m.applicant || {}, P = m.respondent || {}, r = recState.records || { letters: [] };
     var who = escapeHtml(A.name || currentOrg.name) + ' v ' + escapeHtml(P.name || letterAddresseeName(c.debtor));

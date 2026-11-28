@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { paymentsFromInvoice } from "./xero-payments.ts";
 
 const XERO_CLIENT_ID = "8531C25BD29F406E840BA5BDD3524D27";
 
@@ -98,7 +99,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { org_id } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { org_id } = body;
     if (!org_id) return json({ error: "org_id is required" }, 400);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -230,7 +232,11 @@ Deno.serve(async (req: Request) => {
     //    them keyed by Xero's InvoiceID, reusing or opening a case per debtor.
     let invoicePath = `/api.xro/2.0/Invoices?where=Type%3D%3D%22ACCREC%22`;
     const extraHeaders: Record<string, string> = {};
-    if (conn.last_synced_at) extraHeaders["If-Modified-Since"] = new Date(conn.last_synced_at).toUTCString();
+    // Only changed invoices, except on a full sync: when asked, or until any Xero payments have been
+    // recorded (older part-paid invoices haven't changed, so they'd otherwise never get their payments).
+    const { count: xeroPayCount } = await supabaseService.from("payments").select("id", { count: "exact", head: true }).eq("org_id", org_id).eq("source", "xero");
+    const fullSync = body.full === true || !xeroPayCount;
+    if (conn.last_synced_at && !fullSync) extraHeaders["If-Modified-Since"] = new Date(conn.last_synced_at).toUTCString();
 
     const invoices: any[] = [];
     for (let page = 1; page <= 50; page++) {
@@ -253,7 +259,7 @@ Deno.serve(async (req: Request) => {
       if (batch.length < 100) break;
     }
 
-    let invoicesSynced = 0, invoicesSkipped = 0;
+    let invoicesSynced = 0, invoicesSkipped = 0, paymentsSynced = 0;
     const caseIdByDebtor: Record<string, string> = {};
     const invoiceRows: any[] = [];
 
@@ -296,9 +302,37 @@ Deno.serve(async (req: Request) => {
     }
 
     if (invoiceRows.length) {
-      const { error: invErr } = await supabaseUser.from("invoices").upsert(invoiceRows, { onConflict: "org_id,source,external_id" });
+      const { data: savedInvs, error: invErr } = await supabaseUser.from("invoices")
+        .upsert(invoiceRows, { onConflict: "org_id,source,external_id" }).select("id, external_id, case_id");
       if (invErr) return json({ error: `Could not save invoices: ${invErr.message}` }, 500);
       invoicesSynced = invoiceRows.length;
+
+      // 4. Payments, credit notes and allocations from Xero, so part-paid invoices show Xero's balance.
+      //    Written with the service role: Xero-sourced payments are locked to the sync (guard_synced_payments).
+      const today = new Date(Date.now() + 10 * 3600_000).toISOString().slice(0, 10);
+      const savedByExt: Record<string, any> = {};
+      for (const r of savedInvs || []) savedByExt[r.external_id] = r;
+      const payRows: any[] = [], touched: string[] = [];
+      for (const inv of invoices) {
+        const s = savedByExt[inv.InvoiceID];
+        if (!s || touched.includes(s.id)) continue;
+        touched.push(s.id);
+        for (const p of paymentsFromInvoice(inv, today)) {
+          payRows.push({ org_id, case_id: s.case_id, invoice_id: s.id, amount: p.amount, paid_at: p.paid_at, method: p.method, source: "xero", external_id: p.external_id });
+        }
+      }
+      const keep = new Set(payRows.map((r) => r.external_id));
+      for (let i = 0; i < touched.length; i += 200) {
+        const { data: old } = await supabaseService.from("payments").select("id, external_id")
+          .eq("org_id", org_id).eq("source", "xero").in("invoice_id", touched.slice(i, i + 200));
+        const gone = (old || []).filter((o: any) => !keep.has(o.external_id)).map((o: any) => o.id);
+        if (gone.length) await supabaseService.from("payments").delete().in("id", gone);
+      }
+      for (let i = 0; i < payRows.length; i += 500) {
+        const { error: payErr } = await supabaseService.from("payments").upsert(payRows.slice(i, i + 500), { onConflict: "org_id,source,external_id" });
+        if (payErr) return json({ error: `Could not save payments from Xero: ${payErr.message}` }, 500);
+      }
+      paymentsSynced = payRows.length;
     }
 
     await supabaseService.from("xero_connections").update({ last_synced_at: new Date().toISOString() }).eq("org_id", org_id);
@@ -309,6 +343,8 @@ Deno.serve(async (req: Request) => {
       groupsSynced,
       invoicesSynced,
       invoicesSkipped,
+      paymentsSynced,
+      fullSync,
     });
   } catch (e) {
     console.error("xero-sync error", e);
