@@ -1,3 +1,23 @@
+// ---- Test clock: the app always sees 28 Nov 2026, 10:00 am Brisbane, and time moves on normally from there.
+// The test data has fixed invoice dates, so this keeps "days overdue", due/not-due and interest the same every day.
+// A test can set window.__TEST_NOW (an ISO time) in an init script to use another day.
+(function(){
+  var RealDate = Date;
+  var fixed = RealDate.parse(window.__TEST_NOW || '2026-11-28T00:00:00Z');
+  var offset = fixed - RealDate.now();
+  function TestDate(){
+    if(!(this instanceof TestDate)) return new RealDate(RealDate.now() + offset).toString();
+    var a = arguments;
+    var d = a.length === 0 ? new RealDate(RealDate.now() + offset) : new (Function.prototype.bind.apply(RealDate, [null].concat([].slice.call(a))))();
+    Object.setPrototypeOf(d, TestDate.prototype);
+    return d;
+  }
+  TestDate.prototype = Object.create(RealDate.prototype, { constructor: { value: TestDate } });
+  Object.setPrototypeOf(TestDate, RealDate);
+  TestDate.now = function(){ return RealDate.now() + offset; };
+  TestDate.parse = RealDate.parse; TestDate.UTC = RealDate.UTC;
+  window.Date = TestDate;
+})();
 (function(){
   // ---- Evidence checks (same rules as supabase/functions/_shared/terms-evidence.ts; the server decides) ----
   function termsEvNorm(s){ return String(s || '').toLowerCase().normalize('NFKD').replace(/[‘’‛′]/g, "'").replace(/[“”″]/g, '"').replace(/[‐-―]/g, '-').replace(/[^a-z0-9%$.]+/g, ' ').replace(/\s+/g, ' ').trim(); }

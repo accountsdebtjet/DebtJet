@@ -18,9 +18,9 @@ Do these first. Each one speeds up everything after it.
 | F1 | ✅ `CLAUDE.md` with the rules and workflow | S | — | Done 28 Nov 2026 |
 | F2 | ✅ Browser tests moved into the repo (`tests/e2e/`, `run_all.py`) | S | — | Done 28 Nov 2026. 13 tests pass. |
 | F3 | ✅ Run the tests automatically on every push (GitHub Actions) | S | — | Done 28 Nov 2026 (`.github/workflows/tests.yml`). Syntax check plus all browser tests; screenshots are kept for 7 days when a run fails. First run: 13/13 passed in about 2 minutes. |
-| F4 | Turn the tests' printed checks into real pass/fail assertions | M | Yes | Today most tests print values for a person to read; only crashes and page errors fail. |
+| F4 | ✅ Real pass/fail checks in the tests | M | — | Done 28 Nov 2026. 122 checks across 13 tests (`tests/e2e/expect.py`, `check.py`), plus interest sums re-calculated to the cent. The test clock is pinned to 28 Nov 2026, so results don't drift. Proven: switching off the "issued before acceptance" rule fails two checks. |
 | F5 | ✅ Split `index.html` into `css/app.css` and 15 files in `js/` (plain scripts, no build step) | M | — | Done 28 Nov 2026. Test output and screenshots are identical before and after. `tools/check-scripts.js` (also run on GitHub) guards against duplicate names and load-order mistakes. |
-| F6 | Nightly scheduled check: run the tests and the Supabase security and performance advisors, then email the owner a short report | S | Yes | Uses a scheduled task. |
+| F6 | ✅ Morning health check | S | — | Done 28 Nov 2026. Scheduled task "DebtJet nightly health check" runs daily at 6:31 am Brisbane (read-only): script check, tests, GitHub runs, Supabase security and performance advisors, and yesterday's commits. Report by push notification and email. |
 | F7 | Test database: a Supabase branch (or a second free project) for agents to try migrations on before live | S | Yes | **Owner:** branching needs a paid Supabase plan; a second free project works too. |
 | F8 | Fix or retire old tests run5, run6 and run21 (written for older layouts) | S | Yes | |
 

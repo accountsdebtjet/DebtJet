@@ -6,10 +6,13 @@ Usage (from the repo root):
     python tests/e2e/run_all.py run40      # one test
 
 Set CHROME_PATH to use an installed Chrome instead of Playwright's Chromium.
-A test fails if it crashes, or if it reports page errors ("errs [...]" not empty).
+A test fails if it crashes, reports page errors ("errs [...]" not empty), or misses an
+expectation: each test's output is checked against expect.py (and any CHECK lines from check.py).
 Screenshots go to tests/e2e/out/ (ignored by git).
 """
 import os, re, subprocess, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from expect import evaluate
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'out')
@@ -31,9 +34,15 @@ def run(name):
     out = p.stdout + p.stderr
     failed = p.returncode != 0 and not any(n in out for n in NOISE)
     errs = page_errors(out)
-    ok = not failed and not errs
-    print(('PASS ' if ok else 'FAIL ') + name)
-    if not ok:
+    checks = evaluate(name, out)
+    missed = [c for c in checks if not c[0]]
+    ok = not failed and not errs and not missed and len(checks) > 0
+    print(('PASS ' if ok else 'FAIL ') + name + f'  ({len(checks) - len(missed)}/{len(checks)} checks)')
+    for c in missed:
+        print('   ✗ ' + c[1] + '   [' + c[2] + ']')
+    if not checks:
+        print('   ✗ no checks: add expectations to expect.py or use check.py')
+    if failed or errs:
         print('\n'.join(out.strip().splitlines()[-15:]))
     return ok
 
