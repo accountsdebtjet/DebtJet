@@ -1,0 +1,42 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the app's JavaScript for syntax errors
+        run: |
+          sed -n '/<script>/,/<\/script>/p' index.html | sed '1d;$d' > /tmp/app.js
+          node --check /tmp/app.js
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright and Chromium
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Run the browser tests
+        run: python tests/e2e/run_all.py
+
+      - name: Keep screenshots if something failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots
+          path: tests/e2e/out/
+          retention-days: 7
