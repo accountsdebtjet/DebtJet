@@ -3,7 +3,7 @@
 How to use this list:
 - Agents pick the top unblocked item in the highest-priority section, follow `CLAUDE.md`, and tick the item off with the date and commit.
 - **Size:** S is about one session, M is 2–3 sessions, L needs to be split first.
-- **Parallel:** says which items can run at the same time as others, without both editing the same part of `index.html`.
+- **Parallel:** says which items can run at the same time as others. Since F5, each area has its own file in `js/`, so items in different areas rarely clash.
 - **Owner** means it needs you: an account, approval, a decision, or money.
 
 Company registration is 1 July 2027. There is no customer launch date yet.
@@ -19,7 +19,7 @@ Do these first. Each one speeds up everything after it.
 | F2 | ✅ Browser tests moved into the repo (`tests/e2e/`, `run_all.py`) | S | — | Done 28 Nov 2026. 13 tests pass. |
 | F3 | ✅ Run the tests automatically on every push (GitHub Actions) | S | — | Done 28 Nov 2026 (`.github/workflows/tests.yml`). Syntax check plus all browser tests; screenshots are kept for 7 days when a run fails. First run: 13/13 passed in about 2 minutes. |
 | F4 | Turn the tests' printed checks into real pass/fail assertions | M | Yes | Today most tests print values for a person to read; only crashes and page errors fail. |
-| F5 | Split `index.html` into modules (shared, statements, interest & fees, letters, recovery, settings) as plain `<script src>` files, with no build step | M | **No**, do it alone | Unlocks parallel agents. Behaviour must not change; the tests prove it. |
+| F5 | ✅ Split `index.html` into `css/app.css` and 15 files in `js/` (plain scripts, no build step) | M | — | Done 28 Nov 2026. Test output and screenshots are identical before and after. `tools/check-scripts.js` (also run on GitHub) guards against duplicate names and load-order mistakes. |
 | F6 | Nightly scheduled check: run the tests and the Supabase security and performance advisors, then email the owner a short report | S | Yes | Uses a scheduled task. |
 | F7 | Test database: a Supabase branch (or a second free project) for agents to try migrations on before live | S | Yes | **Owner:** branching needs a paid Supabase plan; a second free project works too. |
 | F8 | Fix or retire old tests run5, run6 and run21 (written for older layouts) | S | Yes | |
@@ -27,7 +27,7 @@ Do these first. Each one speeds up everything after it.
 ## P1 — Product: finish the core journey
 | # | Item | Size | Parallel | Notes |
 |---|---|---|---|---|
-| P1 | Send statements and letters from the user's own Gmail or Outlook, and mark them sent automatically | L | After F5 | Split it: Gmail send (data stays with Google), Outlook send, then logging and auto-sent. Sending is always in the business's own name. |
+| P1 | Send statements and letters from the user's own Gmail or Outlook, and mark them sent automatically | L | Yes | Split it: Gmail send (data stays with Google), Outlook send, then logging and auto-sent. Sending is always in the business's own name. |
 | P2 | Server-side terms check in `xero-charges`: re-check the accepted terms before posting interest (don't trust the app's figure) | S | Yes | Edge function only. |
 | P3 | Debt Recovery: snapshot the terms document, acceptance evidence and clause references into the claim and evidence pack | M | Yes | Recovery area only. |
 | P4 | Xero payments sync, so part-paid invoices have the right balance | M | Yes | Fixes the known interest-posting limit. |
@@ -38,7 +38,7 @@ Do these first. Each one speeds up everything after it.
 | P9 | Debt Recovery: when a claim is over a state's limit, show the next forum up (facts only, no advice) | M | Yes | |
 | P10 | Letters: CourtSA Final Notice template (SA pre-action notice) | S | Yes | |
 | P11 | Use the rich editor for statement cover messages and dispute responses | S | Yes | |
-| P12 | "One next step" header on every case (journey rail plus one primary action) | M | After F5 | |
+| P12 | "One next step" header on every case (journey rail plus one primary action) | M | Yes | |
 
 ## P2 — Integrations
 | # | Item | Size | Parallel | Notes |

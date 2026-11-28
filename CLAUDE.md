@@ -29,7 +29,10 @@ The owner is not a developer. Explain changes in plain English, and never assume
 ## Where things live
 | Path | What it is |
 |---|---|
-| `index.html` | The whole web app (HTML, CSS, JS in one file). Hosted on GitHub Pages. |
+| `index.html` | The app's markup, plus the list of script files in load order. Hosted on GitHub Pages. |
+| `js/` | The app's code, one file per area (see `js/README.md`). Plain scripts sharing one global scope, with no build step. |
+| `css/app.css` | All app styles. |
+| `tools/` | `check-scripts.js` (syntax, duplicate names, load order) and `bump-version.py` (cache-busting). |
 | `supabase/migrations/` | Database changes. One file per change, named `YYYYMMDDHHMMSS_name.sql`. |
 | `supabase/functions/` | Edge functions (Deno). Shared code is in `_shared/`, but each deployed function folder needs its own copy. |
 | `google/` | Gmail add-on and the Cloud Run summariser. |
@@ -43,17 +46,19 @@ The owner is not a developer. Explain changes in plain English, and never assume
 Product decisions and status are in the claude.ai project "DebtJet" (docs under `claude/`). Read the relevant doc before changing a feature, and update it afterwards.
 
 ## How to make a change
-1. **Small, exact edits to `index.html`.** Change only what the task needs. Match the existing style: `var`, plain functions, and string-built HTML with `escapeHtml`.
-2. **Syntax check** after editing:
-   ```
-   sed -n '/<script>/,/<\/script>/p' index.html | sed '1d;$d' > /tmp/app.js && node --check /tmp/app.js
-   ```
+1. **Small, exact edits in the right file.** Code is in `js/<area>.js`, styles in `css/app.css`, and markup in `index.html`. Change only what the task needs. Match the existing style: `var`, plain functions, and string-built HTML with `escapeHtml`. Top-level names are global, so don't reuse one from another file. Top-level code that runs at load can only use the same or earlier files (see `js/README.md`).
+2. **Check the scripts** after editing: `node tools/check-scripts.js` (catches syntax errors, duplicate names and load-order mistakes). Then run `python3 tools/bump-version.py` so browsers load the new files.
 3. **Run the tests:** `python tests/e2e/run_all.py` (needs `pip install playwright`). Every test must pass. Add or update a test for what you changed. If the backend changes, update `tests/e2e/fake-supabase.js` too.
 4. **Database changes:** write a migration file, then apply it with the Supabase `apply_migration` tool. It needs the owner's approval. If the approval times out, **don't retry in the same turn**: tell the owner and wait.
 5. **Edge functions:** deploy with the full file contents inline (`verify_jwt: true`). Read with the user's JWT, and write protected fields with a service-role client inside the function.
 6. **Look at it.** For UI changes, take a screenshot in the test and check it, in light mode and at a narrow width.
 7. **Commit and push** to `main` with a plain-English message saying what changed for the user.
 8. **Update the project doc** for that feature.
+
+## Working in parallel
+- Several agents can work at once if each stays in its own area's files (for example, one in `js/recovery.js` and one in `js/interest-fees.js`).
+- Shared files (`core.js`, `shell.js`, `charges.js`, `css/app.css`, `index.html`) cause clashes; keep edits there small, and pull before pushing (`git pull --rebase`).
+- Each agent picks a different backlog item (see `BACKLOG.md`).
 
 ## Writing and UI style
 - Plain Australian English. Short sentences. Name buttons by what they do.
@@ -62,7 +67,7 @@ Product decisions and status are in the claude.ai project "DebtJet" (docs under 
 - Keep lists compact. Default to showing less, and let users search (Quick find with `/` or Ctrl+K).
 
 ## Definition of done
-- The syntax check passes and all e2e tests pass, including a new or updated test.
+- `node tools/check-scripts.js` passes, the version has been bumped, and all e2e tests pass, including a new or updated test. GitHub runs the same checks on every push; the run must be green.
 - No hard rule or security rule is broken.
 - Screenshots have been checked.
 - The change is committed and pushed, and the project doc is updated.
