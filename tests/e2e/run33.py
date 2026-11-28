@@ -27,7 +27,7 @@ async def main():
         print(await pg.evaluate("(function(){var e=document.querySelector('#statementPaper .sd-summary');var b=e.querySelector('.sd-box');var cs=getComputedStyle(e);return [cs.display,cs.flexDirection,e.offsetHeight,b.offsetHeight,e.parentElement.className,getComputedStyle(e.parentElement).display, e.nextElementSibling&&e.nextElementSibling.className]})()"))
         await pg.screenshot(path='e_stmt.png')
         await pg.click('[data-txt-sec="cover"] .ld-switch'); await pg.wait_for_timeout(200)
-        await pg.fill('#stmtNotes','Thanks for your business.'); await pg.click('[data-txt-sec="closing"] .ld-switch'); await pg.fill('#stmtTxt-closing','Call us on 07 5550 1234 with any questions.'); await pg.wait_for_timeout(700)
+        await pg.click('#stmtNotes-rich'); await pg.keyboard.type('Thanks for your business.'); await pg.click('[data-txt-sec="closing"] .ld-switch'); await pg.click('#stmtTxt-closing-rich'); await pg.keyboard.type('Call us on 07 5550 1234 with any questions.'); await pg.wait_for_timeout(700)
         print('cover in doc', 'Thanks for your business' in await pg.inner_text('#statementPaper'), 'closing in doc', '5550 1234' in await pg.inner_text('#statementPaper'))
         print('table fits', await pg.evaluate("(function(){var sd=document.querySelector('#statementPaper .sd');var t=sd.querySelector('table.sd-t');var cs=getComputedStyle(sd);return [t.scrollWidth, sd.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), t.style.fontSize, sd.style.zoom]})()"))
         nb = await pg.query_selector('[data-ln-clear]')

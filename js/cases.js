@@ -161,13 +161,26 @@
               + (p.notes ? '<div class="hint-r">'+escapeHtml(p.notes)+'</div>' : '') + '</div>'
               + (p.id ? '<button class="linkbtn" type="button" data-cc-del="'+escapeHtml(p.id)+'">Remove</button>' : '') + '</div>';
           }).join('') : '<div class="empty-note">No contacts yet.</div>')
-      +     '<button class="linkbtn" type="button" data-cc="addperson">+ Add a contact</button><div id="ccPersonForm"></div></div>'
+      +     '<button class="linkbtn" type="button" data-cc="addperson">+ Add a contact</button><div id="ccPersonForm"></div>'
+      +     ccGroupsHtml(d) + '</div>'
       +   '<div><h4>Postal address</h4>' + (postal.length ? '<div class="cc-addr">'+postal.map(escapeHtml).join('<br>')+'</div>' : '<div class="empty-note">No postal address. Letters of demand need one.</div>')
       +     (d.website ? '<h4>Website</h4><div><a href="'+escapeHtml(/^https?:/i.test(d.website) ? d.website : 'https://'+d.website)+'" target="_blank" rel="noopener">'+escapeHtml(d.website)+'</a></div>' : '')
       +     (d.notes ? '<h4>Notes</h4><div class="cc-notes">'+escapeHtml(d.notes)+'</div>' : '')
       +     '<h4>On letters of demand</h4><div class="cc-addr">'+escapeHtml(letterAddresseeName(d))+(d.abn && !isPerson(d) ? '<br>ABN '+escapeHtml(fmtAbn(d.abn)) : '')+(postal.length ? '<br>'+postal.map(escapeHtml).join('<br>') : '')+'</div>'
       +   '</div>'
       + '</div></div></div>';
+  }
+  // Contact groups on the contact card: see, add to and take out of groups (Xero groups change in Xero too).
+  function ccGroupsHtml(d){
+    if(typeof stmtGroups === 'undefined') return '';
+    var mine = (stmtGroupsOf[d.id] || []).map(function(gid){ return stmtGroups.filter(function(g){ return g.id === gid; })[0]; }).filter(Boolean);
+    var others = stmtGroups.filter(function(g){ return mine.indexOf(g) < 0 && (!g.xero_group_id || d.xero_contact_id); });
+    return '<h4>Contact groups</h4><div class="cc-groups">' + (mine.length ? mine.map(function(g){
+        return '<span class="cc-grp">' + escapeHtml(g.name) + (g.xero_group_id ? ' <span class="grp-x" title="Contact group in Xero">Xero</span>' : '') + '<button type="button" class="linkbtn" data-cc-grp-rm="' + escapeHtml(g.id) + '" title="Take out of this group" aria-label="Take out of ' + escapeHtml(g.name) + '">✕</button></span>';
+      }).join('') : '<span class="hint-r">Not in a group. Statements only merge contacts in the same group (or with the same ABN).</span>') + '</div>'
+      + '<label class="cc-grp-add"><select data-cc-grp-add aria-label="Add to a contact group"><option value="">Add to a group…</option>'
+      + others.map(function(g){ return '<option value="' + escapeHtml(g.id) + '">' + escapeHtml(g.name) + (g.xero_group_id ? ' (Xero)' : '') + '</option>'; }).join('')
+      + '<option value="__new">New group…</option></select></label>';
   }
   function renderContactEdit(d){
     var f = function(k, label, extra){ return '<label'+(extra && extra.wide ? ' class="span2"' : '')+'>'+label+'<input data-ce="'+k+'" value="'+escapeHtml(d[k] || '')+'"'+(extra && extra.attrs ? ' '+extra.attrs : '')+' /></label>'; };
@@ -216,9 +229,21 @@
   }
   function wireContactCard(c){
     var box = document.getElementById('contactCard'); if(!box) return;
+    box.addEventListener('change', async function(e){
+      if(!e.target.hasAttribute('data-cc-grp-add')) return;
+      var v = e.target.value; e.target.value = ''; if(!v) return;
+      if(v === '__new'){ if(await groupContacts([c.debtor.id])) renderContactCard(c); return; }
+      if(await groupMemberChange('add', v, c.debtor.id)) renderContactCard(c);
+    });
     box.addEventListener('click', async function(e){
       var t = e.target, act = t.getAttribute('data-cc');
       if(t.getAttribute('data-cc-pick')){ ccSearch = null; t.disabled = true; await abnCheck(c, t.getAttribute('data-cc-pick')); return; }
+      if(t.getAttribute('data-cc-grp-rm')){
+        var g = stmtGroups.filter(function(x){ return x.id === t.getAttribute('data-cc-grp-rm'); })[0]; if(!g) return;
+        if(!await djAsk('Take ' + (c.debtor.name || 'this contact') + ' out of “' + g.name + '”?' + (g.xero_group_id ? '\n\nThis group comes from Xero, so it changes in Xero too.' : ''), { ok: 'Take out' })) return;
+        if(await groupMemberChange('remove', g.id, c.debtor.id)) renderContactCard(c);
+        return;
+      }
       if(t.getAttribute('data-cc-del')){
         if(!await djAsk('Remove this contact?')) return;
         var del = await sb.from('debtor_contacts').delete().eq('id', t.getAttribute('data-cc-del'));

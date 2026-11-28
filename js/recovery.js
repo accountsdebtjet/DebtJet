@@ -526,7 +526,7 @@
   function attachRecRich(root){
     root.querySelectorAll('.rec-rich').forEach(function(el){
       if(el._dj) return;
-      var ta = root.querySelector('[data-rf="'+el.getAttribute('data-rich-for')+'"]');
+      var ta = root.querySelector('[data-rf="'+el.getAttribute('data-rich-for')+'"]') || root.querySelector('[data-rich-ta="'+el.getAttribute('data-rich-for')+'"]');
       djAttach(el, { onChange: function(md){ if(ta) ta.value = md; }, onFocus: function(){ recRichCur = el; } });
     });
   }
@@ -710,7 +710,8 @@
       return '<div class="rec-dispute" data-did="'+escapeHtml(x.id)+'">'
         + '<div class="rec-d-head"><b>'+(x.invoice_id ? escapeHtml(invNo[x.invoice_id] || 'Invoice') : 'Whole account')+'</b><span class="muted small">'+escapeHtml(RAISED_VIA[x.raised_via] || x.raised_via)+(x.raised_on ? ' · ' + fmt(x.raised_on) : '')+'</span>'+status+'</div>'
         + '<div class="rec-d-says"><span>They say</span>'+escapeHtml(x.debtor_says)+'</div>'
-        + '<label class="rec-f wide"><span>Our response (facts only, each linked to a record)</span><textarea data-dresp rows="6">'+escapeHtml(dr.text != null ? dr.text : (x.our_response || ''))+'</textarea></label>'
+        + '<div class="rec-f wide"><span>Our response (facts only, each linked to a record)</span><textarea hidden data-dresp data-rich-ta="dresp.'+escapeHtml(x.id)+'">'+escapeHtml(dr.text != null ? dr.text : (x.our_response || ''))+'</textarea>'
+        + '<div class="rec-rich rec-dresp" data-rich-for="dresp.'+escapeHtml(x.id)+'" data-ins-label="Our response">'+djRich(dr.text != null ? dr.text : (x.our_response || ''), {}, 'edit')+'</div></div>'
         + unknown + (ev ? '<div class="rec-evchips"><span class="muted small">Records cited:</span>'+ev+'</div>' : '') + gaps
         + '<div class="rec-acts">'
         + '<button class="btn ai-btn" type="button" data-dact="ai">'+AI_MARK+'Draft from our records with DebtJet AI</button>'
@@ -995,7 +996,7 @@
       + '<h2>4. Chronology</h2><table><thead><tr><th style="width:90px;">Date</th><th style="width:170px;">What</th><th>Details</th></tr></thead><tbody>'
       + chron.map(function(e){ return '<tr><td>'+fmt(e.at)+'</td><td>'+escapeHtml(e.kind)+'</td><td>'+escapeHtml(e.text)+'</td></tr>'; }).join('') + '</tbody></table>'
       + '<h2>5. Disputed points and our response</h2>'
-      + (approved.length ? approved.map(function(x, n){ return '<div class="box"><b>Point '+(n + 1)+(x.invoice_id ? ' (' + escapeHtml(invNo[x.invoice_id] || 'invoice') + ')' : '')+'.</b> The '+recTerms(cl.rules)[1]+' says: '+escapeHtml(x.debtor_says)+'\n\n<b>Our response:</b> '+escapeHtml(x.our_response)+'</div>'; }).join('') : '<p class="muted">No disputed points recorded.</p>')
+      + (approved.length ? approved.map(function(x, n){ return '<div class="box"><b>Point '+(n + 1)+(x.invoice_id ? ' (' + escapeHtml(invNo[x.invoice_id] || 'invoice') + ')' : '')+'.</b> The '+recTerms(cl.rules)[1]+' says: '+escapeHtml(x.debtor_says)+'</div><div class="box rich"><p><b>Our response</b></p>'+djRich(x.our_response, {}, 'html')+'</div>'; }).join('') : '<p class="muted">No disputed points recorded.</p>')
       + (pending ? '<div class="warn">'+pending+' disputed point'+(pending > 1 ? 's are' : ' is')+' not yet approved and '+(pending > 1 ? 'are' : 'is')+' left out of this pack.</div>' : '')
       + r.letters.map(function(l, n){ return '<div class="pb"><h2>Annexure A'+(n + 1)+': '+escapeHtml(TPL_LABEL[l.type] || 'Letter')+' sent '+fmt(l.sent_at)+'</h2>'+(l.snapshot && l.snapshot.html ? '<div>'+l.snapshot.html+'</div>' : '<p class="muted">No copy was kept of this letter.</p>')+'</div>'; }).join('')
       + '</div>';

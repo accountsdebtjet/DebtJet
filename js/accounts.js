@@ -167,7 +167,7 @@
     var t = e.target; if(!t.closest || !t.closest('[data-view="statements"]')) return;
     var b;
     if((b = t.closest('[data-acct]'))){ e.preventDefault(); e.stopPropagation(); focusAccount({ type: 'debtor', id: b.getAttribute('data-acct') }); return; }
-    if((b = t.closest('[data-acct-head]')) && !t.closest('.ch-tick, .chev')){ focusAccount({ type: 'debtor', id: b.getAttribute('data-acct-head') }); return; }
+    if((b = t.closest('[data-acct-head]')) && !t.closest('.ch-tick, .chev, .grp-rm')){ focusAccount({ type: 'debtor', id: b.getAttribute('data-acct-head') }); return; }
     if((b = t.closest('[data-acct-grp]'))){ e.preventDefault(); e.stopPropagation(); focusAccount({ type: 'group', id: b.getAttribute('data-acct-grp') }); return; }
     if((b = t.closest('[data-acct-row]'))){ focusAccount({ type: 'debtor', id: b.getAttribute('data-acct-row') }); return; }
     if(t.closest('[data-acct-back]')){ focusAccount(null); return; }

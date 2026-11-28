@@ -379,6 +379,7 @@
       + S+' .sd-box .k{font-size:.78em;text-transform:uppercase;letter-spacing:.05em;color:'+c.muted+';}'
       + S+' .sd-box .v{font-size:1.25em;font-weight:700;font-variant-numeric:tabular-nums;}'
       + S+' .sd-box.main{border-color:'+c.accent+';border-width:2px;}'+S+' .sd-box.main .v{color:'+c.accent+';font-size:1.45em;}'
+      + S+' .sd-cover.rich{white-space:normal;}'+S+' .sd-cover.rich p{margin:0 0 .6em;}'+S+' .sd-cover.rich p:last-child,'+S+' .sd-cover.rich ul:last-child,'+S+' .sd-cover.rich ol:last-child{margin-bottom:0;}'+S+' .sd-cover.rich ul,'+S+' .sd-cover.rich ol{margin:0 0 .6em;padding-left:1.3em;}'
       + S+' .sd-cover{margin:0 0 '+gapTxt+';white-space:pre-line;line-height:'+(t.density === 'compact' ? 1.4 : t.density === 'roomy' ? 1.7 : 1.55)+';}'
       + S+' table.sd-t{width:100%;border-collapse:collapse;margin:4px 0 6px;}'
       + S+' .sd-t th{background:'+(t.table_style === 'minimal' ? 'transparent' : c.th_bg)+';color:'+c.th_text+';text-align:left;font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding:'+pad+';font-weight:700;}'
@@ -460,7 +461,7 @@
         + cell('31–60 days', money(A0.d31_60 || 0)) + cell('61–90 days', money(A0.d61_90 || 0)) + cell('90+ days', money(A0.d90 || 0)) + cell(headline[0], money(headline[1]), true) + '</div>';
     }
     var coverText = [t.intro, m.cover].filter(function(x){ return x && x.trim(); }).join('\n\n');
-    var cover = sec.cover && coverText ? '<div class="sd-cover">'+escapeHtml(coverText)+'</div>' : '';
+    var cover = sec.cover && coverText ? '<div class="sd-cover rich">'+djRich(coverText, {}, 'html')+'</div>' : '';
 
     var rowHtml = function(list){ return list.map(function(i, idx){
       var alt = idx % 2 ? ' alt' : '';
@@ -522,8 +523,8 @@
       + '<div>Date paid: <span class="line">&nbsp;</span></div></div></div>' : '';
     var details = refN ? '<h2>Invoice details</h2><div class="sd-details">' + m.items.filter(function(i){ return refMap.has(i); }).map(function(i){
         return '<div class="sd-det"><div class="k"><sup>'+refMap.get(i)+'</sup> '+escapeHtml(i.invoice_number || '')+'</div><div class="v">'+escapeHtml(String(i.description || '').trim())+'</div></div>'; }).join('') + '</div>' : '';
-    var TX = m.texts || {}, txt = function(k){ return TX[k] ? '<div class="sd-cover">' + escapeHtml(TX[k]) + '</div>' : ''; };
-    if(TX.pay_note && pay) pay += '<div class="sd-cover" style="margin-top:8px;">' + escapeHtml(TX.pay_note) + '</div>';
+    var TX = m.texts || {}, txt = function(k){ return TX[k] ? '<div class="sd-cover rich">' + djRich(TX[k], {}, 'html') + '</div>' : ''; };
+    if(TX.pay_note && pay) pay += '<div class="sd-cover rich" style="margin-top:8px;">' + djRich(TX.pay_note, {}, 'html') + '</div>';
     return css + '<div class="sd">' + head + summary + cover + table + tot + txt('after_totals') + details + ageing + pay + late + txt('closing') + sign + foot + slip + '</div>';
   }
 
@@ -636,20 +637,38 @@
     stmtTxtOn[k] = !!on;
     var box = document.querySelector('[data-txt-sec="' + k + '"]'); if(!box) return;
     box.querySelector('[data-ts-on]').checked = !!on; box.classList.toggle('on', !!on);
-    var ta = box.querySelector('textarea'); ta.hidden = !on; syncTxtClear(ta);
+    var ta = box.querySelector('textarea'); ta.dataset.on = on ? '1' : ''; stmtRichRefresh(ta); syncTxtClear(ta);
     schedulePreview();
   }
-  document.querySelectorAll('[data-ts-on]').forEach(function(cb){ cb.addEventListener('change', function(){ setStmtTxt(cb.getAttribute('data-ts-on'), cb.checked); if(cb.checked) cb.closest('.txt-sec').querySelector('textarea').focus(); }); });
+  document.querySelectorAll('[data-ts-on]').forEach(function(cb){ cb.addEventListener('change', function(){ setStmtTxt(cb.getAttribute('data-ts-on'), cb.checked); if(cb.checked){ var rr = cb.closest('.txt-sec').querySelector('.stmt-rich'); if(rr) rr.focus(); } }); });
   var stmtTxtMaster = true;
   function stmtTxtBoxes(){ return [document.getElementById('stmtNotes')].concat(Array.prototype.slice.call(document.querySelectorAll('textarea[data-ts]'))); }
-  function syncTxtClear(ta){ var sec = ta.closest('.txt-sec'), b = sec && sec.querySelector('[data-ts-clear]'); if(b) b.hidden = !ta.value || ta.hidden; }
+  function syncTxtClear(ta){ var sec = ta.closest('.txt-sec'), b = sec && sec.querySelector('[data-ts-clear]'); if(b) b.hidden = !ta.value || ta.dataset.on !== '1'; }
+  // Rich text for the statement's own words (bold, italic, underline, lists), using the shared editor.
+  // The hidden textarea keeps the markup (so saving, AI drafts and Undo work as before); you type in the box after it.
+  function stmtRichRefresh(ta){
+    var r = ta._rich; if(!r) return;
+    if(djSerialize(r) !== ta.value) r.innerHTML = djRich(ta.value, {}, 'edit');
+    r.hidden = ta.dataset.on !== '1'; r.toggleAttribute('data-empty', !ta.value.trim());
+  }
+  stmtTxtBoxes().forEach(function(ta){
+    var r = document.createElement('div');
+    r.className = 'stmt-rich'; r.id = ta.id + '-rich';
+    r.setAttribute('data-ins-label', ta.getAttribute('data-ins-label') || 'the statement text');
+    r.setAttribute('data-placeholder', ta.getAttribute('placeholder') || '');
+    r.setAttribute('role', 'textbox'); r.setAttribute('aria-multiline', 'true'); r.setAttribute('aria-label', ta.getAttribute('data-ins-label') || 'Statement text');
+    r.innerHTML = djRich(ta.value, {}, 'edit'); r.hidden = true;
+    ta.parentNode.insertBefore(r, ta.nextSibling); ta._rich = r; ta.hidden = true;
+    r.toggleAttribute('data-empty', !ta.value.trim());
+    djAttach(r, { onChange: function(md){ r.toggleAttribute('data-empty', !md.trim()); if(md === ta.value) return; ta.value = md; ta.dispatchEvent(new Event('input', { bubbles: true })); } });
+  });
   stmtTxtBoxes().forEach(function(ta){ ta.addEventListener('input', function(){ schedulePreview(); syncTxtClear(ta); }); });
   document.getElementById('stmtTxtMaster').addEventListener('change', function(){ stmtTxtMaster = this.checked; document.getElementById('stmtTxtSecs').hidden = !this.checked; schedulePreview(); });
   document.getElementById('stmtTxtSecs').addEventListener('click', function(e){
     var b = e.target.closest('[data-ts-clear]'); if(!b) return;
     var k = b.getAttribute('data-ts-clear'), ta = k === 'cover' ? document.getElementById('stmtNotes') : document.getElementById('stmtTxt-' + k), old = ta.value;
-    ta.value = ''; syncTxtClear(ta); schedulePreview();
-    toastUndo('Text removed.', function(){ ta.value = old; syncTxtClear(ta); schedulePreview(); });
+    ta.value = ''; stmtRichRefresh(ta); syncTxtClear(ta); schedulePreview();
+    toastUndo('Text removed.', function(){ ta.value = old; stmtRichRefresh(ta); syncTxtClear(ta); schedulePreview(); });
   });
   document.getElementById('stmtAiNotesBtn').addEventListener('click', async function(){
     var sel = selectedStatementItems(); if(!sel.items.length) return;
@@ -661,7 +680,7 @@
       var byNumber = {};
       (d.draft.line_notes || []).forEach(function(n){ if(n && n.invoice_number) byNumber[String(n.invoice_number).trim()] = String(n.note || '').trim(); });
       sel.items.forEach(function(i){ if(byNumber.hasOwnProperty(i.invoice_number)) stmtLineNotes[i.id] = byNumber[i.invoice_number]; });
-      if(typeof d.draft.message === 'string'){ document.getElementById('stmtNotes').value = d.draft.message; if(d.draft.message.trim()) setStmtTxt('cover', true); }
+      if(typeof d.draft.message === 'string'){ document.getElementById('stmtNotes').value = d.draft.message; stmtRichRefresh(document.getElementById('stmtNotes')); if(d.draft.message.trim()) setStmtTxt('cover', true); }
       if(d.draft.internal_summary) renderFlags(document.getElementById('stmtFlags'), (d.flags || []).concat([{ level:'info', message:'For staff: ' + d.draft.internal_summary }]));
       lastLineNoteKey = '';
       renderStatementPreview();

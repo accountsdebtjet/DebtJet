@@ -154,6 +154,15 @@ window.termsBaseline=termsBaseline; window.termsEvNeeds=termsEvNeeds; window.ter
       createSignedUrl:function(path){ return Promise.resolve({data:{signedUrl:'about:blank#'+path},error:null}); },
       remove:function(paths){ window.__writes.push({storage:'remove',paths:paths}); return Promise.resolve({data:[],error:null}); } }; } },
     functions:{ invoke:function(name,o){ window.__writes.push({fn:name,body:o.body});
+      if(name==='xero-groups'){ var xb=o.body, xg=(DB.contact_groups||[]).filter(function(g){return g.id===xb.group_id;})[0];
+        if(!xg) return Promise.resolve({data:{ok:false,error:'Group not found.'},error:null});
+        var deb0=function(id){ return (DB.debtors||[]).filter(function(d){return d.id===id;})[0] || {}; };
+        if(xb.action==='push'){ var mem=DB.contact_group_members.filter(function(m){return m.group_id===xg.id;}); var inX=mem.filter(function(m){return deb0(m.debtor_id).xero_contact_id;});
+          if(!inX.length) return Promise.resolve({data:{ok:false,error:"None of this group's contacts came from Xero, so there is nothing to put in a Xero group."},error:null});
+          xg.xero_group_id='xg-'+xg.id; return Promise.resolve({data:{ok:true,xero_group_id:xg.xero_group_id,added:inX.length,not_in_xero:mem.filter(function(m){return !deb0(m.debtor_id).xero_contact_id;}).map(function(m){return deb0(m.debtor_id).name||'?';})},error:null}); }
+        if(xb.action==='add'){ if(!DB.contact_group_members.some(function(m){return m.group_id===xg.id&&m.debtor_id===xb.debtor_id;})) DB.contact_group_members.push({group_id:xg.id,debtor_id:xb.debtor_id,org_id:'org1'}); return Promise.resolve({data:{ok:true,in_xero:!!xg.xero_group_id},error:null}); }
+        if(xb.action==='remove'){ DB.contact_group_members=DB.contact_group_members.filter(function(m){return !(m.group_id===xg.id&&m.debtor_id===xb.debtor_id);}); return Promise.resolve({data:{ok:true,in_xero:!!xg.xero_group_id},error:null}); }
+      }
       if(name==='abn-lookup'){ var b=o.body;
         if(b.name) return Promise.resolve({data:{ok:true,results:[{abn:'53004085616',name:'BLUESTONE LEGAL PTY LTD',name_type:'Entity Name',status:'Active',state:'QLD',postcode:'4000'},{abn:'51824753556',name:'Bluestone Lawyers',name_type:'Business Name',status:'Active',state:'NSW',postcode:'2000'}]},error:null});
         if(b.save){ Object.assign(deb[BL],{abn:b.abn,legal_name:'BLUESTONE LEGAL PTY LTD',acn:'004085616',entity_type:'Australian Private Company',abn_status:'Active',abn_status_from:'2001-04-12',gst_from:'2001-07-01',abr_state:'QLD',abr_postcode:'4000',business_names:['Bluestone Legal'],abr_checked_at:new Date().toISOString(),name_check:'similar'}); }

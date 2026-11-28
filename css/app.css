@@ -1278,3 +1278,21 @@
 .calc-allow ul{margin:4px 0 0;padding-left:18px;}
 .calc-allow li{margin:2px 0;}
 #calcTerms:disabled{opacity:.75;}
+
+/* Contact groups on the contact card and in the groups view (28 Nov 2026) */
+.cc-groups{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px;}
+.cc-grp{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-strong);border-radius:999px;padding:2px 4px 2px 10px;font-size:12px;}
+.cc-grp .linkbtn{padding:0 4px;}
+.cc-grp-add select{font:inherit;font-size:12px;padding:4px 6px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);}
+.grp-rm{background:none;border:0;color:var(--text-faint);cursor:pointer;font-size:12px;padding:2px 4px;}
+.grp-rm:hover{color:var(--critical);}
+
+/* Statement text boxes use the shared rich editor (28 Nov 2026) */
+.stmt-rich{border:1px solid var(--border-strong);border-radius:2px;background:var(--surface);padding:8px 10px;min-height:56px;font-size:13px;line-height:1.5;color:var(--text);outline:none;margin-top:6px;}
+.stmt-rich:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.stmt-rich ul,.stmt-rich ol{margin:2px 0;padding-left:1.3em;}
+.stmt-rich{position:relative;}
+.stmt-rich[data-empty]::before{content:attr(data-placeholder);position:absolute;left:10px;top:8px;right:10px;color:var(--text-faint);pointer-events:none;}
+.rec-dresp{min-height:110px;}
+/* Editors inside a .rec-f label block: normal weight, so Bold works and text isn't shown bold (fixes Details of the claim too) */
+.rec-f .rec-rich{font-weight:400;color:var(--text);}

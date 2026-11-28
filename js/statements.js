@@ -180,7 +180,7 @@
     // Long lists start short: the first 12 plus anything ticked, with a button for the rest.
     var allCount = shown.length, cut = stmtShowMode === 'all' && !stmtShowAll && !stmtSearch && shown.length > 12;
     if(cut){ var first = shown.slice(0, 12); shown = first.concat(shown.slice(12).filter(function(d){ return stmtSelectedDebtors[d.id]; })); }
-    var contactHtml = function(d){
+    var contactHtml = function(d, inGrp){
       var totalOwing = d.invoices.filter(function(i){ return !i.fullyPaid; }).reduce(function(s,i){ return s+i.amount; }, 0);
       var matchTotal = invLevel ? d.invoices.filter(function(i){ return invoiceMatchesFilter(i, d, stmtFilter); }).reduce(function(s,i){ return s+i.amount; }, 0) : null;
       var stageTag = (d.caseStatus === 'debt_recovery' || d.caseStatus === 'tribunal') ? '<span class="stage-tag recovery">'+escapeHtml(STATUS_LABEL[d.caseStatus])+'</span>'
@@ -205,6 +205,7 @@
         +'<label class="ch-tick" title="Tick to put on the next statement"><input type="checkbox" class="contact-check" data-debtor="'+d.id+'" '+(checked?'checked':'')+' aria-label="Put '+escapeHtml(d.name)+' on the next statement" /></label>'
         +'<span class="contact-name"><span class="cn">'+escapeHtml(d.name)+'</span>'+stageTag+(acctLastSent()[d.id] ? '<span class="cn-sent" title="Last statement sent">✓ '+escapeHtml(fmtShort(acctLastSent()[d.id].sent_at))+'</span>' : '')+'</span>'
         +'<span class="contact-total"'+(matchTotal !== null ? ' title="'+escapeHtml(money(matchTotal)+' in this filter, of '+money(totalOwing)+' owing')+'"' : '')+'>'+money(matchTotal !== null ? matchTotal : totalOwing)+'</span>'
+        +(inGrp ? '<button type="button" class="grp-rm" data-grp-rm="'+inGrp+'" data-did="'+d.id+'" title="Take out of this group" aria-label="Take '+escapeHtml(d.name)+' out of this group">✕</button>' : '')
         +'<button type="button" class="chev" data-toggle="'+d.id+'" aria-label="Show invoices" title="Show invoices">'+(checked?'▴':'▾')+'</button></div>'
         +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'><div class="ci-tools"><button type="button" class="linkbtn" data-inv-all="'+d.id+'">Tick all</button><button type="button" class="linkbtn" data-inv-none="'+d.id+'">Untick all</button></div>'+rows+'</div>'
         +'</div>';
@@ -216,8 +217,8 @@
         var mem = shown.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(g.id) >= 0; }); if(!mem.length) return '';
         mem.forEach(function(d){ used[d.id] = true; });
         return '<div class="grp-block'+(acctFocus && acctFocus.type === 'group' && acctFocus.id === g.id ? ' focus' : '')+'"><div class="grp-head"><b>'+escapeHtml(g.name)+'</b>'+(g.xero_group_id ? '<span class="grp-x" title="Contact group in Xero">Xero</span>' : '')+'<span class="grp-n">'+mem.length+' contact'+(mem.length === 1 ? '' : 's')+'</span>'
-          +'<button type="button" class="linkbtn" data-acct-grp="'+g.id+'">Open account</button><button type="button" class="linkbtn" data-grp-tick="'+g.id+'">Tick group</button>'+(g.xero_group_id ? '' : '<button type="button" class="linkbtn" data-grp-rename="'+g.id+'">Rename</button><button type="button" class="linkbtn" data-grp-del="'+g.id+'">Delete</button>')+'</div>'
-          + mem.map(contactHtml).join('') + '</div>';
+          +'<button type="button" class="linkbtn" data-acct-grp="'+g.id+'">Open account</button><button type="button" class="linkbtn" data-grp-tick="'+g.id+'">Tick group</button>'+(g.xero_group_id ? '' : (xeroConnected ? '<button type="button" class="linkbtn" data-grp-push="'+g.id+'" title="Create this group in Xero with its contacts">Add to Xero</button>' : '') + '<button type="button" class="linkbtn" data-grp-rename="'+g.id+'">Rename</button><button type="button" class="linkbtn" data-grp-del="'+g.id+'">Delete</button>')+'</div>'
+          + mem.map(function(d){ return contactHtml(d, g.id); }).join('') + '</div>';
       }).join('');
       var rest = shown.filter(function(d){ return !used[d.id]; });
       if(rest.length) body += '<div class="grp-block"><div class="grp-head"><b>Not in a group</b><span class="grp-n">'+rest.length+'</span></div>' + rest.map(contactHtml).join('') + '</div>';
@@ -262,6 +263,15 @@
         if(others.length){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; }
         mem.forEach(function(d){ stmtSelectedDebtors[d.id] = true; }); renderStatementContacts(); return;
       }
+      if(t.hasAttribute('data-grp-rm')){
+        e.preventDefault(); e.stopPropagation();
+        var rg = stmtGroups.filter(function(x){ return x.id === t.getAttribute('data-grp-rm'); })[0], rd = stmtDebtors.filter(function(x){ return x.id === t.getAttribute('data-did'); })[0];
+        if(!rg || !rd) return;
+        if(!await djAsk('Take ' + rd.name + ' out of “' + rg.name + '”?' + (rg.xero_group_id ? '\n\nThis group comes from Xero, so it changes in Xero too.' : ''), { ok: 'Take out' })) return;
+        if(await groupMemberChange('remove', rg.id, rd.id)) renderStatementContacts();
+        return;
+      }
+      if(t.hasAttribute('data-grp-push')){ if(await groupPushToXero(t.getAttribute('data-grp-push'))) renderStatementContacts(); return; }
       if(t.hasAttribute('data-grp-rename')){
         var g = stmtGroups.filter(function(x){ return x.id === t.getAttribute('data-grp-rename'); })[0]; if(!g) return;
         var nn = await djAsk('Rename this contact group', { input: g.name, inputLabel: 'Group name', ok: 'Rename' }); if(!nn) return;
@@ -308,6 +318,37 @@
     var r = await sb.from('contact_group_members').insert(ids.map(function(id){ return { group_id: g.data.id, debtor_id: id, org_id: currentOrg.id }; }));
     if(r.error){ toast('Could not add contacts to the group: ' + r.error.message); return false; }
     await loadContactGroups(); toast('Group “' + name.slice(0, 80) + '” created.');
+    return true;
+  }
+  // Add or take a contact out of a group. Groups linked to Xero change in Xero first (xero-groups), since sync follows Xero.
+  async function groupMemberChange(action, gid, did){
+    var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; if(!g) return false;
+    if(g.xero_group_id){
+      var r = await sb.functions.invoke('xero-groups', { body: { org_id: currentOrg.id, action: action, group_id: gid, debtor_id: did } });
+      var d = r.data || {};
+      if(r.error || !d.ok){ toast(d.error || 'Could not change the group in Xero. Please try again.'); return false; }
+    } else if(action === 'add'){
+      var a = await sb.from('contact_group_members').upsert({ group_id: gid, debtor_id: did, org_id: currentOrg.id }, { onConflict: 'group_id,debtor_id' });
+      if(a.error){ toast('Could not add to the group: ' + a.error.message); return false; }
+    } else {
+      var x = await sb.from('contact_group_members').delete().eq('group_id', gid).eq('debtor_id', did);
+      if(x.error){ toast('Could not take it out of the group: ' + x.error.message); return false; }
+    }
+    await loadContactGroups();
+    var who = (stmtDebtors.filter(function(y){ return y.id === did; })[0] || {}).name || 'The contact';
+    toast(who + (action === 'add' ? ' added to “' : ' taken out of “') + g.name + '”' + (g.xero_group_id ? ', in Xero too.' : '.'));
+    return true;
+  }
+  // Create a DebtJet-made group in Xero, with its Xero contacts, and link it.
+  async function groupPushToXero(gid){
+    var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; if(!g || g.xero_group_id) return false;
+    if(!await djAsk('Add “' + g.name + '” to Xero as a contact group?\n\nIts contacts from Xero are added to the group in Xero. After that, the group follows Xero: change its members here or in Xero.', { ok: 'Add to Xero' })) return false;
+    var r = await sb.functions.invoke('xero-groups', { body: { org_id: currentOrg.id, action: 'push', group_id: gid } });
+    var d = r.data || {};
+    if(r.error || !d.ok){ toast(d.error || 'Could not add the group to Xero. Please try again.'); return false; }
+    await loadContactGroups();
+    if((d.not_in_xero || []).length) await djAsk('“' + g.name + '” is now in Xero with ' + d.added + ' contact' + (d.added === 1 ? '' : 's') + '.\n\nNot in Xero, so not in the Xero group: ' + d.not_in_xero.join(', ') + '. They’ll drop out of this group at the next Xero sync.', { cancel: false, ok: 'OK' });
+    else toast('“' + g.name + '” is now a contact group in Xero.');
     return true;
   }
   function selectedStatementItems(){

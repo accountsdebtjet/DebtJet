@@ -368,7 +368,7 @@
     el.focus(); el.selectionStart = el.selectionEnd = (pre + sep + t).length;
     toast('Added to ' + insTargetLabel(el) + '.');
   }
-  var STMT_ASSIST = { scope: 'statement', builtins: STMT_CLAUSES, beforeInsert: function(){ var el = insTarget && document.body.contains(insTarget) && insTarget.offsetParent ? insTarget : null; if(!el){ setStmtTxt('cover', true); } }, noAi: 'AI notes for statements: use “Draft notes with DebtJet AI” on the Statement tab.', placeholder: 'e.g. thank them, or note a promise', insert: function(t){ STMT_ASSIST.beforeInsert(); insertIntoTarget(t, document.getElementById('stmtNotes')); } };
+  var STMT_ASSIST = { scope: 'statement', builtins: STMT_CLAUSES, beforeInsert: function(){ var el = insTarget && document.body.contains(insTarget) && insTarget.offsetParent ? insTarget : null; if(!el){ setStmtTxt('cover', true); } }, noAi: 'AI notes for statements: use “Draft notes with DebtJet AI” on the Statement tab.', placeholder: 'e.g. thank them, or note a promise', insert: function(t){ STMT_ASSIST.beforeInsert(); insertIntoTarget(t, document.getElementById('stmtNotes-rich') || document.getElementById('stmtNotes')); } };
   var TERMS_ASSIST = { scope: 'letter', builtins: TERMS_CLAUSES, noAi: 'Wording to adapt for your own terms of trade. Check it with your adviser.', placeholder: 'e.g. interest on overdue invoices', insert: function(t){ insertIntoTarget(t); } };
   var NOTES_ASSIST = { scope: 'letter', builtins: NOTE_CLAUSES, noAi: 'Click a notes box first, then a note to add it.', placeholder: 'e.g. promise to pay', insert: function(t){ insertIntoTarget(t); } };
   var INS_KINDS = {
@@ -381,13 +381,15 @@
   function insTargetLabel(el){
     el = el || insTarget; if(!el || !document.body.contains(el) || !el.offsetParent) return '';
     if(el.closest('#letterPaper')) return 'the letter';
+    if(el.classList.contains('rec-rich') && el.getAttribute('data-ins-label')) return el.getAttribute('data-ins-label');
     if(el.classList.contains('rec-rich')){ var sec = el.closest('.rec-sec'); return sec ? ((sec.querySelector('.rec-sec-title') || {}).value || 'Section') : 'Details of the claim'; }
     if(el.getAttribute('data-ins-label')) return el.getAttribute('data-ins-label');
     var lab = el.closest('label'); if(lab){ var txt = Array.prototype.filter.call(lab.childNodes, function(n){ return n.nodeType === 3; }).map(function(n){ return n.nodeValue; }).join(' ').trim(); if(txt) return txt.slice(0, 50); }
     var rf = el.closest('.rec-f'); if(rf && rf.querySelector('span')) return rf.querySelector('span').textContent.slice(0, 50);
     return (el.getAttribute('placeholder') || 'the box you last clicked').slice(0, 50);
   }
-  var STMT_TARGET_CAT = { stmtNotes: 'Above the invoices', 'stmtTxt-after_totals': 'After the totals', 'stmtTxt-pay_note': 'How to pay', 'stmtTxt-closing': 'Closing message' };
+  var STMT_TARGET_CAT = { stmtNotes: 'Above the invoices', 'stmtTxt-after_totals': 'After the totals', 'stmtTxt-pay_note': 'How to pay', 'stmtTxt-closing': 'Closing message',
+    'stmtNotes-rich': 'Above the invoices', 'stmtTxt-after_totals-rich': 'After the totals', 'stmtTxt-pay_note-rich': 'How to pay', 'stmtTxt-closing-rich': 'Closing message' };
   function updateInsTarget(){
     if(curView === 'statements' && insTarget && STMT_ASSIST.st){
       var want = STMT_TARGET_CAT[insTarget.id] || (insTarget.hasAttribute('data-line-note') ? 'Notes under invoices' : '');
