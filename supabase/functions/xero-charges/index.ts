@@ -1,9 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { pickAcceptance, checkPosting } from "./terms-check.ts";
 
 // Posts interest on overdue invoices to Xero as DRAFT sales invoices, one per overdue
 // invoice, using the account and tax rate chosen in DebtJet. Nothing is approved or sent
 // in Xero: the business reviews and approves each draft there.
+//
+// Every item is re-checked here against the customer's accepted terms (terms-check.ts):
+// the app's figure is never trusted on its own.
 //
 // Actions:
 //   load  -> revenue accounts + tax rates from Xero, refreshes the status of earlier drafts
@@ -145,8 +149,8 @@ Deno.serve(async (req: Request) => {
 
       // 1. Check each item against DebtJet's own records (RLS limits this to the user's org).
       const ids = items.map((i: any) => String(i.invoice_id || "")).filter((x: string) => UUIDISH.test(x));
-      const { data: invs } = await user.from("invoices").select("id, org_id, invoice_number, source, external_id, status").eq("org_id", orgId).in("id", ids);
-      const { data: prior } = await service.from("charge_postings").select("invoice_id, period_to, status").eq("org_id", orgId).in("invoice_id", ids).not("status", "in", "(voided,deleted)");
+      const { data: invs } = await user.from("invoices").select("id, org_id, invoice_number, source, external_id, status, debtor_id, case_id, issued_date, due_date").eq("org_id", orgId).in("id", ids);
+      const { data: prior } = await service.from("charge_postings").select("invoice_id, period_to, status, interest").eq("org_id", orgId).in("invoice_id", ids).not("status", "in", "(voided,deleted)");
       const seen = new Set<string>();
       for (const it of items) {
         const id = String(it.invoice_id || "");
@@ -163,9 +167,44 @@ Deno.serve(async (req: Request) => {
         if (!ISO.test(from) || !ISO.test(to) || to < from || to > addDays(today, 1)) { fail("The interest period isn't valid."); continue; }
         const overlap = (prior || []).some((p: any) => p.invoice_id === id && p.period_to >= from);
         if (overlap) { fail("Interest for part of this period has already been posted. Refresh and try again."); continue; }
-        ready.push({ it, inv, interest, from, to, balance: r2(Number(it.balance) || 0) });
+        const priorInterest = r2((prior || []).filter((p: any) => p.invoice_id === id).reduce((t: number, p: any) => t + (Number(p.interest) || 0), 0));
+        ready.push({ it, inv, interest, from, to, balance: r2(Number(it.balance) || 0), priorInterest });
       }
       if (!ready.length) return json({ ok: true, results });
+
+      // 1b. What the customer's accepted terms allow (read with the user's own access).
+      const debtorIds = [...new Set(ready.map((r) => r.inv.debtor_id).filter(Boolean))];
+      const caseIds = [...new Set(ready.map((r) => r.inv.case_id).filter(Boolean))];
+      const readyIds = ready.map((r) => r.inv.id);
+      const none = Promise.resolve({ data: [] as any[] });
+      const [accR, grpR, decR, noteR, letR, setR] = await Promise.all([
+        user.from("terms_acceptances").select("document_id, debtor_id, group_id, accepted_on, evidence_grade").eq("org_id", orgId),
+        debtorIds.length ? user.from("contact_group_members").select("group_id, debtor_id").in("debtor_id", debtorIds) : none,
+        user.from("invoice_charge_decisions").select("invoice_id, decision").in("invoice_id", readyIds),
+        user.from("case_notes").select("invoice_id, category, occurred_at").in("invoice_id", readyIds).order("occurred_at", { ascending: false }),
+        caseIds.length ? user.from("letters").select("case_id, type, sent_at").in("case_id", caseIds).eq("status", "sent").order("sent_at", { ascending: true }) : none,
+        user.from("org_charge_settings").select("apply_mode").eq("org_id", orgId).maybeSingle(),
+      ]);
+      const groupsOf: Record<string, string[]> = {};
+      for (const g of (grpR.data || []) as any[]) (groupsOf[g.debtor_id] = groupsOf[g.debtor_id] || []).push(g.group_id);
+      const decisionOf: Record<string, string> = {};
+      for (const d of (decR.data || []) as any[]) decisionOf[d.invoice_id] = d.decision;
+      const latestNote: Record<string, string> = {};
+      for (const n of (noteR.data || []) as any[]) if (n.invoice_id && !(n.invoice_id in latestNote)) latestNote[n.invoice_id] = n.category;
+      const demandOf: Record<string, { first?: string; final?: string }> = {};
+      for (const l of (letR.data || []) as any[]) {
+        const d = (demandOf[l.case_id] = demandOf[l.case_id] || {});
+        const at = String(l.sent_at || "").slice(0, 10); if (!at) continue;
+        if (!d.first && ["first_demand", "final_demand", "pre_legal"].includes(l.type)) d.first = at;
+        if (!d.final && ["final_demand", "pre_legal"].includes(l.type)) d.final = at;
+      }
+      const applyMode = (setR as any).data?.apply_mode || "auto";
+      for (const r of ready) r.acc = pickAcceptance(accR.data || [], r.inv.debtor_id, groupsOf[r.inv.debtor_id] || []);
+      const docIds = [...new Set(ready.map((r) => r.acc?.document_id).filter(Boolean))];
+      const { data: docs } = docIds.length
+        ? await user.from("org_terms_documents").select("id, kind, limits, rules, rules_confirmed_at, archived").in("id", docIds)
+        : { data: [] as any[] };
+      for (const r of ready) r.doc = (docs || []).find((d: any) => d.id === r.acc?.document_id) || null;
 
       const t = await xeroToken(service, orgId);
 
@@ -187,8 +226,16 @@ Deno.serve(async (req: Request) => {
           fail("Xero shows " + money(due) + " owing but DebtJet used " + money(r.balance) + ". Sync from Xero and check payments, then try again.");
           continue;
         }
+        // Held to the accepted terms, on the balance Xero shows.
+        const chk = checkPosting({
+          invoice: r.inv, acceptance: r.acc, doc: r.doc, disputed: latestNote[r.inv.id] === "dispute",
+          decision: decisionOf[r.inv.id] || null, applyMode, demand: demandOf[r.inv.case_id] || {}, todayISO: today,
+          balance: due, from: r.from, to: r.to, interest: r.interest,
+          rate_pa: Number(r.it.rate_pa) > 0 ? Number(r.it.rate_pa) : null, priorInterest: r.priorInterest,
+        });
+        if (!chk.ok) { fail(chk.error); continue; }
         const days = Math.round((Date.parse(r.to) - Date.parse(r.from)) / 86400_000);
-        const rate = Number(r.it.rate_pa) > 0 && Number(r.it.rate_pa) < 1 ? Math.round(Number(r.it.rate_pa) * 10000) / 100 : null;
+        const rate = Number(chk.rules.rate_pa) > 0 && Number(chk.rules.rate_pa) < 1 ? Math.round(Number(chk.rules.rate_pa) * 10000) / 100 : null;
         const desc = "Interest on overdue invoice " + (s.InvoiceNumber || r.inv.invoice_number || "") +
           (rate ? " at " + rate + "% p.a." : "") + " on " + money(due) +
           ", " + fmtDate(r.from) + " to " + fmtDate(r.to) + " (" + days + " day" + (days === 1 ? "" : "s") + ")";

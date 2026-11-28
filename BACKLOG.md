@@ -28,8 +28,8 @@ Do these first. Each one speeds up everything after it.
 | # | Item | Size | Parallel | Notes |
 |---|---|---|---|---|
 | P1 | Send statements and letters from the user's own Gmail or Outlook, and mark them sent automatically | L | Yes | Split it: Gmail send (data stays with Google), Outlook send, then logging and auto-sent. Sending is always in the business's own name. |
-| P2 | Server-side terms check in `xero-charges`: re-check the accepted terms before posting interest (don't trust the app's figure) | S | Yes | Edge function only. |
-| P3 | Debt Recovery: snapshot the terms document, acceptance evidence and clause references into the claim and evidence pack | M | Yes | Recovery area only. |
+| P2 | ✅ Server-side terms check in `xero-charges` | S | — | Done 28 Nov 2026. `xero-charges` v2 re-checks each item on the server: terms accepted with evidence, document ready, issued after acceptance, not disputed or waived, approved in manual mode, start date, rate and amount (on Xero's balance), and any cap. Logic in `_shared/terms-check.ts` with 13 unit tests; refusals show in the DebtJet dialog (run42). |
+| P3 | ✅ Terms, acceptance and evidence in the claim and evidence pack | M | — | Done 28 Nov 2026. The claim snapshot saves the terms basis; the pack has a new section 3, "Terms and acceptance" (document, acceptance, evidence with file fingerprint, clauses and quotes for interest and each fee). Lodged claims keep the terms as lodged. Claim checks name the terms and clause (run43). |
 | P4 | Xero payments sync, so part-paid invoices have the right balance | M | Yes | Fixes the known interest-posting limit. |
 | P5 | Interest & Fees: rework the Calculator tab to match the terms-based rules | M | Yes | Interest & Fees area only. |
 | P6 | Teammates: invite staff, set roles (owner, admin, member), and turn on leaked-password protection | M | Yes | **Owner:** decide the roles. |

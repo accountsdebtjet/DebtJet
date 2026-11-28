@@ -409,8 +409,10 @@
     if(R.checks) R.checks(c, cl, add, d, cl.entity);
     if(cl.disputedItems.length) add(cl.opt.include_disputed ? 'caution' : 'info', cl.disputedItems.length + ' disputed invoice' + (cl.disputedItems.length > 1 ? 's' : ''),
       cl.disputedItems.map(function(i){ return i.invoice_number; }).join(', ') + (cl.opt.include_disputed ? ' included in the claim. Record your response to each disputed point on the Disputed facts tab.' : ' left out of the claim. Record the disputed points on the Disputed facts tab if you decide to include them.'));
-    if(cl.interest > 0) add('info', 'Interest included: ' + money(cl.interest), 'From your Interest & Fees rules. Only claim interest your terms with this customer allow.');
-    if(cl.fees > 0) add('caution', 'Fees included: ' + money(cl.fees), 'Only include fees your terms with this customer allow.' + (R.recoverable ? ' ' + R.short + '’s own costs you can ask for are limited to ' + R.recoverable + '.' : ''));
+    var TB = (cl.interest > 0 || cl.fees > 0) ? recTermsBasis(c, cl) : null;
+    var basis = TB ? 'Under “' + TB.document.title + '”, accepted ' + fmt(TB.acceptance.accepted_on) + (TB.evidence.length ? ' (' + TB.evidence.length + ' evidence item' + (TB.evidence.length === 1 ? '' : 's') + ')' : '') : '';
+    if(cl.interest > 0) add('info', 'Interest included: ' + money(cl.interest), (basis ? basis + (TB.interest && TB.interest.clause ? ', ' + clauseLabel(TB.interest.clause) : '') + '. ' : '') + 'The evidence pack lists the terms, the acceptance and the wording relied on.');
+    if(cl.fees > 0) add('caution', 'Fees included: ' + money(cl.fees), (basis ? basis + (TB.fees.length ? ', ' + TB.fees.map(function(f){ return f.name + (f.clause ? ' ' + clauseLabel(f.clause) : ''); }).join(', ') : '') + '. ' : '') + (R.recoverable ? R.short + '’s own costs you can ask for are limited to ' + R.recoverable + '.' : ''));
     return out;
   }
 
@@ -808,8 +810,48 @@
     if(msg) toast(msg);
     renderRecovery(); return true;
   }
+  // The terms the claim's interest and fees rest on: document, acceptance, evidence, clauses and quotes.
+  // Facts from the business's own records only. Saved into the claim snapshot when the claim is saved or lodged.
+  function recTermsBasis(c, cl){
+    var acc = acceptanceFor(c.debtor.id, false), any = acc || acceptanceFor(c.debtor.id, true);
+    var d = any ? termsDocById(any.document_id) : null;
+    if(!any || !d) return null;
+    var L = d.limits || {}, I = L.interest || {}, E = L.evidence || {};
+    var grp = any.group_id ? (stmtGroups.filter(function(g){ return g.id === any.group_id; })[0] || {}).name || 'a contact group' : null;
+    var feeNames = {};
+    cl.items.forEach(function(i){ (i.feeLines || []).forEach(function(f){ feeNames[String(f.name).toLowerCase()] = 1; }); });
+    ((cl.lm.totals && cl.lm.totals.statement_fees) || []).forEach(function(f){ feeNames[String(f.name).toLowerCase()] = 1; });
+    var quoteOf = function(e){ return e && e.quote ? { quote: String(e.quote).slice(0, 600), clause: e.clause || null, found: e.source === 'quote' || e.found === true } : null; };
+    return {
+      document: { id: d.id, title: d.title || 'Terms', kind: TERMS_KIND[d.kind] || d.kind || 'Document', confirmed_at: d.rules_confirmed_at || null },
+      acceptance: { accepted_on: any.accepted_on, how: ACCEPT_HOW[any.accepted_how] || '', grade: any.evidence_grade || 'declared', via_group: grp, note: any.note || null },
+      evidence: termsEvidence.filter(function(e){ return e.acceptance_id === any.id; }).map(function(e){
+        return { source: EV_SOURCE[e.source] || e.source, label: evLabel(e), sha256: e.sha256 || null, link: e.external_url || null, verified: e.grade === 'verified' };
+      }),
+      interest: cl.interest > 0 && I.allowed ? { text: 'Up to ' + r2((I.max_rate_pa || 0) * 100) + '% a year, ' + (I.method === 'compound_monthly' ? 'compounding monthly' : 'simple'), clause: I.clause || null, from: quoteOf(E.rate) } : null,
+      fees: cl.fees > 0 ? (L.fees || []).filter(function(f){ return feeNames[String(f.name).toLowerCase()]; }).map(function(f){
+        return { name: f.name, text: limFeeText(f), clause: f.clause || null, from: quoteOf(E['fee:' + String(f.name).toLowerCase()]) };
+      }) : []
+    };
+  }
+  // Pack section: the terms behind the interest and fees claimed.
+  function recTermsSection(cl, T){
+    var charged = cl.interest > 0 || cl.fees > 0;
+    if(!T) return charged ? '<div class="warn">Interest or fees are included in the amount claimed, but DebtJet has no terms document recorded as accepted by this customer.</div>' : '<p class="muted">No interest or fees are claimed. No terms document is recorded for this customer in DebtJet.</p>';
+    var A = T.acceptance, rows = [];
+    var cite = function(clause, from){ return (clause ? ' (' + escapeHtml(clauseLabel(clause)) + ')' : '') + (from && from.quote ? '<div class="muted">“' + escapeHtml(from.quote) + '”' + (from.clause && from.clause !== clause ? ' (' + escapeHtml(clauseLabel(from.clause)) + ')' : '') + '</div>' : ''); };
+    rows.push(['Document', escapeHtml(T.document.title) + ' · ' + escapeHtml(T.document.kind)]);
+    rows.push(['Accepted', escapeHtml(fmt(A.accepted_on)) + (A.how ? ' · ' + escapeHtml(A.how) : '') + (A.via_group ? ' · recorded for the contact group ' + escapeHtml(A.via_group) : '') + (A.note ? '<div class="muted">' + escapeHtml(A.note) + '</div>' : '')]);
+    rows.push(['Evidence of acceptance', T.evidence.length ? T.evidence.map(function(e){ return escapeHtml(e.label) + (e.sha256 ? '<div class="muted">File fingerprint (SHA-256): ' + escapeHtml(String(e.sha256).slice(0, 16)) + '…</div>' : '') + (e.link ? '<div class="muted">' + escapeHtml(e.link) + '</div>' : ''); }).join('<br>') : 'None recorded in DebtJet']);
+    if(T.interest) rows.push(['Interest claimed under', escapeHtml(T.interest.text) + cite(T.interest.clause, T.interest.from)]);
+    T.fees.forEach(function(f){ rows.push([escapeHtml(f.name) + ' claimed under', escapeHtml(f.text) + cite(f.clause, f.from)]); });
+    if(T.document.confirmed_at) rows.push(['Limits confirmed in DebtJet', escapeHtml(fmt(T.document.confirmed_at))]);
+    return '<table><tbody>' + rows.map(function(r){ return '<tr><td style="width:180px;"><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody></table>'
+      + (charged && A.grade !== 'evidence' && A.grade !== 'verified' ? '<div class="warn">No evidence of acceptance is attached in DebtJet for these terms.</div>' : '')
+      + '<p class="muted">Copies of the document and the evidence listed above are kept in DebtJet (Interest &amp; Fees → Terms &amp; rules).</p>';
+  }
   function snapshotFor(c, cl, details){
-    return { at: new Date().toISOString(), details: details, options: cl.opt,
+    return { at: new Date().toISOString(), details: details, options: cl.opt, terms: recTermsBasis(c, cl),
       items: cl.items.map(function(i){ return { invoice_number: i.invoice_number, issued_date: i.issued_date, due_date: i.due_date, amount: i.amount, paid: i.paid, balance: i.balance, interest: cl.opt.include_interest ? i.interest : 0, fees: cl.opt.include_fees ? i.fees : 0, disputed: i.disputed }; }),
       totals: { principal: cl.principal, interest: cl.interest, fees: cl.fees, total: cl.total, filing_fee: cl.filingFee } };
   }
@@ -931,14 +973,17 @@
     var approved = recState.disputes.filter(function(x){ return x.approved_at && x.our_response; });
     var pending = recState.disputes.length - approved.length;
     var invNo = {}; (r.invoices || []).forEach(function(i){ invNo[i.id] = i.invoice_number; });
+    // Once lodged, the pack shows the terms as they were when the claim was lodged.
+    var terms = m.status !== 'preparing' && m.claim_snapshot && m.claim_snapshot.terms !== undefined ? m.claim_snapshot.terms : recTermsBasis(c, cl);
     var html = REC_PRINT_CSS + '<div class="rp"><div class="cover"><div class="muted">'+escapeHtml(cl.rules.bodyFull)+' · '+escapeHtml(cl.rules.kind)+'</div><h1>Evidence pack: '+who+'</h1>'
       + '<div class="muted">'+(m.file_number ? 'File ' + escapeHtml(m.file_number) + ' · ' : '')+'Prepared '+fmt(new Date())+' by the '+recTerms(cl.rules)[0]+' from its own records · Amount claimed '+money(m.status === 'preparing' ? cl.total : m.total_claimed)+'</div>'
-      + '<h2>Contents</h2><ol><li>Details of the claim</li><li>Amount claimed</li><li>Chronology</li><li>Disputed points and our response</li><li>Annexures: copies of letters sent ('+r.letters.length+')</li></ol></div>'
+      + '<h2>Contents</h2><ol><li>Details of the claim</li><li>Amount claimed</li><li>Terms and acceptance</li><li>Chronology</li><li>Disputed points and our response</li><li>Annexures: copies of letters sent ('+r.letters.length+')</li></ol></div>'
       + '<h2>1. Details of the claim</h2><div class="box">'+escapeHtml((m.claim_snapshot && m.claim_snapshot.details) || recDefaultDetails(c, cl))+'</div>'
       + '<h2>2. Amount claimed</h2>' + recAmountTable(cl)
-      + '<h2>3. Chronology</h2><table><thead><tr><th style="width:90px;">Date</th><th style="width:170px;">What</th><th>Details</th></tr></thead><tbody>'
+      + '<h2>3. Terms and acceptance</h2>' + recTermsSection(cl, terms)
+      + '<h2>4. Chronology</h2><table><thead><tr><th style="width:90px;">Date</th><th style="width:170px;">What</th><th>Details</th></tr></thead><tbody>'
       + chron.map(function(e){ return '<tr><td>'+fmt(e.at)+'</td><td>'+escapeHtml(e.kind)+'</td><td>'+escapeHtml(e.text)+'</td></tr>'; }).join('') + '</tbody></table>'
-      + '<h2>4. Disputed points and our response</h2>'
+      + '<h2>5. Disputed points and our response</h2>'
       + (approved.length ? approved.map(function(x, n){ return '<div class="box"><b>Point '+(n + 1)+(x.invoice_id ? ' (' + escapeHtml(invNo[x.invoice_id] || 'invoice') + ')' : '')+'.</b> The '+recTerms(cl.rules)[1]+' says: '+escapeHtml(x.debtor_says)+'\n\n<b>Our response:</b> '+escapeHtml(x.our_response)+'</div>'; }).join('') : '<p class="muted">No disputed points recorded.</p>')
       + (pending ? '<div class="warn">'+pending+' disputed point'+(pending > 1 ? 's are' : ' is')+' not yet approved and '+(pending > 1 ? 'are' : 'is')+' left out of this pack.</div>' : '')
       + r.letters.map(function(l, n){ return '<div class="pb"><h2>Annexure A'+(n + 1)+': '+escapeHtml(TPL_LABEL[l.type] || 'Letter')+' sent '+fmt(l.sent_at)+'</h2>'+(l.snapshot && l.snapshot.html ? '<div>'+l.snapshot.html+'</div>' : '<p class="muted">No copy was kept of this letter.</p>')+'</div>'; }).join('')

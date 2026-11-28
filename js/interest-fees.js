@@ -542,7 +542,7 @@
     if(failed.length) alertList((ok ? ok + ' draft' + (ok === 1 ? '' : 's') + ' created in Xero. ' : '') + failed.length + ' couldn’t be posted:', failed);
     else toast(ok + ' draft invoice' + (ok === 1 ? '' : 's') + ' created in Xero.');
   });
-  function alertList(head, lines){ alert(head + '\n\n• ' + lines.slice(0, 15).join('\n• ') + (lines.length > 15 ? '\n…and ' + (lines.length - 15) + ' more' : '')); }
+  function alertList(head, lines){ return djAsk(head + '\n\n• ' + lines.slice(0, 15).join('\n• ') + (lines.length > 15 ? '\n…and ' + (lines.length - 15) + ' more' : ''), { cancel: false, ok: 'OK' }); }
 
   function startBasisFromForm(){
     var v = document.getElementById('chgStart').value;
