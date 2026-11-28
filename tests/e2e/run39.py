@@ -1,0 +1,66 @@
+import asyncio, os
+HERE=os.path.dirname(os.path.abspath(__file__))
+APP='file://'+os.path.abspath(os.path.join(HERE,'..','..','index.html'))
+CHROME=os.environ.get('CHROME_PATH') or None
+from playwright.async_api import async_playwright
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path=CHROME, args=['--no-sandbox'])
+        pg = await b.new_page(viewport={'width':1400,'height':1000}); errs=[]; toasts=[]
+        pg.on('pageerror', lambda e: errs.append(str(e)))
+        await pg.add_init_script("window.__NO_TERMS=true")
+        async def route(r):
+            u=r.request.url
+            if 'supabase' in u and u.endswith('.js'): await r.fulfill(path=os.path.join(HERE,'fake-supabase.js'), content_type='application/javascript')
+            elif u.startswith('file://'): await r.continue_()
+            else: await r.abort()
+        await pg.route('**/*', route)
+        async def yes():
+            await pg.wait_for_timeout(300)
+            if await pg.query_selector('.dj-ask [data-ask="yes"]'): await pg.click('.dj-ask [data-ask="yes"]'); await pg.wait_for_timeout(700)
+        def status(inv): return pg.evaluate("(n)=>{ const r=[...document.querySelectorAll('#chgTable tbody tr[data-row]')].find(r=>r.querySelector('b').textContent===n); return r? r.querySelector('.chg-pill').textContent : null }", inv)
+        async def toast(): return await pg.evaluate("(document.querySelector('.toast')||{}).textContent||''")
+        await pg.goto(APP); await pg.wait_for_timeout(900)
+        await pg.evaluate("window.__DB.case_notes = (window.__DB.case_notes||[]); window.__DB.case_notes.push({id:'cn-acc', debtor_id: window.__DB.invoices.find(i=>i.invoice_number==='INV-3109').debtor_id, category:'other', summary:'Accepted quote', email_subject:'Re: Quote Q-1042 - accepted, terms agreed', email_from:'catherine@bluestone.example', email_message_id:'<abc123@mail.gmail.com>', email_date:'2026-06-20T01:00:00Z', occurred_at:'2026-06-20T01:00:00Z'})")
+        await pg.click('.nav-btn[data-view="interest"]'); await pg.wait_for_timeout(600)
+        await pg.set_input_files('#termsFile', files=[{'name':'Acme_Terms.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4'}]); await pg.wait_for_timeout(1300)
+        await pg.check('[data-lk="checked"]'); await pg.click('[data-lim="confirm"]'); await pg.wait_for_timeout(800)
+        print('overdue list', (await pg.inner_text('.acc-miss')).replace('\n',' | ')[:250])
+        await pg.screenshot(path='t39_panel.png', full_page=True)
+        await pg.click('.acc-miss-row:has-text("Bluestone") [data-acc-cust]'); await pg.wait_for_timeout(300)
+        print('prefilled', await pg.evaluate("[...document.querySelectorAll('.acc-pick input:checked')].map(x=>x.parentElement.textContent.trim())"))
+        await pg.fill('[data-ak="accepted_on"]','2026-06-01')
+        await pg.click('[data-acc="save"]'); await pg.wait_for_timeout(300)
+        print('no evidence blocked:', await toast())
+        await pg.check('[data-ak-declared]'); await pg.click('[data-acc="save"]'); await pg.wait_for_timeout(900)
+        print('declared grade', await pg.evaluate("window.__DB.terms_acceptances.map(a=>a.evidence_grade)"), '|', await toast())
+        print('status row', (await pg.inner_text('#termsWho table')).replace('\n',' | ')[:200])
+        await pg.click('[data-chgtab="invoices"]'); await pg.wait_for_timeout(300)
+        print('INV-3109 declared ->', await status('INV-3109'))
+        await pg.click('[data-chgtab="terms"]'); await pg.wait_for_timeout(300)
+        # add evidence: email in inbox
+        await pg.click('[data-acc-ev]'); await pg.wait_for_timeout(200)
+        await pg.check('[data-ak-src="email"]'); await pg.wait_for_timeout(600)
+        print('emails', (await pg.inner_text('#accEmails')).replace('\n',' | ')[:200])
+        await pg.check('[data-ak-email="cn-acc"]'); await pg.click('[data-acc="save"]'); await pg.wait_for_timeout(900)
+        print('evidence row', await pg.evaluate("JSON.stringify(window.__DB.terms_evidence.map(e=>[e.source,e.external_url,e.party,e.description]))"))
+        print('grade now', await pg.evaluate("window.__DB.terms_acceptances.map(a=>a.evidence_grade)"))
+        print('evidence cell', (await pg.inner_text('#termsWho table')).replace('\n',' | ')[:260])
+        await pg.click('[data-chgtab="invoices"]'); await pg.wait_for_timeout(300)
+        print('INV-3109 with evidence ->', await status('INV-3109'))
+        await pg.click('[data-chgtab="terms"]'); await pg.wait_for_timeout(300)
+        # link evidence validation on another customer via new record
+        await pg.click('[data-acc="new"]'); await pg.wait_for_timeout(200)
+        await pg.fill('[data-ak="accepted_on"]','2026-05-01')
+        await pg.check('.acc-pick label:has-text("Blue Wren") input')
+        await pg.check('[data-ak-src="link"]'); await pg.wait_for_timeout(200)
+        await pg.fill('[data-ak="link"]','https://evil.example.com/mail'); await pg.click('[data-acc="save"]'); await pg.wait_for_timeout(300)
+        print('bad link:', await toast())
+        await pg.fill('[data-ak="link"]','https://outlook.office.com/mail/id/AAMk123'); await pg.click('[data-acc="save"]'); await pg.wait_for_timeout(900)
+        print('outlook evidence', await pg.evaluate("window.__DB.terms_evidence.map(e=>e.source).join(',')"))
+        await pg.screenshot(path='t39_done.png', full_page=True)
+        # remove the email evidence -> back to declared
+        await pg.click('#termsWho tr:has-text("Bluestone") [data-ev-del]'); await yes()
+        print('after removing evidence', await pg.evaluate("window.__DB.terms_acceptances.map(a=>a.evidence_grade)"))
+        print(errs); await b.close()
+asyncio.run(main())
