@@ -508,6 +508,55 @@
   .stab-badge{background:#FFC72C;color:#0B2A5B;border-radius:999px;font-size:11px;padding:0 7px;line-height:18px;font-weight:700;}
   .stmt-shell.stmt-shell-doc{grid-template-columns:minmax(260px,340px) minmax(0,1fr);}
   .stmt-paper-slot .statement-paper{overflow-x:auto;}
+  .search.qf{position:relative;}
+  .qf-kbd{font:600 10.5px/1 inherit;border:1px solid var(--border-strong);border-radius:4px;padding:2px 5px;color:var(--text-faint);background:var(--surface);}
+  .search.qf:focus-within .qf-kbd{display:none;}
+  .qf-panel{position:absolute;left:0;right:0;top:calc(100% + 6px);min-width:340px;max-height:min(70vh,520px);overflow:auto;background:var(--surface);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 12px 32px rgba(11,42,91,.18);z-index:60;padding:6px;}
+  .qf-panel[hidden]{display:none;}
+  .qf-grp{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);padding:8px 8px 4px;}
+  .qf-item{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;cursor:pointer;color:var(--text);}
+  .qf-item.on,.qf-item:hover{background:var(--accent-soft);}
+  .qf-item .qf-t{flex:1;min-width:0;}
+  .qf-item .qf-t b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qf-item .qf-t span{display:block;font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qf-item .qf-amt{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .qf-item .qf-amt.od{color:var(--critical);}
+  .qf-item .qf-case{border:1px solid var(--border-strong);background:var(--surface);border-radius:6px;font:inherit;font-size:11px;font-weight:600;padding:2px 7px;cursor:pointer;color:var(--text);}
+  .qf-empty{padding:12px 8px;font-size:12.5px;color:var(--text-muted);}
+  .qf-foot{border-top:1px solid var(--border);margin-top:4px;padding:6px 8px 2px;font-size:11px;color:var(--text-faint);}
+  .acct-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .acct-col > .card{margin:0;}
+  .acct-head-acts{display:flex;gap:6px;align-items:center;}
+  .acct-sub{font-size:12px;color:var(--text-muted);margin:-4px 0 10px;line-height:1.5;}
+  .acct-members{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;}
+  .acct-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+  .acct-tile{border:1px solid var(--border);border-radius:10px;padding:9px 11px;background:var(--surface-alt);min-width:0;}
+  .acct-tile .l{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);}
+  .acct-tile .v{font-family:"Sora",sans-serif;font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acct-tile .v.od{color:var(--critical);}
+  .acct-tile .s{font-size:11px;color:var(--text-faint);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acct-sec{margin-top:14px;}
+  .acct-sec h4{font-size:12.5px;margin:0 0 6px;display:flex;align-items:center;gap:8px;}
+  .acct-sec h4 .n{font-weight:500;color:var(--text-faint);font-size:11.5px;}
+  .acct-tbl{width:100%;font-size:12.5px;}
+  .acct-tbl td,.acct-tbl th{padding:6px 8px;}
+  .acct-tbl tr.acct-sub-h td{background:var(--surface-alt);font-weight:700;font-size:12px;}
+  .acct-tbl tr.acct-row{cursor:pointer;}
+  .acct-tbl tr.acct-row:hover td{background:var(--accent-soft);}
+  .acct-tbl .od{color:var(--critical);font-weight:600;}
+  .st-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .st-chip.sent{background:var(--success-soft);color:var(--success);}
+  .st-chip.draft{background:var(--warning-soft);color:var(--warning);}
+  .st-chip.none{background:var(--surface-alt);color:var(--text-muted);}
+  .acct-sent-form{display:grid;grid-template-columns:auto auto 1fr auto;gap:6px;align-items:end;padding:8px;background:var(--surface-alt);border-radius:8px;margin-top:4px;}
+  .acct-sent-form label{display:flex;flex-direction:column;font-size:11px;font-weight:600;color:var(--text-muted);gap:2px;}
+  .acct-sent-form input,.acct-sent-form select{font:inherit;font-size:12.5px;padding:4px 6px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);min-width:0;}
+  .acct-open{border:1px solid var(--border-strong);background:var(--surface);color:var(--accent-strong);border-radius:7px;font:inherit;font-size:11.5px;font-weight:600;padding:3px 8px;cursor:pointer;white-space:nowrap;}
+  .acct-open:hover{background:var(--accent-soft);}
+  .contact-group.focus{outline:2px solid var(--accent);outline-offset:-2px;}
+  .grp-block.focus > .grp-head{background:var(--accent-soft);}
+  .acct-empty{font-size:12.5px;color:var(--text-muted);padding:6px 0;}
+  @media (max-width:720px){ .acct-tiles{grid-template-columns:repeat(2,minmax(0,1fr));} .acct-sent-form{grid-template-columns:1fr 1fr;} }
   .stmt-sel-card .sel-names{list-style:none;margin:0 0 10px;padding:0;font-weight:600;font-size:13.5px;}
   .stmt-sel-card .sel-names li{padding:4px 0;border-bottom:1px solid var(--border);}
   .stmt-sel-card .sel-total{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 2px;}
@@ -1281,7 +1330,7 @@
         <div class="sub" id="pageSub">Overview of outstanding debt across all clients</div>
       </div>
       <div class="tb-sources" aria-label="Connected apps"><div class="tb-src-logos" id="tbSrcLogos"></div><button type="button" class="tb-src-add" id="tbSrcAdd" data-src-open>+ Connect or import</button></div>
-      <div class="search"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M16 16l-3.5-3.5"/></svg><input placeholder="Search debtors, invoices, ABNs…" /></div>
+      <div class="search qf" id="qfBox"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M16 16l-3.5-3.5"/></svg><input id="qfInput" type="search" autocomplete="off" placeholder="Find a contact, invoice, ABN or email…" aria-label="Quick find" role="combobox" aria-expanded="false" aria-controls="qfPanel" aria-autocomplete="list" /><kbd class="qf-kbd" aria-hidden="true">/</kbd><div class="qf-panel" id="qfPanel" role="listbox" hidden></div></div>
       <button type="button" class="tb-toggle" id="tbIns" aria-pressed="false" hidden title="Show or hide the Insert panel">Insert</button>
       <button type="button" class="tb-toggle" id="tbStyle" aria-pressed="false" hidden title="Show or hide the Style dock">Style</button>
       <button class="btn primary" id="refreshBtn">↻ Refresh</button>
@@ -1407,10 +1456,9 @@
     <!-- ACCOUNT STATEMENTS -->
     <section class="view" data-view="statements" hidden>
       <div class="stmt-tabs" role="tablist" aria-label="Account statements">
-        <button type="button" role="tab" class="active" aria-selected="true" data-stab="contacts">Contacts <span class="stab-badge" id="stabCount" hidden></span></button>
+        <button type="button" role="tab" class="active" aria-selected="true" data-stab="contacts">Accounts <span class="stab-badge" id="stabCount" hidden></span></button>
         <button type="button" role="tab" aria-selected="false" data-stab="statement">Statement</button>
         <button type="button" role="tab" aria-selected="false" data-stab="templates">Templates</button>
-        <button type="button" role="tab" aria-selected="false" data-stab="audit">Audit history</button>
       </div>
 
       <!-- Contacts tab -->
@@ -1421,7 +1469,7 @@
             <div class="card-body">
               <div class="stmt-filter-bar">
                 <select id="stmtFilter" aria-label="Filter contacts"></select>
-                <input type="search" id="stmtSearch" placeholder="Search name, ABN or invoice…" aria-label="Search contacts" />
+                <input type="search" id="stmtSearch" placeholder="Search name, email, ABN, group or invoice…" aria-label="Search contacts" />
               </div>
               <div class="stmt-list-tools">
                 <label>Show <select id="stmtShowMode" aria-label="Which contacts to show"><option value="all">All contacts</option><option value="groups">By contact group</option><option value="ticked">Ticked only</option><option value="none">None until I search</option></select></label>
@@ -1432,9 +1480,19 @@
               <div class="stmt-selection-summary" id="stmtSelectionSummary"></div>
             </div>
           </div>
-          <div class="card stmt-sel-card">
-            <div class="card-head"><h3>Selection</h3></div>
-            <div class="card-body" id="stmtSelCard"></div>
+          <div class="acct-col">
+            <div class="card stmt-sel-card">
+              <div class="card-head"><h3>Next statement</h3></div>
+              <div class="card-body" id="stmtSelCard"></div>
+            </div>
+            <div class="card acct-card" id="acctCard">
+              <div class="card-head"><h3 id="acctTitle">All accounts</h3><span class="acct-head-acts" id="acctHeadActs"></span></div>
+              <div class="card-body" id="acctBody"></div>
+            </div>
+            <details class="card hist-panel" id="hist-stmt">
+              <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
+              <div class="card-body hist-body"></div>
+            </details>
           </div>
         </div>
       </div>
@@ -1500,21 +1558,6 @@
         </div>
       </div>
 
-      <!-- Audit history tab -->
-      <div class="stab" data-stab-panel="audit" hidden>
-        <p class="muted small stab-hint" id="auditHint"></p>
-        <details class="card hist-panel" id="hist-stmt">
-          <summary class="card-head"><h3>History &amp; correspondence <span class="hist-who"></span></h3><span class="hist-count"></span></summary>
-          <div class="card-body hist-body"></div>
-        </details>
-        <div class="card" style="margin-top:20px;">
-          <div class="card-head"><h3>Previously generated statements</h3></div>
-          <div class="card-body" style="padding-top:0;">
-            <table><thead><tr><th>Generated</th><th>Recipient</th><th class="num">Amount due</th><th>Invoices</th><th>Overdue %</th><th></th></tr></thead>
-            <tbody id="savedStatementsBody"></tbody></table>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- DEBTOR PORTAL PREVIEW -->
@@ -2865,7 +2908,7 @@
     { cat:'After the totals', key:'s_query', label:'Query an invoice', text:'If you think anything on this statement is wrong, tell us which invoice and why, and we will look into it.' },
     { cat:'How to pay', key:'s_ref', label:'Use the reference', text:'Please use the statement number as your payment reference so we can match your payment quickly.' },
     { cat:'How to pay', key:'s_remit', label:'Send remittance', text:'Please email your remittance advice to [email] when you pay.' },
-    { cat:'How to pay', key:'s_bank', label:'Bank details warning', text:'We will never change our bank details by email. If you receive a message saying otherwise, call us before paying.' },
+    { cat:'How to pay', key:'s_bank', label:'Bank details warning', text:'We will never email you to say our bank details have changed. If you get a message like that, call us on a number you already know before paying.' },
     { cat:'Closing message', key:'s_thanks', label:'Thanks', text:'Thank you for your business. We appreciate prompt payment.' },
     { cat:'Closing message', key:'s_contact', label:'Questions? Call us', text:'If you have any questions about this statement, call [name] on [phone].' },
     { cat:'Notes under invoices', key:'s_dispute', label:'Disputed: on hold', text:'Under review, so no payment is requested for this invoice while we look into it.' },
@@ -3941,6 +3984,7 @@
       var d = dmap[c.debtor_id]; if(!d || !LETTER_RANK[l.type]) return;
       if(!d.stage || LETTER_RANK[l.type] > LETTER_RANK[d.stage] || (l.type === d.stage && l.sent_at > d.stageAt)){ d.stage = l.type; d.stageAt = l.sent_at; }
     });
+    qfPeople = null;
     stmtDebtors = Object.keys(dmap).map(function(k){ return dmap[k]; }).sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
     await loadContactGroups();
   }
@@ -4014,14 +4058,18 @@
   }
   function filterIsInvoiceLevel(f){ return f !== 'all' && f !== 'open' && !STAGE_FILTER[f] && f !== 'stage_recovery' && f !== 'stage_plan'; }
 
+  // Same matching as Quick find: every word must appear in the name, legal name, contact, email,
+  // contact people, group, or an invoice number; digits also match the ABN.
   function debtorMatchesSearch(d, q){
-    if(!q) return true;
-    q = q.toLowerCase().trim();
-    var digits = q.replace(/\s/g,'');
-    if((d.name||'').toLowerCase().indexOf(q) >= 0) return true;
-    if((d.contact_name||'').toLowerCase().indexOf(q) >= 0) return true;
-    if(/^\d+$/.test(digits) && (d.abn||'').replace(/\s/g,'').indexOf(digits) >= 0) return true;
-    return d.invoices.some(function(i){ return (i.invoice_number||'').toLowerCase().indexOf(q) >= 0; });
+    if(!q || !q.trim()) return true;
+    var digits = q.replace(/\D/g, '');
+    if(digits.length >= 3 && /^[\d\s]+$/.test(q.trim()) && (d.abn || '').replace(/\D/g, '').indexOf(digits) >= 0) return true;
+    var tokens = qfNorm(q).split(/\s+/).filter(Boolean);
+    var hay = qfNorm([d.name, d.legal_name, d.contact_name, d.email].concat(
+      (stmtGroupsOf[d.id] || []).map(function(gid){ var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; return g ? g.name : ''; }),
+      (qfPeople || []).filter(function(p){ return p.debtor_id === d.id; }).map(function(p){ return [p.name, p.email].join(' '); }),
+      d.invoices.map(function(i){ return i.invoice_number || ''; })).join(' '));
+    return tokens.every(function(t){ return hay.indexOf(t) >= 0; });
   }
 
   function visibleStatementDebtors(){
@@ -4081,10 +4129,11 @@
           +'<span class="debt-right"><span class="debt-amt">'+money(inv.amount)+'</span>'
           +'<span class="pill '+(inv.fullyPaid?'resolved':(inv.isLate?'escalated':'new'))+'">'+(inv.fullyPaid?'Paid':(inv.isLate?'Overdue':'Open'))+'</span></span></label>';
       }).join('');
-      return '<div class="contact-group'+(checked?' sel':'')+'">'
+      return '<div class="contact-group'+(checked?' sel':'')+(acctFocus && acctFocus.type === 'debtor' && acctFocus.id === d.id ? ' focus' : '')+'" data-cg="'+d.id+'">'
         +'<label class="contact-head"><input type="checkbox" class="contact-check" data-debtor="'+d.id+'" '+(checked?'checked':'')+' />'
-        +'<span class="contact-name">'+escapeHtml(d.name)+stageTag+'<span class="sub">'+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+((stmtGroupsOf[d.id] || []).length && stmtShowMode !== 'groups' ? ' · '+(stmtGroupsOf[d.id] || []).map(function(gid){ var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; return g ? escapeHtml(g.name) : ''; }).filter(Boolean).join(', ') : '')+'</span></span>'
+        +'<span class="contact-name">'+escapeHtml(d.name)+stageTag+'<span class="sub">'+d.invoices.length+' invoice'+(d.invoices.length===1?'':'s')+(acctLastSent()[d.id] ? ' · last statement sent '+escapeHtml(fmt(acctLastSent()[d.id].sent_at)) : '')+((stmtGroupsOf[d.id] || []).length && stmtShowMode !== 'groups' ? ' · '+(stmtGroupsOf[d.id] || []).map(function(gid){ var g = stmtGroups.filter(function(x){ return x.id === gid; })[0]; return g ? escapeHtml(g.name) : ''; }).filter(Boolean).join(', ') : '')+'</span></span>'
         +'<span class="contact-total">'+(matchTotal !== null ? money(matchTotal)+'<span class="sub">of '+money(totalOwing)+' owing</span>' : money(totalOwing))+'</span>'
+        +'<button type="button" class="acct-open" data-acct="'+d.id+'" title="Open this account: what is owing, statements sent and history">Account</button>'
         +'<button type="button" class="chev" data-toggle="'+d.id+'">'+(checked?'▴':'▾')+'</button></label>'
         +'<div class="contact-invoices" id="inv-'+d.id+'" '+(checked?'':'hidden')+'><div class="ci-tools"><button type="button" class="linkbtn" data-inv-all="'+d.id+'">Tick all</button><button type="button" class="linkbtn" data-inv-none="'+d.id+'">Untick all</button></div>'+rows+'</div>'
         +'</div>';
@@ -4095,8 +4144,8 @@
       body = stmtGroups.map(function(g){
         var mem = shown.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(g.id) >= 0; }); if(!mem.length) return '';
         mem.forEach(function(d){ used[d.id] = true; });
-        return '<div class="grp-block"><div class="grp-head"><b>'+escapeHtml(g.name)+'</b>'+(g.xero_group_id ? '<span class="grp-x" title="Contact group in Xero">Xero</span>' : '')+'<span class="grp-n">'+mem.length+' contact'+(mem.length === 1 ? '' : 's')+'</span>'
-          +'<button type="button" class="linkbtn" data-grp-tick="'+g.id+'">Tick group</button>'+(g.xero_group_id ? '' : '<button type="button" class="linkbtn" data-grp-rename="'+g.id+'">Rename</button><button type="button" class="linkbtn" data-grp-del="'+g.id+'">Delete</button>')+'</div>'
+        return '<div class="grp-block'+(acctFocus && acctFocus.type === 'group' && acctFocus.id === g.id ? ' focus' : '')+'"><div class="grp-head"><b>'+escapeHtml(g.name)+'</b>'+(g.xero_group_id ? '<span class="grp-x" title="Contact group in Xero">Xero</span>' : '')+'<span class="grp-n">'+mem.length+' contact'+(mem.length === 1 ? '' : 's')+'</span>'
+          +'<button type="button" class="linkbtn" data-acct-grp="'+g.id+'">Open account</button><button type="button" class="linkbtn" data-grp-tick="'+g.id+'">Tick group</button>'+(g.xero_group_id ? '' : '<button type="button" class="linkbtn" data-grp-rename="'+g.id+'">Rename</button><button type="button" class="linkbtn" data-grp-del="'+g.id+'">Delete</button>')+'</div>'
           + mem.map(contactHtml).join('') + '</div>';
       }).join('');
       var rest = shown.filter(function(d){ return !used[d.id]; });
@@ -5017,8 +5066,7 @@
         + '<dt>Biller code</dt><dd>'+escapeHtml(P.bpay_biller_code)+'</dd><dt>Ref</dt><dd>'+escapeHtml(m.reference)+'</dd></dl></div>');
       if(showPay) blocks.push('<div><div class="k">Pay online</div>Use the <b>Pay online</b> link next to each invoice.</div>');
       if(blocks.length || P.instructions) pay = '<h2>How to pay</h2><div class="sd-pay">'+blocks.join('')+'</div>'
-        + (P.instructions ? '<div class="sd-muted" style="margin-top:8px;white-space:pre-line;">'+escapeHtml(P.instructions)+'</div>' : '')
-        + '<div class="sd-muted" style="margin-top:6px;font-size:.85em;">We will never email you to say our bank details have changed. If you get a message like that, call us on a number you already know before paying.</div>';
+        + (P.instructions ? '<div class="sd-muted" style="margin-top:8px;white-space:pre-line;">'+escapeHtml(P.instructions)+'</div>' : '');
     }
     var late = sec.late_rate && m.late ? '<div class="sd-muted" style="margin-top:12px;font-size:.88em;">Payment history (rolling 3 months): '+m.late.lateCount+' of '+m.late.total+' invoices paid after their due date ('+(m.late.total ? Math.round(m.late.lateCount / m.late.total * 100) : 0)+'%).</div>' : '';
     var sign = '<div class="sd-sign">Regards,<br><b>'+escapeHtml(t.sign_off || 'Accounts team')+'</b><br>'+escapeHtml(orgName)+'</div>';
@@ -5117,7 +5165,8 @@
       ? sel.debtorIds.length+' contact'+(sel.debtorIds.length===1?'':'s')+' merged · '+sel.items.length+' invoice'+(sel.items.length===1?'':'s')+' selected'
       : 'No contacts selected yet.';
     renderLineNoteEditors(sel);
-    setHistoryDebtors('stmt', sel.debtorIds);
+    setHistoryDebtors('stmt', acctFocus ? acctIds() : sel.debtorIds);
+    stmtViewingSavedId = null;
     var paper = document.getElementById('statementPaper');
     paper.className = 'statement-paper';
     if(!stmtTplSettings) stmtTplSettings = normaliseTpl({});
@@ -5179,10 +5228,13 @@
     if(!bankChangedRecently()) return true;
     return await djAsk('Your bank details were changed ' + fmtDateTime(orgPayment.bank_changed_at) + '.\n\nHave you confirmed with the owner that this change is genuine? Choose OK to ' + action + ' anyway.');
   }
-  document.getElementById('stmtSaveBtn').addEventListener('click', async function(){
-    var sel = selectedStatementItems(); if(!sel.items.length) return;
-    if(!await confirmBankSafety('save')) return;
+  // Saves the statement on screen. Returns the saved row (or null). Reuses the last save when nothing has changed.
+  async function saveCurrentStatement(skipConfirm){
+    var sel = selectedStatementItems(); if(!sel.items.length) return null;
+    if(!skipConfirm && !await confirmBankSafety('save')) return null;
     var m = buildStatementModel();
+    var key = sel.debtorIds.slice().sort().join(',') + '|' + sel.items.map(function(i){ return i.id || i.invoice_number; }).sort().join(',') + '|' + m.totals.due + '|' + (m.cover || '');
+    if(stmtLastSave && stmtLastSave.key === key){ var prev = savedStatements.filter(function(x){ return x.id === stmtLastSave.id; })[0]; if(prev) return prev; }
     var recipient = m.recipient.trim() || 'Statement recipient';
     var lm = m.late || { lateCount: 0, lateValue: 0 };
     var itemsSnapshot = m.items.map(function(i){
@@ -5196,12 +5248,30 @@
       late_count: lm.lateCount, late_value: lm.lateValue, notes: m.cover || null, created_by: session.user.id,
       template_id: stmtTplKey && stmtTplKey.indexOf('preset:') !== 0 ? stmtTplKey : null, template_settings: Object.assign({}, stmtTplSettings, { logo: effectiveLogo(stmtTplSettings), hide_logo: !effectiveLogo(stmtTplSettings), from_lines: stmtTplSettings.from_lines || orgFromLines() }),
       totals: Object.assign({}, m.totals, { ageing: m.ageing, number: m.number, reference: m.reference, payment: m.payment, charges: m.charges, multi: m.multi })
-    });
-    if(r.error){ toast('Could not save statement: ' + r.error.message); return; }
-    toast('Statement ' + m.number + ' saved for ' + recipient + '.');
+    }).select().single();
+    if(r.error){ toast('Could not save statement: ' + r.error.message); return null; }
+    var row = Array.isArray(r.data) ? r.data[0] : r.data;
+    if(row) stmtLastSave = { key: key, id: row.id };
+    toast('Statement ' + m.number + ' saved for ' + recipient + '. It shows as a draft until you mark it sent.');
     await loadSavedStatements();
+    return row ? (savedStatements.filter(function(x){ return x.id === row.id; })[0] || row) : null;
+  }
+  document.getElementById('stmtSaveBtn').addEventListener('click', function(){ saveCurrentStatement(false); });
+  document.getElementById('stmtPrintBtn').addEventListener('click', async function(){
+    if(!await confirmBankSafety('print')) return;
+    window.print();
+    // Auto-detect: printing or exporting usually means it is going out. Ask, then record it.
+    var viewing = stmtViewingSavedId ? savedStatements.filter(function(x){ return x.id === stmtViewingSavedId; })[0] : null;
+    if(viewing && viewing.status === 'sent') return;
+    var who = viewing ? viewing.recipient_name : (document.getElementById('stmtRecipientName').value.trim() || 'this contact');
+    var how = await djAsk('Did you send this statement to ' + who + '?\n\nDebtJet will save it and record it as sent today, so the account shows what has gone out.',
+      { choices: [{ label: 'Yes, another way', value: 'other' }, { label: 'Yes, posted', value: 'post' }, { label: 'Yes, emailed', value: 'email' }], cancel: 'Not yet' });
+    if(!how) return;
+    var row = viewing || await saveCurrentStatement(true);
+    if(!row) return;
+    var d0 = (stmtDebtors.filter(function(x){ return (row.debtor_ids || [])[0] === x.id; })[0] || {});
+    await markStatementSent(row.id, { sent_at: new Date().toISOString(), sent_via: how, sent_to: how === 'email' ? (d0.email || null) : null });
   });
-  document.getElementById('stmtPrintBtn').addEventListener('click', async function(){ if(await confirmBankSafety('print')) window.print(); });
   // Printing: fit the table to the A4 content width first, then put the on-screen preview back.
   window.addEventListener('beforeprint', function(){ var p = document.getElementById('statementPaper'); if(!p || !p.offsetParent) return; var sd = p.querySelector('.sd'); if(sd){ sd.style.zoom = ''; sd.style.width = ''; } p.dataset.w = p.style.width || ''; p.style.width = '733px'; fitStatementTable(p); });
   window.addEventListener('afterprint', function(){ var p = document.getElementById('statementPaper'); if(!p || p.dataset.w === undefined) return; p.style.width = p.dataset.w; delete p.dataset.w; fitStatementPreview(p); });
@@ -5220,7 +5290,7 @@
 
   function viewSavedStatement(id){
     var s = savedStatements.filter(function(x){ return x.id===id; })[0]; if(!s) return;
-    setStmtTab('statement', true); window.scrollTo(0, 0);
+    setStmtTab('statement', true); window.scrollTo(0, 0); stmtViewingSavedId = s.id;
     var recipEl = document.getElementById('stmtRecipientName');
     recipEl.value = s.recipient_name; recipEl.dataset.manual = '1';
     if(!s.template_settings || !s.totals){ viewLegacyStatement(s); }
@@ -6508,21 +6578,314 @@
   });
   Array.prototype.forEach.call(document.querySelectorAll('input[name="chgMode"]'), function(r){ r.addEventListener('change', onChargeRulesChanged); });
 
+  /* ---------- Accounts: what is owing, what has been sent ---------- */
+  var acctFocus = null, stmtViewingSavedId = null, stmtLastSave = null, acctSentFormId = null, acctShowAll = false, acctCache = null;
+  var SENT_VIA = { email: 'Email', post: 'Post', pdf: 'PDF', hand: 'By hand', portal: 'Portal', other: 'Other' };
   async function loadSavedStatements(){
-    var r = await sb.from('statements').select('*').eq('org_id', currentOrg.id).order('generated_at', { ascending: false }).limit(20);
+    var r = await sb.from('statements').select('*').eq('org_id', currentOrg.id).order('generated_at', { ascending: false }).limit(500);
     savedStatements = r.data || [];
     renderSavedStatements();
   }
-  function renderSavedStatements(){
-    document.getElementById('savedStatementsBody').innerHTML = savedStatements.length ? savedStatements.map(function(s){
-      var n = (s.items||[]).length;
-      var pct = n ? Math.round((s.late_count||0)/n*100) : 0;
-      return '<tr><td>'+fmt(s.generated_at)+'</td><td class="name-cell">'+escapeHtml(s.recipient_name)+'</td><td class="num">'+money(s.total_amount)+'</td><td>'+n+'</td><td>'+pct+'%</td><td><button class="btn sm ghost" data-view-stmt="'+s.id+'">View →</button></td></tr>';
-    }).join('') : '<tr><td colspan="6" class="empty-note">No statements generated yet.</td></tr>';
-    Array.prototype.forEach.call(document.getElementById('savedStatementsBody').querySelectorAll('[data-view-stmt]'), function(btn){
-      btn.addEventListener('click', function(){ viewSavedStatement(this.getAttribute('data-view-stmt')); });
-    });
+  function renderSavedStatements(){ acctCache = null; if(stmtDebtors.length) renderStatementContacts(); renderAccount(); }
+  // Latest statement marked sent, per contact.
+  function acctLastSent(){
+    if(acctCache) return acctCache;
+    var m = {};
+    savedStatements.forEach(function(s){ if(s.status !== 'sent' || !s.sent_at) return; (s.debtor_ids || []).forEach(function(id){ if(!m[id] || s.sent_at > m[id].sent_at) m[id] = s; }); });
+    return (acctCache = m);
   }
+  function acctDebtor(id){ return stmtDebtors.filter(function(x){ return x.id === id; })[0]; }
+  function acctIds(){
+    if(!acctFocus) return [];
+    if(acctFocus.type === 'debtor') return [acctFocus.id];
+    return stmtDebtors.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(acctFocus.id) >= 0; }).map(function(d){ return d.id; });
+  }
+  function invBalance(i){ return Math.max(0, Math.round((Number(i.amount) - (Number(i.paid) || 0)) * 100) / 100); }
+  function acctStatementsFor(ids){ return savedStatements.filter(function(s){ return (s.debtor_ids || []).some(function(x){ return ids.indexOf(x) >= 0; }); }); }
+  function acctSummary(d){
+    var open = d.invoices.filter(function(i){ return !i.fullyPaid; });
+    var out = open.reduce(function(t, i){ return t + invBalance(i); }, 0);
+    var od = open.filter(function(i){ return i.daysOverdue > 0; }).reduce(function(t, i){ return t + invBalance(i); }, 0);
+    return { d: d, open: open, outstanding: out, overdue: od, notDue: out - od, odCount: open.filter(function(i){ return i.daysOverdue > 0; }).length, last: acctLastSent()[d.id] || null };
+  }
+  function stChip(s){
+    return s.status === 'sent'
+      ? '<span class="st-chip sent" title="' + escapeHtml(s.sent_to ? 'Sent to ' + s.sent_to : 'Sent') + '">Sent ' + escapeHtml(fmt(s.sent_at)) + (s.sent_via ? ' · ' + escapeHtml(SENT_VIA[s.sent_via] || s.sent_via) : '') + '</span>'
+      : '<span class="st-chip draft">Draft · not sent</span>';
+  }
+  function lastSentLine(s){ return s ? fmt(s.sent_at) + (s.sent_via ? ' · ' + (SENT_VIA[s.sent_via] || s.sent_via) : '') : ''; }
+  function focusAccount(f){
+    acctFocus = f; acctSentFormId = null;
+    renderStatementContacts(); renderAccount();
+    var c = document.getElementById('acctCard');
+    if(c && c.scrollIntoView && window.innerWidth < 980) c.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  function renderAccount(){
+    var body = document.getElementById('acctBody'); if(!body) return;
+    var title = document.getElementById('acctTitle'), acts = document.getElementById('acctHeadActs');
+    if(acctFocus && acctFocus.type === 'debtor' && !acctDebtor(acctFocus.id)) acctFocus = null;
+    if(acctFocus && acctFocus.type === 'group' && !stmtGroups.some(function(g){ return g.id === acctFocus.id; })) acctFocus = null;
+    if(!acctFocus){
+      title.textContent = 'All accounts'; acts.innerHTML = '';
+      var rows = stmtDebtors.map(function(d){
+        var a = acctSummary(d);
+        a.drafts = savedStatements.filter(function(s){ return s.status !== 'sent' && (s.debtor_ids || []).indexOf(d.id) >= 0; }).length;
+        return a;
+      }).filter(function(a){ return a.outstanding > 0.005 || a.last || a.drafts; })
+        .sort(function(a, b){ return b.overdue - a.overdue || b.outstanding - a.outstanding; });
+      var totOut = rows.reduce(function(t, a){ return t + a.outstanding; }, 0), totOd = rows.reduce(function(t, a){ return t + a.overdue; }, 0);
+      var since = new Date(Date.now() - 30 * 864e5).toISOString();
+      var sent30 = savedStatements.filter(function(s){ return s.status === 'sent' && s.sent_at >= since; }).length;
+      var drafts = savedStatements.filter(function(s){ return s.status !== 'sent'; }).length;
+      var notSent = rows.filter(function(a){ return a.overdue > 0 && (!a.last || a.last.sent_at < since); }).length;
+      var shown = acctShowAll ? rows : rows.slice(0, 15);
+      body.innerHTML = '<p class="acct-sub">Choose <b>Account</b> on a contact, or a row below, to see what is owing, which statements have gone out and the history.</p>'
+        + '<div class="acct-tiles">'
+        + '<div class="acct-tile"><div class="l">Outstanding</div><div class="v">' + money(totOut) + '</div><div class="s">' + rows.filter(function(a){ return a.outstanding > 0.005; }).length + ' accounts</div></div>'
+        + '<div class="acct-tile"><div class="l">Overdue</div><div class="v' + (totOd ? ' od' : '') + '">' + money(totOd) + '</div><div class="s">' + notSent + ' with no statement in 30 days</div></div>'
+        + '<div class="acct-tile"><div class="l">Sent, last 30 days</div><div class="v">' + sent30 + '</div><div class="s">statement' + (sent30 === 1 ? '' : 's') + '</div></div>'
+        + '<div class="acct-tile"><div class="l">Drafts not sent</div><div class="v">' + drafts + '</div><div class="s">saved, not marked sent</div></div>'
+        + '</div>'
+        + (rows.length ? '<table class="acct-tbl"><thead><tr><th>Contact</th><th class="num">Outstanding</th><th class="num">Overdue</th><th>Last statement sent</th></tr></thead><tbody>'
+          + shown.map(function(a){
+            return '<tr class="acct-row" data-acct-row="' + a.d.id + '" tabindex="0"><td><b>' + escapeHtml(a.d.name) + '</b>' + (a.drafts ? ' <span class="st-chip draft">' + a.drafts + ' draft' + (a.drafts === 1 ? '' : 's') + '</span>' : '') + '</td>'
+              + '<td class="num">' + money(a.outstanding) + '</td><td class="num' + (a.overdue ? ' od' : '') + '">' + (a.overdue ? money(a.overdue) : '—') + '</td>'
+              + '<td>' + (a.last ? escapeHtml(lastSentLine(a.last)) : '<span class="st-chip none">None yet</span>') + '</td></tr>';
+          }).join('') + '</tbody></table>'
+          + (rows.length > 15 ? '<button type="button" class="btn sm ghost stmt-more" data-acct-more>' + (acctShowAll ? 'Show fewer' : 'Show all ' + rows.length + ' accounts') + '</button>' : '')
+          : '<div class="acct-empty">No accounts with a balance or a statement yet.</div>');
+      setHistoryDebtors('stmt', Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; }));
+      return;
+    }
+    var ids = acctIds(), ds = ids.map(acctDebtor).filter(Boolean), isGrp = acctFocus.type === 'group';
+    var g = isGrp ? stmtGroups.filter(function(x){ return x.id === acctFocus.id; })[0] : null;
+    var d0 = ds[0];
+    title.textContent = isGrp ? g.name : d0.name;
+    acts.innerHTML = '<button type="button" class="btn sm ghost" data-acct-back>← All accounts</button>';
+    var sums = ds.map(acctSummary);
+    var out = sums.reduce(function(t, a){ return t + a.outstanding; }, 0), od = sums.reduce(function(t, a){ return t + a.overdue; }, 0), odN = sums.reduce(function(t, a){ return t + a.odCount; }, 0);
+    var stmts = acctStatementsFor(ids);
+    var lastSent = stmts.filter(function(s){ return s.status === 'sent' && s.sent_at; }).sort(function(a, b){ return String(b.sent_at).localeCompare(String(a.sent_at)); })[0] || null;
+    var sub;
+    if(isGrp) sub = 'Contact group · ' + ds.length + ' contact' + (ds.length === 1 ? '' : 's') + (g.xero_group_id ? ' · from Xero' : '') + ' · totals combine the contacts, split by contact below';
+    else sub = [d0.abn ? 'ABN ' + d0.abn : '', d0.contact_name || '', d0.email || ''].filter(Boolean).map(escapeHtml).join(' · ');
+    var chips = isGrp ? ds.map(function(d){ return '<button type="button" class="chip" data-acct="' + d.id + '">' + escapeHtml(d.name) + '</button>'; }).join('')
+      : (stmtGroupsOf[d0.id] || []).map(function(gid){ var gg = stmtGroups.filter(function(x){ return x.id === gid; })[0]; return gg ? '<button type="button" class="chip" data-acct-grp="' + gid + '" title="Open the group account">Group: ' + escapeHtml(gg.name) + '</button>' : ''; }).join('');
+    var h = (sub ? '<p class="acct-sub">' + (isGrp ? escapeHtml(sub) : sub) + '</p>' : '') + (chips ? '<div class="acct-members">' + chips + '</div>' : '')
+      + '<div class="acct-tiles">'
+      + '<div class="acct-tile"><div class="l">Outstanding</div><div class="v">' + money(out) + '</div><div class="s">' + sums.reduce(function(t, a){ return t + a.open.length; }, 0) + ' unpaid invoice' + (sums.reduce(function(t, a){ return t + a.open.length; }, 0) === 1 ? '' : 's') + '</div></div>'
+      + '<div class="acct-tile"><div class="l">Overdue</div><div class="v' + (od ? ' od' : '') + '">' + money(od) + '</div><div class="s">' + odN + ' invoice' + (odN === 1 ? '' : 's') + '</div></div>'
+      + '<div class="acct-tile"><div class="l">Not yet due</div><div class="v">' + money(out - od) + '</div><div class="s">&nbsp;</div></div>'
+      + '<div class="acct-tile"><div class="l">Last statement sent</div><div class="v" style="font-size:14px;">' + (lastSent ? escapeHtml(fmt(lastSent.sent_at)) : 'None yet') + '</div><div class="s">' + (lastSent ? escapeHtml((SENT_VIA[lastSent.sent_via] || 'Sent') + (lastSent.sent_to ? ' · ' + lastSent.sent_to : '')) : stmts.length ? stmts.length + ' draft' + (stmts.length === 1 ? '' : 's') + ' saved' : '&nbsp;') + '</div></div>'
+      + '</div>'
+      + '<div class="acct-head-acts"><button type="button" class="btn sm primary" data-acct-new' + (out > 0 ? '' : ' disabled') + '>New statement for this account</button></div>';
+    if(isGrp){
+      h += '<div class="acct-sec"><h4>By contact</h4><table class="acct-tbl"><thead><tr><th>Contact</th><th class="num">Outstanding</th><th class="num">Overdue</th><th>Last statement sent</th></tr></thead><tbody>'
+        + sums.map(function(a){ return '<tr class="acct-row" data-acct-row="' + a.d.id + '" tabindex="0"><td><b>' + escapeHtml(a.d.name) + '</b></td><td class="num">' + money(a.outstanding) + '</td><td class="num' + (a.overdue ? ' od' : '') + '">' + (a.overdue ? money(a.overdue) : '—') + '</td><td>' + (a.last ? escapeHtml(lastSentLine(a.last)) : '<span class="st-chip none">None yet</span>') + '</td></tr>'; }).join('')
+        + '</tbody></table></div>';
+    }
+    // When each invoice last went out on a sent statement.
+    var invSent = {};
+    stmts.forEach(function(s){ if(s.status !== 'sent') return; (s.items || []).forEach(function(it){ var k = (it.debtor_name || '') + '|' + (it.invoice_number || ''); if(!invSent[k] || s.sent_at > invSent[k]) invSent[k] = s.sent_at; }); });
+    var invRows = '';
+    sums.forEach(function(a){
+      if(!a.open.length) return;
+      if(isGrp) invRows += '<tr class="acct-sub-h"><td colspan="5">' + escapeHtml(a.d.name) + ' · ' + money(a.outstanding) + '</td></tr>';
+      a.open.slice().sort(function(x, y){ return y.daysOverdue - x.daysOverdue; }).forEach(function(i){
+        var sentAt = invSent[a.d.name + '|' + (i.invoice_number || '')];
+        invRows += '<tr><td><b>' + escapeHtml(i.invoice_number || '—') + '</b></td><td>' + escapeHtml(fmt(i.due_date)) + '</td>'
+          + '<td class="' + (i.daysOverdue > 0 ? 'od' : '') + '">' + (i.daysOverdue > 0 ? i.daysOverdue + ' day' + (i.daysOverdue === 1 ? '' : 's') + ' overdue' : i.daysOverdue === 0 ? 'Due today' : 'Due in ' + (-i.daysOverdue) + ' day' + (i.daysOverdue === -1 ? '' : 's')) + '</td>'
+          + '<td class="num">' + money(invBalance(i)) + '</td><td>' + (sentAt ? '<span class="st-chip sent">Sent ' + escapeHtml(fmt(sentAt)) + '</span>' : '<span class="st-chip none">Not sent yet</span>') + '</td></tr>';
+      });
+    });
+    h += '<div class="acct-sec"><h4>Outstanding invoices <span class="n">what is owing now, and whether it has been on a sent statement</span></h4>'
+      + (invRows ? '<table class="acct-tbl"><thead><tr><th>Invoice</th><th>Due</th><th>Status</th><th class="num">Balance</th><th>On a statement</th></tr></thead><tbody>' + invRows + '</tbody></table>' : '<div class="acct-empty">Nothing owing on this account.</div>')
+      + '</div>';
+    var stRows = stmts.map(function(s){
+      var names = (s.debtor_ids || []).map(function(id){ var d = acctDebtor(id); return d ? d.name : ''; }).filter(Boolean);
+      var num = s.totals && s.totals.number ? s.totals.number : 'Statement';
+      var row = '<tr><td>' + escapeHtml(fmt(s.generated_at)) + '</td><td><b style="white-space:nowrap;">' + escapeHtml(num) + '</b>' + (names.length > 1 || isGrp ? '<div class="muted small">' + escapeHtml(names.join(' + ') || s.recipient_name) + '</div>' : '') + '</td>'
+        + '<td class="num">' + money(s.total_amount) + '</td><td>' + (s.items || []).length + '</td><td>' + stChip(s) + '</td>'
+        + '<td class="num" style="white-space:nowrap;"><button type="button" class="btn sm ghost" data-st-view="' + s.id + '">View</button>'
+        + (s.status === 'sent' ? '<button type="button" class="btn sm ghost" data-st-undo="' + s.id + '" title="Set back to draft if it was marked sent by mistake">Undo sent</button>'
+           : '<button type="button" class="btn sm" data-st-mark="' + s.id + '">Mark as sent</button><button type="button" class="btn sm ghost" data-st-del="' + s.id + '" title="Delete this draft">Delete</button>')
+        + '</td></tr>';
+      if(acctSentFormId === s.id){
+        var d1 = acctDebtor((s.debtor_ids || [])[0]) || {};
+        row += '<tr><td colspan="6"><div class="acct-sent-form" data-st-form="' + s.id + '">'
+          + '<label>Sent on<input type="date" data-sf="date" value="' + new Date().toISOString().slice(0, 10) + '" max="' + new Date().toISOString().slice(0, 10) + '" /></label>'
+          + '<label>How<select data-sf="via">' + Object.keys(SENT_VIA).map(function(k){ return '<option value="' + k + '">' + SENT_VIA[k] + '</option>'; }).join('') + '</select></label>'
+          + '<label>Sent to (optional)<input type="text" data-sf="to" maxlength="200" value="' + escapeHtml(d1.email || '') + '" placeholder="Email or address" /></label>'
+          + '<span style="display:flex;gap:6px;"><button type="button" class="btn sm" data-st-cancel>Cancel</button><button type="button" class="btn sm primary" data-st-save="' + s.id + '">Save</button></span>'
+          + '</div></td></tr>';
+      }
+      return row;
+    }).join('');
+    h += '<div class="acct-sec"><h4>Statements <span class="n">' + stmts.filter(function(s){ return s.status === 'sent'; }).length + ' sent · ' + stmts.filter(function(s){ return s.status !== 'sent'; }).length + ' draft</span></h4>'
+      + (stRows ? '<table class="acct-tbl"><thead><tr><th>Saved</th><th>Statement</th><th class="num">Amount due</th><th>Invoices</th><th>Status</th><th></th></tr></thead><tbody>' + stRows + '</tbody></table>'
+        : '<div class="acct-empty">No statements saved for this account yet. Use <b>New statement for this account</b>, then Save or Print.</div>')
+      + '<p class="muted small" style="margin-top:6px;">A sent statement is locked, so the record shows exactly what went out. When you print or export, DebtJet asks whether you sent it.</p></div>';
+    body.innerHTML = h;
+    setHistoryDebtors('stmt', ids);
+  }
+  async function markStatementSent(id, f){
+    var r = await sb.from('statements').update({ status: 'sent', sent_at: f.sent_at, sent_via: f.sent_via, sent_to: f.sent_to || null }).eq('id', id);
+    if(r.error){ toast('Could not mark it sent: ' + r.error.message); return false; }
+    acctSentFormId = null;
+    toast('Marked as sent' + (f.sent_via ? ' (' + (SENT_VIA[f.sent_via] || f.sent_via).toLowerCase() + ')' : '') + '.');
+    if(histState.stmt){ histState.stmt.key = null; histState.stmt.loadedKey = null; }
+    await loadSavedStatements();
+    return true;
+  }
+  document.addEventListener('click', async function(e){
+    var t = e.target; if(!t.closest || !t.closest('[data-view="statements"]')) return;
+    var b;
+    if((b = t.closest('[data-acct]'))){ e.preventDefault(); e.stopPropagation(); focusAccount({ type: 'debtor', id: b.getAttribute('data-acct') }); return; }
+    if((b = t.closest('[data-acct-grp]'))){ e.preventDefault(); e.stopPropagation(); focusAccount({ type: 'group', id: b.getAttribute('data-acct-grp') }); return; }
+    if((b = t.closest('[data-acct-row]'))){ focusAccount({ type: 'debtor', id: b.getAttribute('data-acct-row') }); return; }
+    if(t.closest('[data-acct-back]')){ focusAccount(null); return; }
+    if(t.closest('[data-acct-more]')){ acctShowAll = !acctShowAll; renderAccount(); return; }
+    if(t.closest('[data-acct-new]')){
+      stmtSelectedDebtors = {}; stmtInvoiceOverride = {};
+      acctIds().forEach(function(id){ var d = acctDebtor(id); if(!d) return; stmtSelectedDebtors[id] = true; d.invoices.forEach(function(i){ stmtInvoiceOverride[i.id] = !i.fullyPaid; }); });
+      renderStatementContacts(); setStmtTab('statement'); window.scrollTo(0, 0); return;
+    }
+    if((b = t.closest('[data-st-view]'))){ viewSavedStatement(b.getAttribute('data-st-view')); return; }
+    if((b = t.closest('[data-st-mark]'))){ acctSentFormId = b.getAttribute('data-st-mark'); renderAccount(); var f = document.querySelector('[data-st-form] [data-sf="via"]'); if(f) f.focus(); return; }
+    if(t.closest('[data-st-cancel]')){ acctSentFormId = null; renderAccount(); return; }
+    if((b = t.closest('[data-st-save]'))){
+      var form = b.closest('[data-st-form]'), day = form.querySelector('[data-sf="date"]').value, today = new Date().toISOString().slice(0, 10);
+      if(!day){ toast('Choose the date it was sent.'); return; }
+      if(day > today){ toast('The sent date can’t be in the future.'); return; }
+      await markStatementSent(b.getAttribute('data-st-save'), { sent_at: day === today ? new Date().toISOString() : new Date(day + 'T12:00:00').toISOString(), sent_via: form.querySelector('[data-sf="via"]').value, sent_to: form.querySelector('[data-sf="to"]').value.trim() });
+      return;
+    }
+    if((b = t.closest('[data-st-undo]'))){
+      var id = b.getAttribute('data-st-undo');
+      if(!await djAsk('Set this statement back to draft?\n\nUse this only if it was marked sent by mistake. The sent date and method are cleared.', { ok: 'Set to draft' })) return;
+      var r = await sb.from('statements').update({ status: 'draft', sent_at: null, sent_via: null, sent_to: null }).eq('id', id);
+      if(r.error){ toast('Could not change it: ' + r.error.message); return; }
+      if(histState.stmt){ histState.stmt.key = null; histState.stmt.loadedKey = null; }
+      toast('Set back to draft.'); await loadSavedStatements(); return;
+    }
+    if((b = t.closest('[data-st-del]'))){
+      var did = b.getAttribute('data-st-del');
+      if(!await djAsk('Delete this draft statement?\n\nIt was never marked sent. Sent statements can’t be deleted.')) return;
+      var rd = await sb.from('statements').delete().eq('id', did);
+      if(rd.error){ toast('Could not delete it: ' + rd.error.message); return; }
+      if(stmtLastSave && stmtLastSave.id === did) stmtLastSave = null;
+      toast('Draft deleted.'); await loadSavedStatements(); return;
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' || !e.target.closest) return;
+    var r = e.target.closest('[data-acct-row]'); if(r){ e.preventDefault(); focusAccount({ type: 'debtor', id: r.getAttribute('data-acct-row') }); }
+  });
+
+  /* ---------- Quick find: contacts, people, groups, invoices, ABNs, emails, from anywhere ---------- */
+  var qfPeople = null, qfSel = 0, qfResults = [];
+  function qfNorm(x){ return String(x || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, ''); }
+  async function qfLoadPeople(){
+    if(qfPeople || !currentOrg) return;
+    qfPeople = [];
+    var r = await sb.from('debtor_contacts').select('debtor_id, name, email, phone, role').eq('org_id', currentOrg.id).limit(3000);
+    qfPeople = r.data || [];
+  }
+  function qfDebtors(){
+    var m = {};
+    stmtDebtors.forEach(function(d){ m[d.id] = { id: d.id, name: d.name, abn: d.abn, email: d.email, contact_name: d.contact_name, legal_name: d.legal_name, acct: d }; });
+    cases.forEach(function(c){ var d = c.debtor || {}; if(!d.id) return; if(!m[d.id]) m[d.id] = { id: d.id, name: d.name, abn: d.abn, email: d.email, contact_name: d.contact_name, legal_name: d.legal_name, acct: null }; m[d.id].caseId = m[d.id].caseId || c.id; });
+    return m;
+  }
+  function qfSearch(q){
+    var raw = q.trim(); if(!raw) return [];
+    var tokens = qfNorm(raw).split(/\s+/).filter(Boolean), digits = raw.replace(/\D/g, '');
+    var hit = function(hay){ hay = qfNorm(hay); return tokens.every(function(t){ return hay.indexOf(t) >= 0; }); };
+    var out = [], dm = qfDebtors(), ids = Object.keys(dm);
+    ids.forEach(function(id){
+      var d = dm[id];
+      var abnHit = digits.length >= 3 && String(d.abn || '').replace(/\D/g, '').indexOf(digits) >= 0;
+      if(abnHit || hit([d.name, d.legal_name, d.contact_name, d.email].join(' '))){
+        var a = d.acct ? acctSummary(d.acct) : null;
+        out.push({ kind: 'Contacts', type: 'debtor', id: id, caseId: d.caseId, title: d.name || 'Contact',
+          sub: [d.abn ? 'ABN ' + d.abn : '', d.contact_name, d.email].filter(Boolean).join(' · ') || (d.legal_name || ''),
+          amt: a ? a.outstanding : null, od: a ? a.overdue > 0 : false, score: qfNorm(d.name).indexOf(tokens[0]) === 0 ? 0 : 1 });
+      }
+    });
+    stmtGroups.forEach(function(g){
+      if(!hit(g.name)) return;
+      var n = stmtDebtors.filter(function(d){ return (stmtGroupsOf[d.id] || []).indexOf(g.id) >= 0; }).length;
+      out.push({ kind: 'Contact groups', type: 'group', id: g.id, title: g.name, sub: 'Contact group · ' + n + ' contact' + (n === 1 ? '' : 's'), score: 0 });
+    });
+    (qfPeople || []).forEach(function(p){
+      if(!hit([p.name, p.email, p.role, p.phone].join(' '))) return;
+      var d = dm[p.debtor_id]; if(!d) return;
+      out.push({ kind: 'People', type: 'debtor', id: d.id, caseId: d.caseId, title: p.name || p.email, sub: [p.role, p.email, 'at ' + d.name].filter(Boolean).join(' · '), score: 1 });
+    });
+    stmtInvoices.forEach(function(i){
+      if(!i.debtor_id) return;
+      if(!hit([i.invoice_number, i.description].join(' '))) return;
+      var d = dm[i.debtor_id] || {};
+      out.push({ kind: 'Invoices', type: 'debtor', id: i.debtor_id, caseId: d.caseId, title: (i.invoice_number || 'Invoice') + ' · ' + (d.name || ''),
+        sub: (i.fullyPaid ? 'Paid' : i.daysOverdue > 0 ? i.daysOverdue + ' days overdue' : 'Due ' + fmt(i.due_date)) + (i.description ? ' · ' + i.description : ''),
+        amt: i.fullyPaid ? null : invBalance(i), od: !i.fullyPaid && i.daysOverdue > 0, score: qfNorm(i.invoice_number).indexOf(tokens[0]) === 0 ? 0 : 1 });
+    });
+    var order = ['Contacts', 'Contact groups', 'People', 'Invoices'], per = { Contacts: 6, 'Contact groups': 3, People: 4, Invoices: 6 };
+    var res = [];
+    order.forEach(function(k){ res = res.concat(out.filter(function(r){ return r.kind === k; }).sort(function(a, b){ return a.score - b.score || String(a.title).localeCompare(String(b.title)); }).slice(0, per[k])); });
+    return res;
+  }
+  function qfRender(){
+    var panel = document.getElementById('qfPanel'), inp = document.getElementById('qfInput'), q = inp.value;
+    if(!q.trim()){ panel.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
+    qfResults = qfSearch(q); if(qfSel >= qfResults.length) qfSel = 0;
+    var last = '';
+    panel.innerHTML = (qfResults.length ? qfResults.map(function(r, i){
+      var head = r.kind !== last ? '<div class="qf-grp">' + escapeHtml(r.kind) + '</div>' : ''; last = r.kind;
+      return head + '<div class="qf-item' + (i === qfSel ? ' on' : '') + '" role="option" id="qf-o' + i + '" aria-selected="' + (i === qfSel) + '" data-qf="' + i + '">'
+        + '<span class="qf-t"><b>' + escapeHtml(r.title) + '</b><span>' + escapeHtml(r.sub || '') + '</span></span>'
+        + (r.amt != null ? '<span class="qf-amt' + (r.od ? ' od' : '') + '">' + money(r.amt) + '</span>' : '')
+        + (r.caseId ? '<button type="button" class="qf-case" data-qf-case="' + r.caseId + '" title="Open the case in Debtors &amp; Cases">Case</button>' : '')
+        + '</div>';
+    }).join('') : '<div class="qf-empty">No contacts, groups or invoices match “' + escapeHtml(q.trim()) + '”.</div>')
+      + '<div class="qf-foot">↑ ↓ to move · Enter opens the account · Esc to close</div>';
+    panel.hidden = false; inp.setAttribute('aria-expanded', 'true');
+    if(qfResults.length) inp.setAttribute('aria-activedescendant', 'qf-o' + qfSel); else inp.removeAttribute('aria-activedescendant');
+  }
+  function qfClose(clear){ var p = document.getElementById('qfPanel'); p.hidden = true; var inp = document.getElementById('qfInput'); inp.setAttribute('aria-expanded', 'false'); if(clear) inp.value = ''; }
+  function qfOpen(r){
+    if(!r) return;
+    qfClose(true); document.getElementById('qfInput').blur();
+    var isAcct = r.type === 'group' || stmtDebtors.some(function(d){ return d.id === r.id; });
+    if(!isAcct){ if(r.caseId) openCase(r.caseId); else toast('This contact has no invoices yet.'); return; }
+    showView('statements'); setActiveNav('statements'); setStmtTab('contacts');
+    focusAccount({ type: r.type, id: r.id });
+    var card = document.getElementById('acctCard'); if(card && card.scrollIntoView) card.scrollIntoView({ block: 'start' });
+  }
+  (function(){
+    var inp = document.getElementById('qfInput'), panel = document.getElementById('qfPanel');
+    inp.addEventListener('focus', function(){ qfLoadPeople().then(function(){ if(document.activeElement === inp) qfRender(); }); if(inp.value.trim()) qfRender(); });
+    inp.addEventListener('input', function(){ qfSel = 0; qfRender(); });
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowDown'){ e.preventDefault(); if(qfResults.length){ qfSel = (qfSel + 1) % qfResults.length; qfRender(); } }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); if(qfResults.length){ qfSel = (qfSel - 1 + qfResults.length) % qfResults.length; qfRender(); } }
+      else if(e.key === 'Enter'){ e.preventDefault(); qfOpen(qfResults[qfSel]); }
+      else if(e.key === 'Escape'){ e.preventDefault(); if(!panel.hidden) qfClose(false); else { inp.value = ''; inp.blur(); } }
+    });
+    panel.addEventListener('mousedown', function(e){ e.preventDefault(); });   // keep focus in the box
+    panel.addEventListener('click', function(e){
+      var c = e.target.closest('[data-qf-case]'); if(c){ e.stopPropagation(); qfClose(true); inp.blur(); openCase(c.getAttribute('data-qf-case')); return; }
+      var it = e.target.closest('[data-qf]'); if(it) qfOpen(qfResults[Number(it.getAttribute('data-qf'))]);
+    });
+    inp.addEventListener('blur', function(){ setTimeout(function(){ if(document.activeElement !== inp) qfClose(false); }, 120); });
+    document.addEventListener('keydown', function(e){
+      var tag = (e.target && e.target.tagName) || '', typing = /INPUT|TEXTAREA|SELECT/.test(tag) || (e.target && e.target.isContentEditable);
+      if(((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) || (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey)){
+        if(document.querySelector('.dj-ask-wrap, .dj-modal-backdrop:not([hidden])')) return;
+        e.preventDefault(); inp.focus(); inp.select();
+      }
+    });
+  })();
   function viewLegacyStatement(s){
     var recipEl = document.getElementById('stmtRecipientName');
     recipEl.value = s.recipient_name; recipEl.dataset.manual = '1';
@@ -6589,7 +6952,7 @@
       sb.from('case_notes').select('id, debtor_id, case_id, invoice_id, category, summary, source, email_subject, email_from, occurred_at').in('debtor_id', debtorIds).order('occurred_at', { ascending: false }).limit(200),
       caseIds.length ? sb.from('letters').select('id, case_id, type, subject, send_via, status, sent_at, created_at').in('case_id', caseIds).limit(200) : none,
       caseIds.length ? sb.from('case_events').select('id, case_id, event_type, title, body, occurred_at').in('case_id', caseIds).limit(200) : none,
-      sb.from('statements').select('id, title, recipient_name, total_amount, generated_at, debtor_ids, totals').overlaps('debtor_ids', debtorIds).limit(100),
+      sb.from('statements').select('id, title, recipient_name, total_amount, generated_at, debtor_ids, totals, status, sent_at, sent_via, sent_to').overlaps('debtor_ids', debtorIds).limit(100),
       sb.from('correspondence_log').select('*').in('debtor_id', debtorIds).order('occurred_at', { ascending: false }).limit(200)
     ]);
     if(st.key !== myKey) return;   // selection changed while loading
@@ -6613,6 +6976,7 @@
     });
     (res[3].data || []).forEach(function(s){
       items.push({ at: s.generated_at, dir: 'internal', kind: 'statement', title: 'Statement prepared' + (s.totals && s.totals.number ? ' · ' + s.totals.number : ''), body: s.recipient_name + ' · amount due ' + money(s.total_amount) });
+      if(s.status === 'sent' && s.sent_at) items.push({ at: s.sent_at, dir: 'out', kind: 'statement', title: 'Statement sent' + (s.totals && s.totals.number ? ' · ' + s.totals.number : '') + (s.sent_via ? ' · ' + (SENT_VIA[s.sent_via] || s.sent_via) : ''), body: s.recipient_name + (s.sent_to ? ' · to ' + s.sent_to : '') + ' · amount due ' + money(s.total_amount) });
     });
     (res[4].data || []).forEach(function(c){
       items.push({ id: c.id, at: c.occurred_at, dir: c.direction, kind: c.channel, debtor: c.debtor_id, contact: c.direction === 'out' && c.counts_as_contact, logged: true,
@@ -6722,11 +7086,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-stab-panel]'), function(p){ p.hidden = p.getAttribute('data-stab-panel') !== t; });
     var slot = document.querySelector('.stmt-paper-slot[data-slot="' + (t === 'templates' ? 'templates' : 'statement') + '"]');
     if(slot){ slot.appendChild(document.getElementById('stmtWarn')); slot.appendChild(document.getElementById('statementPaper')); }
-    if(t === 'audit'){
-      var h = document.getElementById('hist-stmt'); if(!h.open) h.open = true;
-      var n = Object.keys(stmtSelectedDebtors).filter(function(k){ return stmtSelectedDebtors[k]; }).length;
-      document.getElementById('auditHint').textContent = n ? 'History and correspondence for the contacts selected in Contacts. Previously generated statements are listed below.' : 'Select contacts in the Contacts tab to see their history and correspondence. Previously generated statements are listed below.';
-    }
     if(!keepPaper && (t === 'statement' || t === 'templates')) renderStatementPreview();
   }
   Array.prototype.forEach.call(document.querySelectorAll('[data-stab]'), function(b){ b.addEventListener('click', function(){ setStmtTab(this.getAttribute('data-stab')); }); });
@@ -8184,6 +8543,7 @@
     renderStatementContacts();
   });
   document.getElementById('stmtSearch').addEventListener('input', function(){ stmtSearch = this.value; renderStatementContacts(); });
+  document.getElementById('stmtSearch').addEventListener('focus', function(){ var had = !!qfPeople; qfLoadPeople().then(function(){ if(!had && stmtSearch) renderStatementContacts(); }); });
   document.getElementById('stmtClearSel').addEventListener('click', function(){ stmtSelectedDebtors = {}; stmtInvoiceOverride = {}; renderStatementContacts(); });
   document.getElementById('stmtShowMode').addEventListener('change', function(){ stmtShowMode = this.value; renderStatementContacts(); });
   [['stmtTickAllInv', true], ['stmtUntickAllInv', false]].forEach(function(p){ document.getElementById(p[0]).addEventListener('click', function(){
