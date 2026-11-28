@@ -1,7 +1,7 @@
 <title>DebtJet</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
-<link rel="stylesheet" href="css/app.css?v=202611281132" />
+<link rel="stylesheet" href="css/app.css?v=202611281145" />
 
 <!-- AUTH -->
 <div class="auth-shell" id="authScreen">
@@ -531,14 +531,15 @@
       </div>
 
       <div class="card" data-chgpane="calc" hidden>
-        <div class="card-head"><h3>What-if calculator</h3><span class="hint-r">Uses the terms selected on the Terms &amp; rules tab, even before you save</span></div>
+        <div class="card-head"><h3>What-if calculator</h3><span class="hint-r">Works out interest and fees under a set of terms, the same way Overdue invoices does</span></div>
         <div class="card-body">
           <div class="form-grid calc-grid">
+            <label class="span2">Or start from an invoice<select id="calcInvoice"><option value="">—</option></select></label>
+            <label class="span2">Terms<select id="calcTerms" aria-describedby="calcTermsNote"></select><span class="hint-r" id="calcTermsNote"></span></label>
             <label>Amount owing ($)<input id="calcAmount" type="number" min="0" step="0.01" value="5000" /></label>
             <label>Due date<input id="calcDue" type="date" /></label>
             <label>Calculate as at<input id="calcAsAt" type="date" /></label>
             <label>Letter of demand sent<input id="calcDemand" type="date" /></label>
-            <label class="span2">Or start from an invoice<select id="calcInvoice"><option value="">—</option></select></label>
           </div>
           <div id="calcOut"></div>
         </div>
@@ -656,18 +657,18 @@
 
 
 <!-- App code: plain scripts, loaded in this order. See js/README.md. -->
-<script src="js/core.js?v=202611281132"></script>
-<script src="js/cases.js?v=202611281132"></script>
-<script src="js/shell.js?v=202611281132"></script>
-<script src="js/letters.js?v=202611281132"></script>
-<script src="js/portal-integrations.js?v=202611281132"></script>
-<script src="js/statements.js?v=202611281132"></script>
-<script src="js/charges.js?v=202611281132"></script>
-<script src="js/statement-templates.js?v=202611281132"></script>
-<script src="js/interest-fees.js?v=202611281132"></script>
-<script src="js/accounts.js?v=202611281132"></script>
-<script src="js/history.js?v=202611281132"></script>
-<script src="js/settings.js?v=202611281132"></script>
-<script src="js/letters-tabs.js?v=202611281132"></script>
-<script src="js/recovery.js?v=202611281132"></script>
-<script src="js/main.js?v=202611281132"></script>
+<script src="js/core.js?v=202611281145"></script>
+<script src="js/cases.js?v=202611281145"></script>
+<script src="js/shell.js?v=202611281145"></script>
+<script src="js/letters.js?v=202611281145"></script>
+<script src="js/portal-integrations.js?v=202611281145"></script>
+<script src="js/statements.js?v=202611281145"></script>
+<script src="js/charges.js?v=202611281145"></script>
+<script src="js/statement-templates.js?v=202611281145"></script>
+<script src="js/interest-fees.js?v=202611281145"></script>
+<script src="js/accounts.js?v=202611281145"></script>
+<script src="js/history.js?v=202611281145"></script>
+<script src="js/settings.js?v=202611281145"></script>
+<script src="js/letters-tabs.js?v=202611281145"></script>
+<script src="js/recovery.js?v=202611281145"></script>
+<script src="js/main.js?v=202611281145"></script>

@@ -1271,3 +1271,10 @@
   /* Letters: the Insert panel replaces the in-page sidebar on the Letter tab */
   .view[data-view="letters"][data-ltab="letter"] .ld-shell{grid-template-columns:minmax(0,1fr) !important;}
   .view[data-view="letters"][data-ltab="letter"] .ld-shell > .ld-side{display:none;}
+
+/* What-if calculator: what the chosen terms allow (28 Nov 2026) */
+.calc-allow{margin-top:12px;font-size:12.5px;color:var(--text-muted);}
+.calc-allow b{color:var(--text);}
+.calc-allow ul{margin:4px 0 0;padding-left:18px;}
+.calc-allow li{margin:2px 0;}
+#calcTerms:disabled{opacity:.75;}

@@ -33,6 +33,8 @@
     invSel.innerHTML = '<option value="">—</option>' + stmtInvoices.filter(function(i){ return !i.fullyPaid; }).slice(0, 300).map(function(i){
       return '<option value="'+escapeHtml(i.id)+'">'+escapeHtml((i.invoice_number || '—') + ' · ' + (i.debtor.name || '') + ' · ' + money(i.amount - (i.paid || 0)))+'</option>';
     }).join('');
+    invSel.value = calcInvId && stmtInvoices.some(function(i){ return i.id === calcInvId; }) ? calcInvId : ''; calcInvId = invSel.value;
+    renderCalcTermsSelect();
     if(!document.getElementById('calcDue').value){
       var d = new Date(); d.setDate(d.getDate() - 45); document.getElementById('calcDue').value = d.toISOString().slice(0, 10);
     }
@@ -98,24 +100,65 @@
       })
     };
   }
+  // ---- What-if calculator (reworked 28 Nov 2026): pick the terms (or an invoice, which brings its customer's terms),
+  // and see the charges the engine would add, what the terms allow at most, and the clauses they come from.
+  var calcInvId = '';
+  function calcCfgFor(d){
+    if(!d || !termsUsable(d)) return null;
+    var sel = termsSel();
+    // The terms open on Terms & rules use the rules form, so unsaved changes can be tried here first.
+    var rules = sel && sel.id === d.id ? readChargesForm() : Object.assign({}, d.rules, { apply_mode: (orgCharges && orgCharges.apply_mode) || 'auto' });
+    return Object.assign(clampToLimits(rules, d.limits).cfg, { terms_allow_charges: true, apply_mode: rules.apply_mode || 'auto' });
+  }
+  function renderCalcTermsSelect(){
+    var el = document.getElementById('calcTerms'), keep = el.value;
+    var docs = termsDocs.filter(function(d){ return !d.archived && termsUsable(d); });
+    el.innerHTML = '<option value="">No terms (nothing charged)</option>' + docs.map(function(d){ return '<option value="'+escapeHtml(d.id)+'">'+escapeHtml(d.title || 'Terms')+' · '+escapeHtml(TERMS_KIND[d.kind] || '')+'</option>'; }).join('');
+    var want = keep && docs.some(function(d){ return d.id === keep; }) ? keep : (termsSel() && termsUsable(termsSel()) ? termsSel().id : (docs[0] ? docs[0].id : ''));
+    el.value = want;
+  }
   function renderCalculator(){
-    var cd = termsSel(), cfg = readChargesForm();
-    if(cd && termsUsable(cd)) cfg = Object.assign(clampToLimits(cfg, cd.limits).cfg, { terms_allow_charges: true });
-    else cfg.terms_allow_charges = false;
+    var tsel = document.getElementById('calcTerms');
+    if(!tsel.options.length) renderCalcTermsSelect();
+    var inv = calcInvId ? stmtInvoices.filter(function(x){ return x.id === calcInvId; })[0] : null;
+    var note = document.getElementById('calcTermsNote');
+    var d = termsDocById(tsel.value), cfg, tb = null;
+    if(inv){
+      // An invoice uses its own customer's terms, exactly as Overdue invoices does.
+      tb = resolveTerms(invDebtorId(inv), inv.issued_date);
+      if(tb.ok){ d = tb.doc; tsel.value = d.id; }
+      tsel.disabled = true;
+      note.textContent = tb.ok ? 'From ' + ((stmtDebtors.filter(function(x){ return x.id === invDebtorId(inv); })[0] || {}).name || 'the customer') + '’s accepted terms (' + fmt(tb.acc.accepted_on) + ').' : tb.label + ': ' + tb.note;
+      cfg = tb.ok ? calcCfgFor(d) : null;
+    } else {
+      tsel.disabled = false;
+      cfg = calcCfgFor(d);
+      note.textContent = d && termsSel() && termsSel().id === d.id ? 'Uses the rules on the Terms & rules tab, including unsaved changes.' : d ? 'Uses the saved rules for these terms.' : '';
+    }
+    if(!cfg){ cfg = readChargesForm(); cfg.terms_allow_charges = false; }
     var amt = Math.max(0, Number(document.getElementById('calcAmount').value) || 0);
     var due = document.getElementById('calcDue').value, asAt = document.getElementById('calcAsAt').value, dem = document.getElementById('calcDemand').value || null;
-    document.getElementById('calcDemand').closest('label').hidden = !/demand/.test(cfg.interest_start);
+    document.getElementById('calcDemand').closest('label').hidden = !cfg.terms_allow_charges || !/demand/.test(cfg.interest_start);
     var out = document.getElementById('calcOut');
-    if(!due || !asAt){ out.innerHTML = ''; return; }
-    var ch = invoiceCharges({ id: 'calc', case_id: 'calc', due_date: due, balance: amt }, cfg, { asAt: asAt, demandDate: dem, decision: null, disputed: false });
+    if(!due || !asAt){ out.innerHTML = '<p class="muted small">Enter a due date and the date to calculate to, or pick an invoice.</p>'; return; }
+    var ch = invoiceCharges({ id: 'calc', case_id: inv ? inv.case_id : 'calc', due_date: due, balance: amt }, cfg, { asAt: asAt, demandDate: dem, decision: null, disputed: false });
     var sf = ch.applied || ch.state === 'pending' ? calcStatementFees([{ balance: amt, daysOverdue: ch.daysOverdue, disputed: false, fullyPaid: false }], cfg) : [];
     var total = r2(amt + ch.interest + ch.feeTotal + sf.reduce(function(s, f){ return s + f.amount; }, 0));
     var rate = r2(cfg.rate_pa * 100);
-    var why = !cfg.terms_allow_charges ? 'No charges: choose a set of terms on the Terms & rules tab and confirm what it allows.'
+    var why = !cfg.terms_allow_charges ? (tb && !tb.ok ? tb.label + ': no interest or fees.' : 'No terms chosen, so no interest or fees.')
       : ch.daysOverdue <= 0 ? 'Not overdue on that date.'
-      : !cfg.interest_enabled ? 'Interest is switched off.'
+      : !cfg.interest_enabled ? 'Interest is switched off in the rules.'
       : !ch.interest ? (ch.note || ch.label)
       : (cfg.method === 'compound_monthly' ? money(amt) + ' × ((1 + ' + rate + '% ÷ 12) ^ (' + ch.chargeDays + ' ÷ 30.42) − 1)' : money(amt) + ' × ' + rate + '% × ' + ch.chargeDays + ' ÷ 365') + (ch.note ? ' · ' + ch.note : '');
+    // The most the terms allow: the limits' rate and method from their earliest start.
+    var most = null;
+    if(cfg.terms_allow_charges && d && d.limits && d.limits.interest && d.limits.interest.allowed && ch.daysOverdue > 0){
+      var I = d.limits.interest;
+      var top = Object.assign({}, cfg, { interest_enabled: true, rate_pa: Number(I.max_rate_pa) || 0, method: I.method === 'compound_monthly' ? 'compound_monthly' : 'simple', interest_start: I.start || 'due_date', grace_days: Number(I.grace_days) || 0, cap_pct: null, min_balance: 0 });
+      var mc = invoiceCharges({ id: 'calc-max', case_id: inv ? inv.case_id : 'calc', due_date: due, balance: amt }, top, { asAt: asAt, demandDate: dem, decision: null, disputed: false });
+      most = { interest: mc.interest, rate: r2(top.rate_pa * 100), clause: I.clause };
+    }
+    var L = d && d.limits ? d.limits : null;
     out.innerHTML = '<table class="calc-table"><tbody>'
       + '<tr><td>Days overdue</td><td class="num">'+Math.max(0, ch.daysOverdue)+'</td></tr>'
       + '<tr><td>Interest counts from</td><td class="num">'+(ch.startDate ? escapeHtml(fmt(ch.startDate)) : '—')+'</td></tr>'
@@ -125,15 +168,22 @@
       + ch.fees.concat(sf).map(function(f){ return '<tr><td>'+escapeHtml(f.name)+'</td><td class="num">'+money(f.amount)+'</td></tr>'; }).join('')
       + '<tr class="tot"><td>Total payable</td><td class="num">'+money(total)+'</td></tr>'
       + (ch.perDay ? '<tr><td class="hint-r">Interest grows by</td><td class="num hint-r">'+money(ch.perDay)+' a day</td></tr>' : '')
-      + (cfg.apply_mode === 'manual' ? '<tr><td colspan="2" class="hint-r">Manual mode: on a real invoice these charges wait for approval in Overdue invoices.</td></tr>' : '')
-      + '</tbody></table>';
+      + (most ? '<tr><td class="hint-r">Most interest these terms allow on this amount'+(most.clause ? ' '+termsTag(most.clause) : '')+'<div class="hint-r">At '+most.rate+'% a year from the earliest start the terms allow.</div></td><td class="num hint-r">'+money(most.interest)+'</td></tr>' : '')
+      + (cfg.terms_allow_charges && cfg.apply_mode === 'manual' ? '<tr><td colspan="2" class="hint-r">Manual mode: on a real invoice these charges wait for approval in Overdue invoices.</td></tr>' : '')
+      + '</tbody></table>'
+      + (cfg.terms_allow_charges && L ? '<div class="calc-allow"><b>What “'+escapeHtml(d.title || 'these terms')+'” allow</b><ul>'
+          + '<li>Interest: '+(L.interest && L.interest.allowed ? 'up to '+r2((L.interest.max_rate_pa || 0) * 100)+'% a year, '+escapeHtml(startText(L.interest.start, L.interest.grace_days))+(L.interest.clause ? ' '+termsTag(L.interest.clause) : '') : 'not provided for')+'</li>'
+          + (L.fees || []).map(function(f){ return '<li>'+escapeHtml(f.name)+': '+escapeHtml(limFeeText(f))+(f.clause ? ' '+termsTag(f.clause) : '')+'</li>'; }).join('')
+          + '</ul></div>' : '');
   }
+  document.getElementById('calcTerms').addEventListener('change', renderCalculator);
   ['calcAmount','calcDue','calcAsAt','calcDemand'].forEach(function(id){
     document.getElementById(id).addEventListener('input', renderCalculator);
     document.getElementById(id).addEventListener('change', renderCalculator);
   });
   document.getElementById('calcInvoice').addEventListener('change', function(){
-    var inv = stmtInvoices.filter(function(x){ return x.id === this.value; }, this)[0]; if(!inv) return;
+    calcInvId = this.value;
+    var inv = stmtInvoices.filter(function(x){ return x.id === this.value; }, this)[0]; if(!inv){ renderCalculator(); return; }
     document.getElementById('calcAmount').value = r2(inv.amount - (inv.paid || 0));
     document.getElementById('calcDue').value = String(inv.due_date).slice(0, 10);
     var dd = demandDates[inv.case_id] || {};

@@ -14,7 +14,7 @@
     QLD: { live: true, short: 'QCAT', forum: 'QCAT_MINOR_DEBT', tribunalOption: 'QCAT (Queensland)',
       bodyFull: 'Queensland Civil and Administrative Tribunal', kind: 'minor debt', claimLabel: 'Minor debt claim',
       forumName: 'Queensland Civil and Administrative Tribunal (QCAT): minor civil dispute, minor debt',
-      limit: 25000, limitNote: 'including interest', limitOver: 'stop', limitScope: 'QCAT minor debt claims', overText: 'QCAT can’t hear it as a minor debt.',
+      limit: 25000, limitNote: 'including interest', limitOver: 'stop', limitScope: 'QCAT minor debt claims', overText: 'QCAT can’t hear it as a minor debt. Claims up to $150,000 go to the Magistrates Court of Queensland, and claims from $150,001 to $750,000 to the District Court.', largerLink: 'https://www.courts.qld.gov.au/types-of-cases/money-disputes/about-money-disputes',
       form: 'Form 3: Application for minor civil dispute (minor debt)', copyTarget: 'QCase or Form 3',
       lodge: 'Online through QCase (Brisbane), or lodge Form 3 at a QCAT or Magistrates Court registry, and pay the filing fee when you lodge.',
       fileLabel: 'QCAT file number', filePh: 'e.g. MCDO1234/26',
@@ -38,6 +38,7 @@
       },
       extraEvidence: function(){ return []; } },
     ACT: { live: true, short: 'ACAT', forum: 'ACAT_CIVIL_DEBT', tribunalOption: 'ACAT (ACT)',
+      overText: 'Claims between $25,001 and $250,000 go to the ACT Magistrates Court; claims over $250,000 go to the Supreme Court.', largerLink: 'https://www.courts.act.gov.au/magistrates/about-the-courts/areas-in-the-act-magistrates-court/civil-jurisdiction',
       bodyFull: 'ACT Civil and Administrative Tribunal', kind: 'civil dispute (debt)', claimLabel: 'Debt application',
       forumName: 'ACT Civil and Administrative Tribunal (ACAT): civil dispute, debt application',
       limit: 25000, limitNote: 'the amount claimed', limitOver: 'abandon',
@@ -79,7 +80,7 @@
       forumName: 'Local Court of NSW, Small Claims Division (statement of claim for a debt)',
       terms: ['plaintiff', 'defendant'],
       limit: 20000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'the Local Court’s Small Claims Division',
-      overText: 'Claims over $20,000 and up to $100,000 go to the Local Court’s General Division, which is more formal.',
+      overText: 'Claims over $20,000 and up to $100,000 go to the Local Court’s General Division, which is more formal. Claims over $100,000 go to the District Court or the Supreme Court.',
       form: 'Statement of Claim (Local Court, Small Claims Division)', copyTarget: 'the NSW Online Registry or the Statement of Claim form',
       lodge: 'File the Statement of Claim online through the NSW Online Registry, or at a Local Court registry (the original plus one copy), and pay the filing fee. If you want the court to post it to the defendant, pay the service fee when you file.',
       fileLabel: 'Case number', filePh: 'e.g. 2026/00123456',
@@ -112,7 +113,7 @@
       forumName: 'Magistrates’ Court of Victoria: civil complaint for a debt (Form 5A)',
       terms: ['plaintiff', 'defendant'],
       limit: 100000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'the Magistrates’ Court',
-      overText: 'Larger claims go to the County Court.',
+      overText: 'Claims over $100,000 go to the County Court.',
       form: 'Complaint (Form 5A) with a statement of claim', copyTarget: 'the courts’ online filing portal or Form 5A',
       lodge: 'File the complaint online through the courts’ portal, or file the original and two copies at the Magistrates’ Court closest to where the matter arose or to the defendant’s address. You also file the Form 4A overarching obligations certification, and pay the filing fee.',
       fileLabel: 'Case number', filePh: 'e.g. M12345678',
@@ -178,7 +179,7 @@
       forumName: 'Magistrates Court of Western Australia: minor case claim (Form 4)',
       terms: ['claimant', 'defendant'], verb: 'lodge',
       limit: 10000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'minor case claims in the WA Magistrates Court',
-      overText: 'Claims over $10,000 and up to $75,000 can be made as a general procedure claim in the Magistrates Court.',
+      overText: 'Claims over $10,000 and up to $75,000 can be made as a general procedure claim in the Magistrates Court. Claims over $75,000 go to the District Court.',
       form: 'Form 4 – Minor Case Claim', copyTarget: 'the eCourts Portal (Form 4)',
       lodge: 'Lodge Form 4 – Minor Case Claim electronically through the eCourts Portal, choose the court registry and pay the fee. The defendant’s address must be a residential address, or the registered office for a company. A small business or non-profit association can lodge a declaration to pay the lower fee.',
       fileLabel: 'Case number', filePh: 'As shown in eCourts',
@@ -211,7 +212,7 @@
       bodyFull: 'Magistrates Court of South Australia', kind: 'minor civil claim', claimLabel: 'Claim',
       forumName: 'Magistrates Court of South Australia: minor civil claim (Claim, Form 1)',
       limit: 12000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'minor civil claims in the SA Magistrates Court',
-      overText: 'Larger claims go to the Magistrates Court’s general civil division, which is more formal.',
+      overText: 'Claims from $12,001 to $100,000 go to the Magistrates Court’s Civil (General Claims) Division, which is more formal and has its own pre-action steps. Claims over $100,000 go to the District Court or the Supreme Court.', largerLink: 'https://www.courts.sa.gov.au/?p=9209',
       form: 'Claim (Form 1), lodged through the CourtSA portal', copyTarget: 'the CourtSA portal',
       lodge: 'Lodge the Claim (Form 1) electronically through the CourtSA portal and pay by card (cash and cheques aren’t accepted). Choose the first hearing location, ideally the court closest to where the claim arose or where the respondent lives, and include a short summary of the claim (under 100 words for claims up to $12,000). CourtSA gives the case a CIV number.',
       fileLabel: 'CIV number', filePh: 'As shown in CourtSA',
@@ -234,11 +235,11 @@
       }, applyLabel: 'Courts SA: before making a claim', formLabel: 'Courts SA: lodging and serving a claim', helpLabel: 'Law Handbook SA: starting a minor civil claim',
       checks: function(c, cl, add, d){
         var dd = demandDates[c.id] || {}, last = dd.final || dd.first;
-        if(!last) add('caution', 'Pre-action notice needed', 'Give a Final Notice (Form P1, generated in CourtSA) or a letter of demand that meets Uniform Civil Rules r 332.3, then wait 21 days. Without it, you can’t recover the cost of filing the claim.');
+        if(!last) add('caution', 'Pre-action notice needed', 'Give a Final Notice (Form P1, generated in CourtSA) or a letter of demand that meets the Uniform Civil Rules’ pre-action requirements, then wait 21 days. Without it, you can’t recover the cost of filing the claim. Letters of Demand has an “SA pre-action notice” template.');
         else {
           var ready = addDaysIso(String(last).slice(0, 10), 21);
           if(daysUntil(ready) > 0) add('caution', 'Wait 21 days after your notice', 'Your last demand was sent ' + fmt(last) + '. You can file from ' + fmt(ready) + '. Filing earlier may stop you recovering your costs.');
-          else add('ok', '21 days have passed since your notice', 'A letter of demand only counts as a pre-action notice if it includes what Uniform Civil Rules r 332.3 requires. A CourtSA Final Notice always does.');
+          else add('ok', '21 days have passed since your notice', 'A letter of demand only counts as a pre-action notice if it includes what the Uniform Civil Rules require (Letters of Demand has an “SA pre-action notice” template). A CourtSA Final Notice always does.');
         }
         add('info', 'You present your own case', 'Parties in minor civil claims aren’t entitled to a lawyer except in special circumstances.');
         add('info', 'Directions hearing', 'If the respondent files a defence, a directions hearing is usually listed about six weeks later. Both parties must attend.');
@@ -280,7 +281,7 @@
       bodyFull: 'Northern Territory Civil and Administrative Tribunal', kind: 'small claim', claimLabel: 'Small claim',
       forumName: 'Northern Territory Civil and Administrative Tribunal (NTCAT): small claim (Small Claims Act 2016)',
       limit: 25000, limitNote: 'the amount claimed', limitOver: 'stop', limitScope: 'NTCAT small claims',
-      overText: 'Claims between $25,001 and $250,000 go to the Local Court.',
+      overText: 'Claims between $25,001 and $250,000 go to the Local Court. Claims over $250,000 go to the Supreme Court.',
       form: 'Form 1 Initiating Application (small claim)', copyTarget: 'NTCAT’s Form 1 Initiating Application',
       lodge: 'File the Form 1 Initiating Application with NTCAT and pay the fee. NTCAT won’t process the application until the fee is paid. NTCAT seals the Form 1 and returns it to you, usually with standard orders.',
       fileLabel: 'NTCAT file number', filePh: 'As shown on the sealed Form 1',
@@ -385,11 +386,11 @@
 
   function recChecks(c, cl){
     var d = c.debtor, R = cl.rules, out = [], T = recTerms(R);
-    var add = function(level, title, text){ out.push({ level: level, title: title, text: text || '' }); };
+    var add = function(level, title, text, link){ out.push({ level: level, title: title, text: text || '', link: link || null }); };
     if(cl.total <= 0) add('stop', 'Nothing to claim', 'There is no undisputed amount owing on this case.');
     else if(!isFinite(R.limit)) add('ok', 'No upper limit', R.short + ' has no maximum claim amount for these disputes.');
-    else if(cl.total > R.limit && R.limitOver === 'stop') add('stop', 'Over the ' + money(R.limit) + ' limit', money(cl.total) + ' is more than the ' + money(R.limit) + ' limit for ' + R.limitScope + (R.limitNote === 'including interest' ? ' (including interest)' : '') + '.' + (R.overText ? ' ' + R.overText : ''));
-    else if(cl.total > R.limit) add('caution', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' limit. ' + R.short + ' says you can abandon the amount over ' + money(R.limit) + ' (tick “Abandon the excess” under Claim amount), or get the respondent’s written agreement to a higher claim.');
+    else if(cl.total > R.limit && R.limitOver === 'stop') add('stop', 'Over the ' + money(R.limit) + ' limit', money(cl.total) + ' is more than the ' + money(R.limit) + ' limit for ' + R.limitScope + (R.limitNote === 'including interest' ? ' (including interest)' : '') + '.' + (R.overText ? ' ' + R.overText : '') + ' DebtJet’s steps here cover ' + R.short + ' only.', R.largerLink);
+    else if(cl.total > R.limit) add('caution', 'Over the ' + R.short + ' limit', money(cl.total) + ' is more than ' + R.short + '’s ' + money(R.limit) + ' limit. ' + R.short + ' says you can abandon the amount over ' + money(R.limit) + ' (tick “Abandon the excess” under Claim amount), or get the respondent’s written agreement to a higher claim.' + (R.overText ? ' ' + R.overText : ''), R.largerLink);
     else if(cl.abandoned) add('ok', 'Excess abandoned', money(cl.abandoned) + ' over the limit is abandoned, so you claim ' + money(cl.total) + '. An abandoned amount can’t be claimed later.');
     else add('ok', 'Within the ' + money(R.limit) + ' limit', money(cl.total) + ' claimed' + (R.limitNote === 'including interest' ? ', including interest' : '') + '.');
     var cutoff = addDaysIso(isoLocal(), -Math.round(R.limitationYears * 365.25));
@@ -587,7 +588,7 @@
         + '</div><p class="muted small">The Magistrates’ Court suits most unpaid invoices and other debts, and can make an order without a hearing if the debtor doesn’t defend. VCAT’s Civil Claims List hears disputes about goods or services you supplied. It is built for people without lawyers, but cases go to a mediation or hearing. '+(m ? 'This file is set up for '+escapeHtml(R.short)+'. Delete it to switch.' : 'The choice is yours.')+'</p></div></div>';
     }
     // 1. Eligibility
-    P2.s1 = step(1, 'Check eligibility', '<ul class="rec-checks">' + checks.map(function(x){ return '<li class="'+x.level+'"><b>'+escapeHtml(x.title)+'</b>'+(x.text ? '<span>'+escapeHtml(x.text)+'</span>' : '')+'</li>'; }).join('') + '</ul>');
+    P2.s1 = step(1, 'Check eligibility', '<ul class="rec-checks">' + checks.map(function(x){ return '<li class="'+x.level+'"><b>'+escapeHtml(x.title)+'</b>'+(x.text ? '<span>'+escapeHtml(x.text)+(x.link && /^https:\/\//.test(x.link) ? ' <a href="'+escapeHtml(x.link)+'" target="_blank" rel="noopener">Court’s page ↗</a>' : '')+'</span>' : '')+'</li>'; }).join('') + '</ul>');
     // 2. Claim amount
     var locked = m && m.status !== 'preparing';
     var tog = function(k, label, extra){ return '<label class="rec-tog"><input type="checkbox" data-ropt="'+k+'"'+(cl.opt[k] ? ' checked' : '')+(locked ? ' disabled' : '')+'> '+escapeHtml(label)+(extra ? ' <em>'+escapeHtml(extra)+'</em>' : '')+'</label>'; };

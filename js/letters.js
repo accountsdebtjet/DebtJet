@@ -42,6 +42,11 @@
     { cat:'Next steps', key:'next_supply', label:'Suspend credit', text:'Until your account is brought up to date, we may suspend further supply on credit terms.', intent:true },
     { cat:'Next steps', key:'next_agent', label:'Refer to a collector', text:'If the account is not resolved by {{pay_by_date}}, we intend to refer it to a debt collection agency.', intent:true },
     { cat:'Next steps', key:'next_legal', label:'Start legal proceedings', text:'If the account is not resolved by {{pay_by_date}}, we intend to start legal proceedings to recover the debt, which may include a claim for interest and legal costs as allowed by law.', intent:true },
+    { cat:'SA pre-action notice', key:'open_sa_notice', label:'SA: notice of intended claim', text:'This is our written notice that we intend to start a claim against you in the Magistrates Court of South Australia. We are giving you this notice before we start that claim.' },
+    { cat:'SA pre-action notice', key:'sa_claimant', label:'SA: our name and address for service', text:'Our full name and address for service: {{business_name}}, {{our_address}}.' },
+    { cat:'SA pre-action notice', key:'sa_proposed', label:'SA: the proposed claim', text:'The proposed claim is for {{total_owing}}, being {{principal}} in unpaid invoices{{charges_phrase}}, plus the costs of filing and serving the claim. The invoices are listed below.' },
+    { cat:'SA pre-action notice', key:'sa_response', label:'SA: your written response', text:'Please give us a written response within 21 days of receiving this notice. Your response should include your full name and address for service; your response to each part of the proposed claim, including the nature of any dispute; details of any counterclaim or set-off; any offer to settle; and whether you agree to a meeting or mediation.' },
+    { cat:'SA pre-action notice', key:'sa_next', label:'SA: claim after 21 days', text:'If the amount is not paid, or we do not receive your response, within 21 days of you receiving this notice, we intend to file the claim in the Magistrates Court of South Australia without further notice.', intent:true },
     { cat:'Closing', key:'close_contact', label:'Contact us', text:'If you have any questions, please contact us on {{our_contact}}.' },
     { cat:'Closing', key:'close_thanks', label:'Thank you', text:'Thank you for your prompt attention to this matter.' },
     { cat:'Closing', key:'close_disregard', label:'Disregard if paid', text:'If you have already paid, please disregard this letter.' }
@@ -52,7 +57,7 @@
     ['invoice_list','Invoice numbers'], ['due_date','Earliest due date'], ['days_overdue','Days overdue'], ['principal','Invoices owing'],
     ['interest','Interest'], ['fees','Fees'], ['total_owing','Total owing'], ['interest_rate','Interest rate'], ['pay_days','Days to pay'],
     ['pay_by_date','Pay-by date'], ['payment_reference','Payment reference'], ['last_letter_date','Last letter date'], ['disputed_list','Disputed invoices'],
-    ['business_name','Your business name'], ['our_contact','Your contact details'], ['today','Today’s date']
+    ['business_name','Your business name'], ['our_address','Your address (Settings)'], ['our_contact','Your contact details'], ['today','Today’s date']
   ];
   LETTER_VARS.forEach(function(v){ DJ_FIELD_LABEL[v[0]] = v[1]; }); DJ_FIELD_LABEL.charges_phrase = 'Interest and fees (phrase)';
   var LD_DEFAULT_SETTINGS = { design_source: 'default', overrides: {}, pay_days: 7, salutation: 'dear_contact', table: 'per_invoice', show_interest: true, show_fees: true,
@@ -68,8 +73,10 @@
       blocks:[C('open_first_demand'), C('amt_total'), B('table'), C('amt_interest_terms'), C('pay_within'), B('paybox'), B('payment'), C('plan_offer'), C('dispute_invite'), C('next_further'), C('close_contact')], settings:{ pay_days:14 } },
     final_demand: { name:'Final letter of demand', stage:'final_demand', description:'Last demand before referral. Only send if you intend the stated next step.', subject:'Final letter of demand: {{total_owing}} overdue',
       blocks:[C('open_final'), C('amt_total'), B('table'), C('pay_within'), B('paybox'), B('payment'), C('plan_offer'), C('hardship'), C('dispute_invite'), C('next_agent'), C('close_contact')], settings:{ pay_days:7, private_conf:true } },
-    pre_legal: { name:'Notice before legal action', stage:'pre_legal', description:'Tells the debtor legal proceedings are intended. Get advice first.', subject:'Notice of intended legal proceedings',
+    pre_legal: { name:'Notice before legal action', stage:'pre_legal', description:'Tells the debtor legal proceedings are intended.', subject:'Notice of intended legal proceedings',
       blocks:[C('open_pre_legal'), C('amt_total'), B('table'), C('pay_within'), B('paybox'), B('payment'), C('plan_offer'), C('dispute_invite'), C('next_legal'), C('close_contact')], settings:{ pay_days:14, private_conf:true } },
+    sa_pre_action: { name:'SA pre-action notice', stage:'pre_legal', description:'South Australia: your own written notice of an intended Magistrates Court claim, giving 21 days to respond. The alternative is a Final Notice (Form P1) made in CourtSA.', subject:'Notice of intended claim in the Magistrates Court of South Australia',
+      blocks:[C('open_sa_notice'), C('sa_claimant'), C('sa_proposed'), B('table'), C('pay_within'), B('paybox'), B('payment'), C('sa_response'), C('sa_next'), C('close_contact')], settings:{ pay_days:21, private_conf:true } },
     part_paid: { name:'Part-payment received', stage:'reminder', description:'Thanks for a payment and confirms the balance.', subject:'Payment received: balance outstanding',
       blocks:[C('open_part_paid'), B('table'), C('pay_by'), B('payment'), C('plan_offer'), C('close_thanks')], settings:{ pay_days:14 } },
     plan_confirm: { name:'Payment plan confirmation', stage:'plan', description:'Confirms an agreed arrangement.', subject:'Payment arrangement confirmed',
@@ -147,7 +154,7 @@
       pay_days: String(st.pay_days || 7), pay_by_date: fmt(payBy), payment_reference: nums.length === 1 ? nums[0] : ref,
       last_letter_date: lastLetter ? fmt(lastLetter) : (dd.first ? fmt(dd.first) : 'an earlier date'),
       disputed_list: listText(items.filter(function(i){ return i.disputed; }).map(function(i){ return i.invoice_number; })) || 'the disputed invoices',
-      business_name: currentOrg.name, our_contact: st.our_contact || [currentOrg.phone, currentOrg.billing_email].filter(Boolean).join(' or ') || '{{our_contact}}', today: fmt(today)
+      business_name: currentOrg.name, our_address: currentOrg.address ? String(currentOrg.address).replace(/\s*\n\s*/g, ', ') : '{{our_address}}', our_contact: st.our_contact || [currentOrg.phone, currentOrg.billing_email].filter(Boolean).join(' or ') || '{{our_contact}}', today: fmt(today)
     };
     return { c: c, debtor: d, items: items, totals: T, vars: vars, date: today, payBy: payBy, ref: ref };
   }
